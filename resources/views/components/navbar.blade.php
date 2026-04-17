@@ -1,3 +1,21 @@
+<style>
+    .btn-daftar {
+        background-color: #2d7a22;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .btn-daftar:hover {
+        background-color: #1b5e20;
+    }
+
+    a {
+        text-decoration: none;
+    }
+</style>
 <nav class="navbar-efood">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between w-100">
