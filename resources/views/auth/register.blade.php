@@ -269,6 +269,15 @@
         <div class="form-side">
             <div class="form-header">
                 <h2>Daftar Akun</h2>
+                @if ($errors->any())
+                <div style="background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px;">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 <p>Mulai perjalanan sehat Anda bersama EFood.</p>
             </div>
 

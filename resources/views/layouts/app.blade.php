@@ -335,14 +335,24 @@
 
                     @auth
                     <div class="dropdown">
-                        <button class="btn-daftar dropdown-toggle" data-bs-toggle="dropdown">
-                            {{ Auth::user()->name }}
+                        <button class="btn-daftar dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i> {{ Auth::user()->name }}
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                            <li>
+                                <a class="dropdown-item py-2" href="{{ route('profile.edit') }}">
+                                    <i class="bi bi-person me-2 text-success"></i> Profil Saya
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button class="dropdown-item">Logout</button>
+                                    <button type="submit" class="dropdown-item py-2 text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </button>
                                 </form>
                             </li>
                         </ul>
