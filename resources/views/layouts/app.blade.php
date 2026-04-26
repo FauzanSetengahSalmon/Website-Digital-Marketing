@@ -13,7 +13,6 @@
     @stack('styles')
 
     <style>
-        /* ===== RESET & BASE ===== */
         * {
             box-sizing: border-box;
         }
@@ -27,7 +26,6 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
-        /* ===== NAVBAR ===== */
         .navbar-efood {
             background: #ffffff;
             border-bottom: 1px solid #e8f5e2;
@@ -71,7 +69,6 @@
             color: #2d7a22;
         }
 
-        /* Nav links */
         .nav-link-efood {
             color: #555;
             font-weight: 500;
@@ -319,15 +316,21 @@
                     E<span>Food</span>
                 </a>
 
-                {{-- Nav Links --}}
                 <ul class="nav d-none d-lg-flex gap-1">
-                    <li><a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route("home") }}">Beranda</a></li>
-                    <li><a class="nav-link-efood" href="#">Katalog</a></li>
-                    <li><a class="nav-link-efood" href="#">Riwayat</a></li>
-                    <li><a class="nav-link-efood {{ request()->is('about') ? 'active' : '' }}" href="{{ route("about") }}">Tentang Kami</a></li>
+                    <li>
+                        <a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Beranda</a>
+                    </li>
+                    <li>
+                        <a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="#">Katalog</a>
+                    </li>
+                    <li>
+                        <a class="nav-link-efood {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a>
+                    </li>
+                    <li>
+                        <a class="nav-link-efood {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
+                    </li>
                 </ul>
 
-                {{-- Actions --}}
                 <div class="d-flex align-items-center gap-2">
                     <button class="btn-cart">
                         <i class="bi bi-cart3"></i>

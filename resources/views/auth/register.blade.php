@@ -308,24 +308,15 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="input-wrapper">
                     <div class="input-wrapper">
                         <label class="input-label">No. Telepon</label>
                         <div class="input-field">
                             <i class="fa-solid fa-phone"></i>
-                            <input type="text" name="phone_number" placeholder="0812...">
+                            <input type="text" name="phone_number" placeholder="0812xxxxxxx">
                         </div>
                     </div>
-                    <div class="input-wrapper">
-                        <label class="input-label">Daftar Sebagai</label>
-                        <div class="input-field">
-                            <i class="fa-solid fa-user-tag"></i>
-                            <select name="role">
-                                <option value="customer">Customer</option>
-                                <option value="kwt">KWT</option>
-                            </select>
-                        </div>
-                    </div>
+                    <input type="hidden" name="role" value="customer">
                 </div>
 
                 <button type="submit" class="btn-main">Buat Akun</button>

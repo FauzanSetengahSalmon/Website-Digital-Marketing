@@ -26,23 +26,17 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        // Mengisi model dengan data yang sudah divalidasi dari ProfileUpdateRequest
         $request->user()->fill($request->validated());
 
-        // Jika email berubah, maka status verifikasi direset (fitur default Breeze)
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
 
         $request->user()->save();
 
-        // Kembali ke halaman edit profil dengan notifikasi sukses
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
