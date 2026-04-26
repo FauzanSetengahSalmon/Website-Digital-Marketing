@@ -370,18 +370,15 @@
         </div>
     </nav>
 
-    {{-- ================= CONTENT ================= --}}
     <main>
         @yield('content')
     </main>
 
-    {{-- ================= FOOTER ================= --}}
     <footer>
         <div class="footer-top">
             <div class="container">
                 <div class="row g-5">
 
-                    {{-- Brand & Sosial --}}
                     <div class="col-12 col-md-3">
                         <div class="footer-brand-wrap">
                             <div class="footer-brand-icon">
@@ -405,7 +402,6 @@
                         </div>
                     </div>
 
-                    {{-- Subscribe / Bug Report --}}
                     <div class="col-12 col-md-4">
                         <p class="footer-heading">Laporkan Bug</p>
                         <input type="email" class="footer-subscribe-input" placeholder="email@gmail.com">
@@ -415,17 +411,15 @@
                         </p>
                     </div>
 
-                    {{-- Tentang Aplikasi --}}
                     <div class="col-6 col-md-2 offset-md-1">
                         <p class="footer-heading">Tentang Aplikasi</p>
-                        <a href="#" class="footer-link">Tentang Kami</a>
+                        <a class="footer-link {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
                     </div>
 
-                    {{-- Aksi Cepat --}}
                     <div class="col-6 col-md-2">
                         <p class="footer-heading">Aksi Cepat</p>
                         <a href="#" class="footer-link">Katalog Produk</a>
-                        <a href="#" class="footer-link">Tentang Kami</a>
+                        <a class="footer-link {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
 
                         @guest
                         <a href="{{ route('register') }}" class="footer-link">Buat Akun</a>
@@ -434,7 +428,7 @@
 
                         @auth
                         <a href="#" class="footer-link">Keranjang</a>
-                        <a href="#" class="footer-link">Riwayat Belanja</a>
+                        <a class="footer-link {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a>
                         @endauth
                     </div>
 
