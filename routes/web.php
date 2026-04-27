@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\OrderController; // Import Controller baru
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
 Route::view('/tentang-kami', 'about')->name('about');
+Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

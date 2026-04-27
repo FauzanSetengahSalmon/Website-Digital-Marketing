@@ -321,7 +321,7 @@
                         <a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Beranda</a>
                     </li>
                     <li>
-                        <a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="#">Katalog</a>
+                        <a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="{{ route('customer.katalog') }}">Katalog</a>
                     </li>
                     <li>
                         <a class="nav-link-efood {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a>
