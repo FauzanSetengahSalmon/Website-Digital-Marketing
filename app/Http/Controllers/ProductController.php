@@ -5,20 +5,40 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-    // 1. Tampilan Katalog untuk Customer
-    public function index()
+    // 1. Tampilan Katalog untuk Customer (DIPERBARUI)
+    public function index(Request $request)
     {
-        $products = Product::all();
+        // Gunakan query builder agar bisa difilter
+        $query = Product::query();
+
+        // Fitur Pencarian Dinamis
+        if ($request->has('search') && $request->search != '') {
+            $query->where('nama_produk', 'like', '%' . $request->search . '%');
+        }
+
+        // Fitur Sorting/Filter
+        if ($request->sort == 'cheap') {
+            $query->orderBy('harga', 'asc'); // Termurah
+        } elseif ($request->sort == 'stock') {
+            $query->orderBy('stok', 'desc'); // Stok Terbanyak[cite: 2]
+        } else {
+            $query->orderBy('created_at', 'desc'); // Terbaru (Default)[cite: 2]
+        }
+
+        $products = $query->get(); // Ambil data hasil filter[cite: 2]
+
         return view('customer.katalog', compact('products'));
     }
 
-    // 2. Tampilan List Produk KHUSUS KWT (Ini yang tadi bikin error)
+    // 2. Tampilan List Produk KHUSUS KWT (Halaman Admin KWT)
     public function kwtProducts()
     {
-        $products = Product::all(); // Mengambil semua produk
+        // Menampilkan semua produk milik KWT[cite: 2]
+        $products = Product::all();
         return view('kwt.list-produk', compact('products'));
     }
 
@@ -36,8 +56,11 @@ class ProductController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('foto_produk')) {
+            // Simpan foto ke folder public/products[cite: 2]
             $data['foto_produk'] = $request->file('foto_produk')->store('products', 'public');
         }
+
+        $data['user_id'] = Auth::id();
 
         Product::create($data);
 
@@ -67,7 +90,7 @@ class ProductController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('foto_produk')) {
-            // Hapus foto lama
+            // Hapus foto lama jika ada[cite: 2]
             if ($product->foto_produk) {
                 Storage::disk('public')->delete($product->foto_produk);
             }
@@ -83,11 +106,11 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        
+
         if ($product->foto_produk) {
             Storage::disk('public')->delete($product->foto_produk);
         }
-        
+
         $product->delete();
 
         return redirect()->route('kwt.products')->with('success', 'Produk berhasil dihapus!');

@@ -11,6 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id', // Tambahkan ini
         'nama_produk', 
         'harga', 
         'stok', 
@@ -18,12 +19,17 @@ class Product extends Model
         'foto_produk'
     ];
 
-    // Aksesor untuk mempermudah pemanggilan foto di Blade
+    // Relasi ke User (KWT)
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function getImageUrlAttribute()
     {
         if ($this->foto_produk && Storage::disk('public')->exists($this->foto_produk)) {
             return asset('storage/' . $this->foto_produk);
         }
-        return 'https://placehold.co/400x400?text=No+Image';
+        return null; // Balikin null biar di Blade bisa kita kasih icon cantik
     }
 }

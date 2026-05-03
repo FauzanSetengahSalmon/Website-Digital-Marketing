@@ -36,6 +36,13 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
+    // Tambahkan ini di ProfileController.php
+    public function editKwt(Request $request)
+    {
+        return view('kwt.profile', [ // Sesuai nama file profil KWT yang dibuat tadi
+            'user' => $request->user(),
+        ]);
+    }
 
     public function destroy(Request $request): RedirectResponse
     {

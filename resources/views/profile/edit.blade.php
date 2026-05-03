@@ -62,11 +62,10 @@
         transition: 0.3s;
     }
 
-    .form-control:disabled,
-    .form-control[readonly] {
-        background-color: #f1f5f9;
-        color: #94a3b8;
-        cursor: not-allowed;
+    .form-control:focus {
+        border-color: var(--green-primary);
+        box-shadow: none;
+        background-color: white;
     }
 
     .btn-save {
@@ -89,22 +88,21 @@
 @section('content')
 <div class="container py-5 fade-in-up">
     <div class="mb-4">
-        <h3 class="fw-bold text-dark">Pengaturan <span class="text-success">Akun</span></h3>
-        <p class="text-muted">Halo, {{ Auth::user()->name }}! Kelola detail profil dan alamat pengiriman Anda di sini.</p>
+        <h3 class="fw-bold text-dark">Profil <span class="text-success">Pelanggan</span></h3>
+        <p class="text-muted">Halo, {{ Auth::user()->name }}! Kelola alamat pengiriman Anda untuk memudahkan belanja produk KWT.</p>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-10">
-
             <div class="profile-card shadow-sm">
                 <div class="profile-header d-flex align-items-center px-4">
                     <div class="d-flex align-items-center gap-3">
                         <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                            <i class="fa-solid fa-address-book text-success"></i>
+                            <i class="bi bi-person-badge text-success fs-5"></i>
                         </div>
                         <div class="text-white">
-                            <h5 class="fw-bold mb-0">Informasi Dasar & Alamat</h5>
-                            <small class="opacity-75">Data ini digunakan untuk keperluan pengiriman produk KWT.</small>
+                            <h5 class="fw-bold mb-0">Detail Profil & Pengiriman</h5>
+                            <small class="opacity-75">Pastikan alamat Anda sudah benar agar sayur sampai dengan segar.</small>
                         </div>
                     </div>
                 </div>
@@ -119,24 +117,24 @@
                                 <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Email (Akun)</label>
+                                <label class="form-label">Email Akun</label>
                                 <input type="email" class="form-control" value="{{ $user->email }}" readonly>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">No. Telepon</label>
+                                <label class="form-label">No. Telepon (WhatsApp)</label>
                                 <input type="text" name="phone_number" class="form-control" value="{{ old('phone_number', $user->phone_number) }}" placeholder="08xxx">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Provinsi</label>
-                                <input type="text" name="province" class="form-control" value="{{ old('province', $user->province) }}" placeholder="Jawa Barat">
+                                <input type="text" name="province" class="form-control" value="{{ old('province', $user->province) }}" placeholder="Contoh: Jawa Barat">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Kota / Kabupaten</label>
-                                <input type="text" name="city" class="form-control" value="{{ old('city', $user->city) }}" placeholder="Bandung">
+                                <input type="text" name="city" class="form-control" value="{{ old('city', $user->city) }}" placeholder="Contoh: Bandung">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Kecamatan</label>
-                                <input type="text" name="district" class="form-control" value="{{ old('district', $user->district) }}" placeholder="Cicendo">
+                                <input type="text" name="district" class="form-control" value="{{ old('district', $user->district) }}" placeholder="Contoh: Cicendo">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Alamat Lengkap</label>
@@ -144,90 +142,14 @@
                             </div>
                         </div>
 
-                        <div class="mt-4 d-flex align-items-center gap-3">
-                            <button type="submit" class="btn-save">Simpan Perubahan</button>
+                        <div class="mt-4">
+                            <button type="submit" class="btn-save">Simpan Alamat</button>
                             @if (session('status') === 'profile-updated')
-                            <span class="text-success fw-bold animate__animated animate__fadeIn">✓ Data Berhasil Diperbarui</span>
+                            <span class="ms-3 text-success fw-bold">✓ Profil Berhasil Diperbarui</span>
                             @endif
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="profile-card shadow-sm">
-                <div class="profile-header d-flex align-items-center px-4" style="background: #1e5e19;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                            <i class="fa-solid fa-lock text-success"></i>
-                        </div>
-                        <div class="text-white">
-                            <h5 class="fw-bold mb-0">Keamanan Akun</h5>
-                            <small class="opacity-75">Ganti password secara berkala untuk menjaga akun tetap aman.</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="profile-body">
-                    <form method="post" action="{{ route('password.update') }}">
-                        @csrf
-                        @method('put')
-
-                        <div class="row g-3">
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Password Saat Ini</label>
-                                <input type="text" class="form-control" value="efo****" readonly>
-                            </div>
-
-                            <hr class="my-4">
-
-                            <div class="col-md-12">
-                                <label class="form-label">Verifikasi Password Lama</label>
-                                <input type="password" name="current_password" class="form-control" placeholder="Masukkan password lama">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Password Baru</label>
-                                <input type="password" name="password" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Konfirmasi Password Baru</label>
-                                <input type="password" name="password_confirmation" class="form-control">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-save mt-4">Update Password</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="text-center mt-5 mb-5">
-                <button class="btn btn-outline-danger btn-sm border-0" data-bs-toggle="modal" data-bs-target="#confirm-user-deletion">
-                    Hapus Akun Permanen
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="confirm-user-deletion" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg" style="border-radius: 20px; border: none;">
-            <div class="modal-body p-5 text-center">
-                <div class="mb-3">
-                    <i class="fa-solid fa-triangle-exclamation text-danger fs-1"></i>
-                </div>
-                <h4 class="fw-bold text-dark mb-3">Hapus Akun Anda?</h4>
-                <p class="text-muted mb-4">Aksi ini tidak bisa dibatalkan. Masukkan password Anda untuk mengonfirmasi penghapusan akun.</p>
-
-                <form method="post" action="{{ route('profile.destroy') }}">
-                    @csrf
-                    @method('delete')
-
-                    <input type="password" name="password" class="form-control mb-4 text-center" placeholder="Password Anda" required>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-danger py-3 fw-bold" style="border-radius: 12px;">Hapus Akun Sekarang</button>
-                        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Batal</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

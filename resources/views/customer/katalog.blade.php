@@ -85,6 +85,8 @@
         transition: all 0.3s ease;
         height: 100%;
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
 
     .product-card:hover {
@@ -97,6 +99,7 @@
         height: 180px;
         overflow: hidden;
         border-radius: 20px 20px 0 0;
+        background: #f8f9fa;
     }
 
     .img-container img {
@@ -107,6 +110,9 @@
 
     .content-body {
         padding: 16px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .kwt-label {
@@ -138,6 +144,10 @@
         color: var(--text-muted);
         margin-bottom: 15px;
         line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .price-tag {
@@ -162,6 +172,16 @@
         font-size: 0.8rem;
         font-weight: 600;
         flex: 1;
+        transition: 0.2s;
+    }
+
+    .btn-buy-now:hover:not(:disabled) {
+        background: #2e7d32;
+    }
+
+    .btn-buy-now:disabled {
+        background: #ccc;
+        cursor: not-allowed;
     }
 
     .btn-cart-outline {
@@ -177,10 +197,15 @@
         transition: 0.2s;
     }
 
-    .btn-cart-outline:hover {
+    .btn-cart-outline:hover:not(:disabled) {
         border-color: var(--green-primary);
         color: var(--green-primary);
         background: var(--green-bg);
+    }
+
+    .btn-cart-outline:disabled {
+        color: #ccc;
+        cursor: not-allowed;
     }
 
     .badge-stock {
@@ -192,29 +217,59 @@
         border-radius: 20px;
         font-size: 10px;
         font-weight: 600;
-        color: #2ecc71;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        z-index: 2;
+    }
+
+    .stock-available {
+        color: #2ecc71;
+    }
+
+    .stock-empty {
+        color: #e74c3c;
+    }
+
+    /* Empty State Styling */
+    .empty-state-wrapper {
+        padding: 80px 20px;
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px dashed #e0e0e0;
+    }
+
+    .empty-icon-circle {
+        width: 100px;
+        height: 100px;
+        background: var(--green-bg);
+        color: var(--green-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        opacity: 0.7;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="container py-5">
-    <div class="row justify-content-center mb-4">
+    <!-- Filter Bar (Sama kayak sebelumnya) -->
+    <div class="row justify-content-center mb-5">
         <div class="col-lg-10">
             <div class="filter-wrapper">
-                <form class="row g-2 align-items-center">
+                <form action="{{ route('customer.katalog') }}" method="GET" class="row g-2 align-items-center">
                     <div class="col-md-7">
                         <div class="search-container">
                             <i class="bi bi-search"></i>
-                            <input type="text" class="form-input-clean" placeholder="Cari sayur atau buah segar...">
+                            <input type="text" name="search" class="form-input-clean" value="{{ request('search') }}" placeholder="Cari sayur atau buah segar...">
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-input-clean ps-3">
-                            <option value="">Terbaru</option>
-                            <option value="">Termurah</option>
-                             <option value="">Terlaris</option>
+                        <select name="sort" class="form-input-clean ps-3" onchange="this.form.submit()">
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="cheap" {{ request('sort') == 'cheap' ? 'selected' : '' }}>Termurah</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -225,34 +280,64 @@
         </div>
     </div>
 
-    <div class="row g-3">
-        @for ($i = 1; $i <= 8; $i++)
-            <div class="col-6 col-md-4 col-lg-3">
+    <div class="row g-4">
+        @forelse ($products as $product)
+        <div class="col-6 col-md-4 col-lg-3">
             <div class="product-card">
-                <div class="badge-stock">Tersedia</div>
-                <div class="img-container">
-                    <img src="image/Screenshot 2026-04-16 233530.png" alt="Produk">
+                <div class="badge-stock {{ $product->stok > 0 ? 'stock-available' : 'stock-empty' }}">
+                    {{ $product->stok > 0 ? 'Tersedia' : 'Habis' }}
                 </div>
-                <div class="content-body">
-                    <span class="kwt-label">KWT Cibiru</span>
-                    <h3 class="product-name">Kangkung Segar</h3>
-                    <p class="product-info">Organik, tanpa pestisida, dipetik langsung dari kebun.</p>
 
-                    <div class="d-flex align-items-baseline mb-3">
-                        <span class="price-tag">Rp 4.500</span>
-                        <span class="price-unit ms-1">/ ikat</span>
+                <div class="img-container">
+                    @if($product->image_url)
+                    <img src="{{ $product->image_url }}" alt="{{ $product->nama_produk }}">
+                    @else
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted" style="opacity: 0.4;">
+                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                        <small style="font-size: 10px;">No Image</small>
                     </div>
+                    @endif
+                </div>
 
-                    <div class="d-flex gap-2">
-                        <button class="btn-buy-now">Beli</button>
-                        <button class="btn-cart-outline">
-                            <i class="bi bi-cart-plus"></i>
-                        </button>
+                <div class="content-body">
+                    <!-- NAMA KWT DIAMBIL DARI TABEL USER -->
+                    <span class="kwt-label">
+                        <i class="bi bi-patch-check-fill me-1"></i>
+                        {{ $product->user->name ?? 'KWT E-Food' }}
+                    </span>
+
+                    <h3 class="product-name">{{ $product->nama_produk }}</h3>
+                    <p class="product-info">Tersedia {{ $product->stok }} {{ $product->satuan }} hasil tani.</p>
+
+                    <div class="mt-auto">
+                        <div class="d-flex align-items-baseline mb-3">
+                            <span class="price-tag">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                            <span class="price-unit ms-1">/{{ $product->satuan }}</span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn-buy-now" {{ $product->stok <= 0 ? 'disabled' : '' }}>Beli</button>
+                            <button class="btn-cart-outline" {{ $product->stok <= 0 ? 'disabled' : '' }}>
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+        @empty
+        <!-- Tampilan Pas Data Tidak Ditemukan (Tipis & Bagus) -->
+        <div class="col-12 text-center py-5">
+            <div class="py-5" style="border: 1px dashed #e0e0e0; border-radius: 20px; background: #fff;">
+                <div class="mb-3">
+                    <i class="bi bi-wind text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+                <h6 class="fw-bold text-dark">Hasil tani belum ditemukan</h6>
+                <p class="text-muted small">Coba cari dengan kata kunci lain atau cek kategori berbeda.</p>
+                <a href="{{ route('customer.katalog') }}" class="btn btn-sm btn-outline-success px-4" style="border-radius: 8px;">Refresh Halaman</a>
+            </div>
+        </div>
+        @endforelse
     </div>
-    @endfor
-</div>
 </div>
 @endsection
