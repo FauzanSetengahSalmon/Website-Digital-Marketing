@@ -26,7 +26,7 @@ class ProductController extends Controller
         } elseif ($request->sort == 'stock') {
             $query->orderBy('stok', 'desc'); // Stok Terbanyak[cite: 2]
         } else {
-            $query->orderBy('created_at', 'desc'); // Terbaru (Default)[cite: 2]
+            $query->orderBy('created_at', 'desc');
         }
 
         $products = $query->get(); // Ambil data hasil filter[cite: 2]

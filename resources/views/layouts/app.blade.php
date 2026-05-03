@@ -4,8 +4,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'EFood')</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -84,30 +87,33 @@
             background-color: #f0f9eb;
         }
 
-        /* Cart button */
         .btn-cart {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 1.5px solid #ddd;
-            background: #fff;
-            display: flex;
+            background: #ffffff;
+            color: #28a745;
+            border: 1px solid #e8f5e9;
+            padding: 8px 12px;
+            border-radius: 10px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #444;
-            font-size: 17px;
-            transition: all 0.15s;
-            position: relative;
-            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 10px;
         }
 
         .btn-cart:hover {
-            border-color: #2d7a22;
-            color: #2d7a22;
-            background: #f0f9eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.1);
         }
 
-        /* Auth buttons */
+        .btn-cart i {
+            font-size: 1.2rem;
+        }
+
+        .badge {
+            border: 2px solid #ffffff;
+        }
+
         .btn-masuk {
             padding: 8px 18px;
             border-radius: 8px;
@@ -332,9 +338,14 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn-cart">
+                    <a href="{{ route('cart.index') }}" class="btn-cart position-relative">
                         <i class="bi bi-cart3"></i>
-                    </button>
+                        <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger 
+        {{ (auth()->check() && auth()->user()->carts->count() > 0) ? '' : 'd-none' }}"
+                            style="font-size: 10px; padding: 4px 6px; line-height: 1;">
+                            {{ auth()->check() ? auth()->user()->carts->count() : 0 }}
+                        </span>
+                    </a>
 
                     @auth
                     <div class="dropdown">

@@ -11,7 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', // Tambahkan ini
+        'user_id', 
         'nama_produk', 
         'harga', 
         'stok', 
@@ -30,6 +30,6 @@ class Product extends Model
         if ($this->foto_produk && Storage::disk('public')->exists($this->foto_produk)) {
             return asset('storage/' . $this->foto_produk);
         }
-        return null; // Balikin null biar di Blade bisa kita kasih icon cantik
+        return null; 
     }
 }

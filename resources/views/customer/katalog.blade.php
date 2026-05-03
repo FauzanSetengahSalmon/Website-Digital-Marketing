@@ -21,7 +21,6 @@
         color: var(--text-main);
     }
 
-    /* Ramping & Clean Filter Bar */
     .filter-wrapper {
         background: #ffffff;
         padding: 12px 20px;
@@ -77,7 +76,6 @@
         transform: translateY(-1px);
     }
 
-    /* Card Product Minimalist */
     .product-card {
         background: white;
         border-radius: 20px;
@@ -144,25 +142,8 @@
         color: var(--text-muted);
         margin-bottom: 15px;
         line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
     }
 
-    .price-tag {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--green-primary);
-    }
-
-    .price-unit {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        font-weight: 400;
-    }
-
-    /* Action Buttons */
     .btn-buy-now {
         background: var(--green-primary);
         color: white;
@@ -177,11 +158,6 @@
 
     .btn-buy-now:hover:not(:disabled) {
         background: #2e7d32;
-    }
-
-    .btn-buy-now:disabled {
-        background: #ccc;
-        cursor: not-allowed;
     }
 
     .btn-cart-outline {
@@ -203,11 +179,6 @@
         background: var(--green-bg);
     }
 
-    .btn-cart-outline:disabled {
-        color: #ccc;
-        cursor: not-allowed;
-    }
-
     .badge-stock {
         position: absolute;
         top: 10px;
@@ -217,7 +188,6 @@
         border-radius: 20px;
         font-size: 10px;
         font-weight: 600;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         z-index: 2;
     }
 
@@ -228,34 +198,15 @@
     .stock-empty {
         color: #e74c3c;
     }
-
-    /* Empty State Styling */
-    .empty-state-wrapper {
-        padding: 80px 20px;
-        background: #ffffff;
-        border-radius: 24px;
-        border: 1px dashed #e0e0e0;
-    }
-
-    .empty-icon-circle {
-        width: 100px;
-        height: 100px;
-        background: var(--green-bg);
-        color: var(--green-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        margin: 0 auto 20px;
-        font-size: 2.5rem;
-        opacity: 0.7;
-    }
 </style>
 @endpush
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- PENTING: Pastikan script ini dimuat paling awal di konten -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container py-5">
-    <!-- Filter Bar (Sama kayak sebelumnya) -->
     <div class="row justify-content-center mb-5">
         <div class="col-lg-10">
             <div class="filter-wrapper">
@@ -289,8 +240,8 @@
                 </div>
 
                 <div class="img-container">
-                    @if($product->image_url)
-                    <img src="{{ $product->image_url }}" alt="{{ $product->nama_produk }}">
+                    @if($product->foto_produk)
+                    <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
                     @else
                     <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted" style="opacity: 0.4;">
                         <i class="bi bi-image" style="font-size: 2rem;"></i>
@@ -302,40 +253,110 @@
                 <div class="content-body">
                     <span class="kwt-label">
                         <i class="bi bi-shop me-1"></i>
-                        {{ $product->user->name ?? 'KWT E-Food' }}
+                        {{ $product->user->name }}
                     </span>
 
-                    <h3 class="product-name" style="line-height: 2;">{{ $product->nama_produk }}</h3>
-                    <p class="product-info" style="margin-bottom: 8px;">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
+                    <h3 class="product-name">{{ $product->nama_produk }}</h3>
+                    <p class="product-info">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
 
                     <div class="mt-auto">
                         <div class="d-flex align-items-baseline mb-3">
-                            <span class="fw-bold" style="color: #2d7a22; font-size: 1.05rem;">Rp. {{ number_format($product->harga, 0, ',', '.') }}</span><span class="text-secondary" style="font-size: 0.8rem;">/{{ $product->satuan }}</span>
+                            <span class="fw-bold" style="color: #2d7a22; font-size: 1.05rem;">Rp. {{ number_format($product->harga, 0, ',', '.') }}</span>
+                            <span class="text-secondary" style="font-size: 0.8rem;">/{{ $product->satuan }}</span>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button class="btn-buy-now" {{ $product->stok <= 0 ? 'disabled' : '' }}>Beli</button>
-                            <button class="btn-cart-outline" {{ $product->stok <= 0 ? 'disabled' : '' }}>
+                            @if($product->stok > 0)
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-grow-1">
+                                @csrf
+                                <input type="hidden" name="direct_buy" value="1">
+                                <button type="submit" class="btn-buy-now w-100">Beli</button>
+                            </form>
+
+                            <button type="button" class="btn-cart-outline add-to-cart-btn"
+                                data-id="{{ $product->id }}"
+                                data-name="{{ $product->nama_produk }}">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
+                            @else
+                            <button class="btn-buy-now w-100" disabled>Habis</button>
+                            <button class="btn-cart-outline" disabled>
+                                <i class="bi bi-cart-x"></i>
+                            </button>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         @empty
-        <!-- Tampilan Pas Data Tidak Ditemukan (Tipis & Bagus) -->
         <div class="col-12 text-center py-5">
             <div class="py-5" style="border: 1px dashed #e0e0e0; border-radius: 20px; background: #fff;">
-                <div class="mb-3">
-                    <i class="bi bi-wind text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
-                </div>
-                <h6 class="fw-bold text-dark">Hasil tani belum ditemukan</h6>
-                <p class="text-muted small">Coba cari dengan kata kunci lain atau cek kategori berbeda.</p>
-                <a href="{{ route('customer.katalog') }}" class="btn btn-sm btn-outline-success px-4" style="border-radius: 8px;">Refresh Halaman</a>
+                <i class="bi bi-wind text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                <h6 class="fw-bold text-dark mt-3">Hasil tani belum ditemukan</h6>
+                <a href="{{ route('customer.katalog') }}" class="btn btn-sm btn-outline-success px-4 mt-2">Refresh Halaman</a>
             </div>
         </div>
         @endforelse
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            const productName = this.getAttribute('data-name');
+            const icon = this.querySelector('i');
+
+            icon.className = 'bi bi-hourglass-split';
+            this.disabled = true;
+
+            fetch(`/cart/add/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quantity: 1
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    icon.className = 'bi bi-cart-plus';
+                    this.disabled = false;
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: productName + ' masuk keranjang!',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        alert(productName + ' masuk keranjang!');
+                    }
+                    const cartBadge = document.getElementById('cart-badge');
+                    if (cartBadge) {
+                        if (data.cartCount !== undefined) {
+                            cartBadge.innerText = data.cartCount;
+                        } else {
+                            let count = parseInt(cartBadge.innerText) || 0;
+                            cartBadge.innerText = count + 1;
+                        }
+                        cartBadge.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    icon.className = 'bi bi-cart-plus';
+                    this.disabled = false;
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
 @endsection
