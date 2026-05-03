@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'EFood - Produk Organik Segar dari Tangan Petani')
+@section('title', 'EFood - Produk Segar dari Tangan Petani')
 
 @push('styles')
 <style>
@@ -12,7 +12,6 @@
         --text-light: #6b7280;
     }
 
-    /* Animasi masuk yang halus */
     .fade-in-up {
         animation: fadeInUp 0.6s ease-out forwards;
     }
@@ -53,7 +52,6 @@
         margin-bottom: 15px;
     }
 
-    /* Tombol-tombol */
     .btn-green {
         background: var(--green-dark);
         color: white;
@@ -89,18 +87,35 @@
         color: var(--green-dark);
     }
 
-    /* Produk Section */
     .section-title {
         font-size: 2rem;
         font-weight: 800;
-        color: var(--text-dark);
-        margin-bottom: 8px;
+        color: #1f2937;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 12px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background-color: #4caf50;
+        border-radius: 2px;
     }
 
     .section-subtitle {
         color: var(--text-light);
-        margin-bottom: 35px;
-        font-size: 1rem;
+        margin-top: 15px;
+        margin-bottom: 40px;
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .product-card {
@@ -124,20 +139,6 @@
         width: 100%;
     }
 
-    .badge-organic {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        background: var(--green-dark);
-        color: white;
-        padding: 4px 12px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        border-radius: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
     .product-info {
         padding: 20px;
     }
@@ -156,7 +157,6 @@
         font-size: 1rem;
     }
 
-    /* Keranjang Button Bulat */
     .btn-cart {
         width: 42px;
         height: 42px;
@@ -175,7 +175,6 @@
         color: white;
     }
 
-    /* CTA Section Ringkas */
     .cta-section {
         background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border-radius: 25px;
@@ -188,125 +187,88 @@
         font-size: 1.8rem;
         font-weight: 800;
     }
-
-    .cta-btn-outline {
-        border: 2px solid var(--green-dark);
-        color: var(--green-dark);
-        padding: 12px 28px;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-
-    .cta-btn-outline:hover {
-        background: var(--green-dark);
-        color: white;
-    }
 </style>
 @endpush
 
 @section('content')
-
 <div class="container fade-in-up">
 
     <section class="hero-section shadow-sm">
         <div class="hero-content">
-            <h1 class="hero-title">
-                Produk Organik Segar<br>dari Petani Lokal
-            </h1>
+            <h1 class="hero-title">Produk Segar<br>dari Petani Lokal</h1>
             <p class="mb-4 opacity-90">
-                Nikmati hasil panen terbaik yang dipetik langsung dengan penuh kasih sayang dari kebun organik kami.
+                Nikmati hasil panen terbaik yang dipetik langsung dengan penuh kasih sayang dari kebun kami.
             </p>
             <div class="d-flex gap-3">
-                <a href="#" class="btn-green">
-                    <i class="bi bi-bag-check"></i> Belanja Sekarang
-                </a>
+                <a href="#produk" class="btn-green"><i class="bi bi-bag-check"></i> Belanja Sekarang</a>
                 <a href="{{ route('about') }}" class="btn-outline-green">Tentang Kami</a>
             </div>
         </div>
     </section>
 
-    <section class="py-4">
-        <div class="text-center mb-5">
-            <h2 class="section-title" style="color: var(--green-dark);">Produk Pilihan</h2>
-            <p class="section-subtitle">Kualitas terbaik langsung dari kelompok tani</p>
+    <section class="py-4" id="produk">
+        <div class="text-center mb-4">
+            <h2 class="section-title" style="color: var(--green-dark); font-weight: 800; position: relative; display: inline-block; padding-bottom: 10px;">
+                Produk Pilihan
+                <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 50px; height: 3px; background: var(--green-primary); border-radius: 2px;"></div>
+            </h2>
+            <p class="section-subtitle" style="margin-top: 15px; color: var(--text-light); font-size: 0.9rem;">
+                Temukan koleksi sayuran dan hasil bumi terbaik langsung dari lahan pertanian lokal oleh kelompok tani kami.
+            </p>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="product-card position-relative">
-                    <span class="badge-organic">Organik</span>
-                    <img src="image/Screenshot 2026-04-16 233530.png" class="product-img">
-                    <div class="product-info">
-                        <h5 class="fw-bold mb-1">Bayam Organik</h5>
-                        <div class="product-kwt mb-3">
-                            <i class="bi bi-shop"></i> KWT Lestari Makmur
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="product-price">Rp 10.000</span>
-                            <button class="btn-cart btn-cart-action">
-                                <i class="bi bi-cart-plus-fill fs-5"></i>
-                            </button>
-                        </div>
+        <div class="row g-3">
+            @forelse($products as $product)
+            <div class="col-lg-3 col-md-4 col-6">
+                <div class="product-card border-0 shadow-sm" style="border-radius: 15px; background: #fff; overflow: hidden; transition: 0.3s;">
+                    <!-- Gambar -->
+                    <div class="position-relative">
+                        @if($product->foto_produk)
+                        <img src="{{ asset('storage/' . $product->foto_produk) }}" style="height: 140px; width: 100%; object-fit: cover;">
+                        @else
+                        <img src="https://via.placeholder.com/300x200" style="height: 140px; width: 100%; object-fit: cover;">
+                        @endif
+                        <span class="badge bg-white text-success position-absolute top-0 end-0 m-2 px-2 py-1" style="border-radius: 50px; font-weight: 700; font-size: 0.6rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            Tersedia
+                        </span>
                     </div>
-                </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="product-card position-relative">
-                    <span class="badge-organic">Organik</span>
-                    <img src="image/Screenshot 2026-04-16 233530.png" class="product-img">
-                    <div class="product-info">
-                        <h5 class="fw-bold mb-1">Tomat Segar</h5>
-                        <div class="product-kwt mb-3">
-                            <i class="bi bi-shop"></i> KWT Melati Putih
+                    <div class="p-3">
+                        <!-- Label KWT -->
+                        <div class="d-inline-flex align-items-center gap-1 px-2 py-1 mb-1" style="background-color: #f0fdf4; color: #2d7a22; border-radius: 5px; font-size: 0.65rem; font-weight: 700;">
+                            <i class="bi bi-shop me-1"></i>
+                            <span class="text-uppercase">{{ $product->user->name ?? 'KETUA KWT' }}</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="product-price">Rp 12.000</span>
-                            <button class="btn-cart btn-cart-action">
-                                <i class="bi bi-cart-plus-fill fs-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="product-card position-relative">
-                    <span class="badge-organic">Organik</span>
-                    <img src="image/Screenshot 2026-04-16 233530.png" class="product-img">
-                    <div class="product-info">
-                        <h5 class="fw-bold mb-1">Wortel Organik</h5>
-                        <div class="product-kwt mb-3">
-                            <i class="bi bi-shop"></i> KWT Berkah Alam
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="product-price">Rp 8.000</span>
-                            <button class="btn-cart btn-cart-action">
-                                <i class="bi bi-cart-plus-fill fs-5"></i>
-                            </button>
+                        <!-- Nama & Stok (Dibuat sangat rapat) -->
+                        <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem; line-height: 2;">{{ $product->nama_produk }}</h6>
+                        <p class="text-secondary mb-2" style="font-size: 0.75rem;">Tersedia {{ $product->stok }} {{ $product->satuan }}.</p>
+
+                        <div class="mt-1">
+                            <div class="mt-1">
+                                <span class="fw-bold" style="color: #2d7a22; font-size: 1.05rem;">Rp. {{ number_format($product->harga, 0, ',', '.') }}</span><span class="text-secondary" style="font-size: 0.8rem;">/{{ $product->satuan }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            @empty
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Belum ada produk.</p>
+            </div>
+            @endforelse
         </div>
     </section>
 
     <section class="py-5">
-    <div class="container">
-        <div class="cta-section text-center p-5 shadow">
-
-            <h2 class="fw-bolder mb-3">
-                Dukung Petani Lokal & Hidup Lebih Sehat 🌱
-            </h2>
-
-            <p class="mb-4">
-                Setiap pembelian membantu kesejahteraan KWT dan menghadirkan makanan sehat ke keluarga Anda.
-            </p>
-            <div class="d-flex justify-content-center gap-3 flex-wrap">
-                <a href="#" class="btn-green">Belanja Sekarang</a>
-                <a href="{{ route('about') }}" class="cta-btn-outline">Pelajari Lebih Lanjut</a>
+        <div class="container">
+            <div class="cta-section text-center p-5 shadow">
+                <h2 class="fw-bolder mb-3">Dukung Petani Lokal & Hidup Lebih Sehat 🌱</h2>
+                <p class="mb-4">Setiap pembelian membantu kesejahteraan KWT dan menghadirkan makanan sehat ke keluarga Anda.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="#produk" class="btn-green">Belanja Sekarang</a>
+                    <a href="{{ route('about') }}" class="btn btn-outline-success px-4 py-2 fw-bold" style="border-radius: 12px; border-width: 2px;">Pelajari Lebih Lanjut</a>
+                </div>
             </div>
         </div>
     </section>

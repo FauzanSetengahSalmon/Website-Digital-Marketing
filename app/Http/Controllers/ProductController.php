@@ -34,6 +34,14 @@ class ProductController extends Controller
         return view('customer.katalog', compact('products'));
     }
 
+    public function home()
+    {
+        // Mengambil maksimal 6 produk dari tabel products
+        $products = Product::limit(8)->get();
+
+        return view('home', compact('products'));
+    }
+
     // 2. Tampilan List Produk KHUSUS KWT (Halaman Admin KWT)
     public function kwtProducts()
     {

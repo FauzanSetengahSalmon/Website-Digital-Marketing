@@ -300,19 +300,17 @@
                 </div>
 
                 <div class="content-body">
-                    <!-- NAMA KWT DIAMBIL DARI TABEL USER -->
                     <span class="kwt-label">
-                        <i class="bi bi-patch-check-fill me-1"></i>
+                        <i class="bi bi-shop me-1"></i>
                         {{ $product->user->name ?? 'KWT E-Food' }}
                     </span>
 
-                    <h3 class="product-name">{{ $product->nama_produk }}</h3>
-                    <p class="product-info">Tersedia {{ $product->stok }} {{ $product->satuan }} hasil tani.</p>
+                    <h3 class="product-name" style="line-height: 2;">{{ $product->nama_produk }}</h3>
+                    <p class="product-info" style="margin-bottom: 8px;">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
 
                     <div class="mt-auto">
                         <div class="d-flex align-items-baseline mb-3">
-                            <span class="price-tag">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
-                            <span class="price-unit ms-1">/{{ $product->satuan }}</span>
+                            <span class="fw-bold" style="color: #2d7a22; font-size: 1.05rem;">Rp. {{ number_format($product->harga, 0, ',', '.') }}</span><span class="text-secondary" style="font-size: 0.8rem;">/{{ $product->satuan }}</span>
                         </div>
 
                         <div class="d-flex gap-2">

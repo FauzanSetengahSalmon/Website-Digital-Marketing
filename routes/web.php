@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 */
 
 // --- 1. GUEST / PUBLIC AREA ---
-Route::view('/', 'home')->name('home');
+Route::get('/', [ProductController::class, 'home'])->name('home');
 Route::view('/tentang-kami', 'about')->name('about');
 Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
 
