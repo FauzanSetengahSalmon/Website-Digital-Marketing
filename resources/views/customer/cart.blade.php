@@ -11,10 +11,6 @@
         color: #333;
     }
 
-    .container {
-        max-width: 1000px;
-    }
-
     /* List Area */
     .cart-item {
         border-bottom: 1px solid #eee;

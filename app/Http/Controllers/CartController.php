@@ -70,15 +70,25 @@ class CartController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function add(Request $request, $id)
+    public function addToCart(Request $request, $id)
     {
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Produk berhasil ditambahkan'
-            ]);
+        // Cek apakah user sudah login
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Silahkan login terlebih dahulu'], 401);
         }
 
-        return redirect()->back()->with('success', 'Produk ditambahkan!');
+        try {
+            $cart = Cart::updateOrCreate(
+                ['user_id' => Auth::id(), 'product_id' => $id],
+                ['quantity' => \DB::raw('quantity + 1')]
+            );
+
+            return response()->json([
+                'success' => true,
+                'cartCount' => Auth::user()->carts->count() // Kirim angka terbaru
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -256,7 +256,7 @@
                         {{ $product->user->name }}
                     </span>
 
-                    <h3 class="product-name">{{ $product->nama_produk }}</h3>
+                    <h3 class="product-name py-1">{{ $product->nama_produk }}</h3>
                     <p class="product-info">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
 
                     <div class="mt-auto">
