@@ -16,18 +16,9 @@
     @stack('styles')
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        body {
-            background: #f5f6f7;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        * { box-sizing: border-box; }
+        a { text-decoration: none; }
+        body { background: #f5f6f7; font-family: 'Segoe UI', sans-serif; }
 
         .navbar-efood {
             background: #ffffff;
@@ -46,7 +37,6 @@
             gap: 16px;
         }
 
-        /* Brand / Logo */
         .brand-logo-wrap {
             display: flex;
             align-items: center;
@@ -68,9 +58,7 @@
             flex-shrink: 0;
         }
 
-        .brand-logo-wrap span {
-            color: #2d7a22;
-        }
+        .brand-logo-wrap span { color: #2d7a22; }
 
         .nav-link-efood {
             color: #555;
@@ -106,13 +94,9 @@
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.1);
         }
 
-        .btn-cart i {
-            font-size: 1.2rem;
-        }
+        .btn-cart i { font-size: 1.2rem; }
 
-        .badge {
-            border: 2px solid #ffffff;
-        }
+        .badge { border: 2px solid #ffffff; }
 
         .btn-masuk {
             padding: 8px 18px;
@@ -125,10 +109,7 @@
             transition: all 0.15s;
         }
 
-        .btn-masuk:hover {
-            border-color: #2d7a22;
-            color: #2d7a22;
-        }
+        .btn-masuk:hover { border-color: #2d7a22; color: #2d7a22; }
 
         .btn-daftar {
             padding: 8px 18px;
@@ -142,28 +123,16 @@
             cursor: pointer;
         }
 
-        .btn-daftar:hover {
-            background: #1b5e20;
-            color: #fff;
-        }
+        .btn-daftar:hover { background: #1b5e20; color: #fff; }
 
-        /* Dropdown user */
-        .dropdown .btn-daftar {
-            cursor: pointer;
-        }
-
-        /* ===== FOOTER ===== */
         footer {
             margin-top: 60px;
             background: #f0f9eb;
             border-top: 1px solid #c8e6b4;
         }
 
-        .footer-top {
-            padding: 50px 0 40px;
-        }
+        .footer-top { padding: 50px 0 40px; }
 
-        /* Footer brand */
         .footer-brand-wrap {
             display: flex;
             align-items: center;
@@ -185,24 +154,16 @@
             flex-shrink: 0;
         }
 
-        .footer-brand-wrap span {
-            color: #2d7a22;
-        }
+        .footer-brand-wrap span { color: #2d7a22; }
 
         .footer-tagline {
             font-size: 13px;
             color: #555;
             line-height: 1.65;
             margin-top: 10px;
-            margin-bottom: 0;
         }
 
-        /* Footer social */
-        .footer-social {
-            margin-top: 14px;
-            display: flex;
-            gap: 8px;
-        }
+        .footer-social { margin-top: 14px; display: flex; gap: 8px; }
 
         .footer-social a {
             width: 34px;
@@ -214,17 +175,11 @@
             align-items: center;
             justify-content: center;
             color: #2d7a22;
-            font-size: 15px;
             transition: all 0.15s;
         }
 
-        .footer-social a:hover {
-            background: #2d7a22;
-            color: #fff;
-            border-color: #2d7a22;
-        }
+        .footer-social a:hover { background: #2d7a22; color: #fff; border-color: #2d7a22; }
 
-        /* Footer headings & links */
         .footer-heading {
             font-size: 12px;
             font-weight: 700;
@@ -234,34 +189,15 @@
             margin-bottom: 14px;
         }
 
-        .footer-link {
-            display: block;
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 8px;
-            transition: color 0.15s;
-        }
+        .footer-link { display: block; font-size: 14px; color: #555; margin-bottom: 8px; }
+        .footer-link:hover { color: #2d7a22; }
 
-        .footer-link:hover {
-            color: #2d7a22;
-        }
-
-        /* Subscribe form */
         .footer-subscribe-input {
             width: 100%;
             padding: 9px 12px;
             border-radius: 8px;
             border: 1.5px solid #c8e6b4;
-            background: #fff;
-            font-size: 13px;
-            color: #333;
-            outline: none;
             margin-bottom: 8px;
-            transition: border 0.15s;
-        }
-
-        .footer-subscribe-input:focus {
-            border-color: #2d7a22;
         }
 
         .btn-subscribe {
@@ -271,28 +207,9 @@
             padding: 9px;
             color: white;
             border-radius: 8px;
-            font-size: 14px;
             font-weight: 500;
-            cursor: pointer;
-            transition: background 0.15s;
         }
 
-        .btn-subscribe:hover {
-            background: #1b5e20;
-        }
-
-        .footer-spam-note {
-            font-size: 12px;
-            color: #888;
-            margin-top: 8px;
-            margin-bottom: 0;
-        }
-
-        .footer-spam-note a {
-            color: #2d7a22;
-        }
-
-        /* Footer bottom */
         .footer-bottom {
             border-top: 1px solid #c8e6b4;
             padding: 16px 0;
@@ -304,12 +221,10 @@
 
 <body>
 
-    {{-- ================= NAVBAR ================= --}}
     <nav class="navbar-efood">
         <div class="container">
             <div class="navbar-inner">
 
-                {{-- Logo & Brand --}}
                 <a href="{{ url('/') }}" class="brand-logo-wrap">
                     <div class="brand-icon">
                         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -323,27 +238,21 @@
                 </a>
 
                 <ul class="nav d-none d-lg-flex gap-1">
-                    <li>
-                        <a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Beranda</a>
-                    </li>
-                    <li>
-                        <a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="{{ route('customer.katalog') }}">Katalog</a>
-                    </li>
-                    <li>
-                        <a class="nav-link-efood {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a>
-                    </li>
-                    <li>
-                        <a class="nav-link-efood {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
-                    </li>
+                    <li><a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Beranda</a></li>
+                    <li><a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="{{ route('customer.katalog') }}">Katalog</a></li>
+                    <li><a class="nav-link-efood {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a></li>
+                    <li><a class="nav-link-efood {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a></li>
                 </ul>
 
                 <div class="d-flex align-items-center gap-2">
                     <a href="{{ route('cart.index') }}" class="btn-cart position-relative">
                         <i class="bi bi-cart3"></i>
-                        <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger 
-        {{ (auth()->check() && auth()->user()->carts->count() > 0) ? '' : 'd-none' }}"
+                        @php
+                            $cartTotal = auth()->check() ? auth()->user()->carts()->sum('jumlah') : 0;
+                        @endphp
+                        <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger {{ $cartTotal > 0 ? '' : 'd-none' }}"
                             style="font-size: 10px; padding: 4px 6px; line-height: 1;">
-                            {{ auth()->check() ? auth()->user()->carts->count() : 0 }}
+                            {{ $cartTotal }}
                         </span>
                     </a>
 
@@ -353,14 +262,8 @@
                             <i class="bi bi-person-circle me-1"></i> {{ Auth::user()->name }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                            <li>
-                                <a class="dropdown-item py-2" href="{{ route('profile.edit') }}">
-                                    <i class="bi bi-person me-2 text-success"></i> Profil Saya
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <li><a class="dropdown-item py-2" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2 text-success"></i> Profil Saya</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -389,7 +292,6 @@
         <div class="footer-top">
             <div class="container">
                 <div class="row g-5">
-
                     <div class="col-12 col-md-3">
                         <div class="footer-brand-wrap">
                             <div class="footer-brand-icon">
@@ -402,14 +304,11 @@
                             </div>
                             E<span>Food</span>
                         </div>
-                        <p class="footer-tagline">
-                            Lebih Cepat, Lebih Mudah, Lebih Nikmat –<br>
-                            Makanan Pilihan Kini Sampai di Rumahmu!
-                        </p>
+                        <p class="footer-tagline">Lebih Cepat, Lebih Mudah, Lebih Nikmat – Makanan Pilihan Kini Sampai di Rumahmu!</p>
                         <div class="footer-social">
-                            <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
-                            <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
-                            <a href="#" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                            <a href="#"><i class="bi bi-facebook"></i></a>
+                            <a href="#"><i class="bi bi-instagram"></i></a>
+                            <a href="#"><i class="bi bi-tiktok"></i></a>
                         </div>
                     </div>
 
@@ -417,32 +316,20 @@
                         <p class="footer-heading">Laporkan Bug</p>
                         <input type="email" class="footer-subscribe-input" placeholder="email@gmail.com">
                         <button class="btn-subscribe">Kirim Laporan</button>
-                        <p class="footer-spam-note">
-                            Kami tidak akan melakukan spam. Baca <a href="#">kebijakan email kami</a>.
-                        </p>
                     </div>
 
                     <div class="col-6 col-md-2 offset-md-1">
                         <p class="footer-heading">Tentang Aplikasi</p>
-                        <a class="footer-link {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
+                        <a class="footer-link" href="{{ route('about') }}">Tentang Kami</a>
                     </div>
 
                     <div class="col-6 col-md-2">
                         <p class="footer-heading">Aksi Cepat</p>
-                        <a href="#" class="footer-link">Katalog Produk</a>
-                        <a class="footer-link {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
-
-                        @guest
-                        <a href="{{ route('register') }}" class="footer-link">Buat Akun</a>
-                        <a href="#" class="footer-link">Belanja Produk</a>
-                        @endguest
-
+                        <a href="{{ route('customer.katalog') }}" class="footer-link">Katalog</a>
                         @auth
-                        <a href="#" class="footer-link">Keranjang</a>
-                        <a class="footer-link {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a>
+                        <a href="{{ route('orders.history') }}" class="footer-link">Riwayat</a>
                         @endauth
                     </div>
-
                 </div>
             </div>
         </div>
@@ -450,15 +337,12 @@
         <div class="footer-bottom">
             <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>© {{ date('Y') }} KWT — Kelompok Wanita Tani Desa Cibiru</span>
-                <span style="color:#2d7a22; font-size:13px;">Dibuat dengan ♥ untuk masyarakat lokal</span>
+                <span style="color:#2d7a22;">Dibuat dengan ♥ untuk masyarakat lokal</span>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     @stack('scripts')
-
 </body>
-
 </html>

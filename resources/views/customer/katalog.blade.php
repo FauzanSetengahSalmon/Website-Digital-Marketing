@@ -203,8 +203,6 @@
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<!-- PENTING: Pastikan script ini dimuat paling awal di konten -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container py-5">
     <div class="row justify-content-center mb-5">
@@ -308,54 +306,61 @@
             const productName = this.getAttribute('data-name');
             const icon = this.querySelector('i');
 
+            // Loading state
             icon.className = 'bi bi-hourglass-split';
             this.disabled = true;
 
             fetch(`/cart/add/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        quantity: 1
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    icon.className = 'bi bi-cart-plus';
-                    this.disabled = false;
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Unauthorized');
+                return response.json();
+            })
+            .then(data => {
+                icon.className = 'bi bi-cart-plus';
+                this.disabled = false;
 
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: productName + ' masuk keranjang!',
-                            showConfirmButton: false,
-                            timer: 2500,
-                            timerProgressBar: true
-                        });
-                    } else {
-                        alert(productName + ' masuk keranjang!');
-                    }
-                    const cartBadge = document.getElementById('cart-badge');
-                    if (cartBadge) {
-                        if (data.cartCount !== undefined) {
-                            cartBadge.innerText = data.cartCount;
-                        } else {
-                            let count = parseInt(cartBadge.innerText) || 0;
-                            cartBadge.innerText = count + 1;
-                        }
-                        cartBadge.classList.remove('d-none');
-                    }
-                })
-                .catch(error => {
-                    icon.className = 'bi bi-cart-plus';
-                    this.disabled = false;
-                    console.error('Error:', error);
-                });
+                // Notifikasi Sukses
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: productName + ' masuk keranjang!',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                }
+
+                // Update Badge Merah secara Real-time
+                const cartBadge = document.getElementById('cart-badge');
+                if (cartBadge) {
+                    cartBadge.innerText = data.cartCount;
+                    cartBadge.classList.remove('d-none');
+                    cartBadge.style.display = 'inline-block';
+                }
+            })
+            .catch(error => {
+                icon.className = 'bi bi-cart-plus';
+                this.disabled = false;
+                console.error('Error:', error);
+                
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Silakan login terlebih dahulu untuk belanja.',
+                    });
+                }
+            });
         });
     });
 </script>

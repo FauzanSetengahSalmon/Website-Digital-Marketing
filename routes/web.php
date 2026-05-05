@@ -4,9 +4,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,11 +15,13 @@ use App\Http\Controllers\CartController;
 */
 
 // --- 1. GUEST / PUBLIC AREA ---
+// Area yang bisa diakses tanpa login
 Route::get('/', [ProductController::class, 'home'])->name('home');
 Route::view('/tentang-kami', 'about')->name('about');
 Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
 
 // --- 2. PINTU OTOMATIS (Dashboard Redirector) ---
+// Mengarahkan user ke dashboard yang sesuai setelah login
 Route::get('/dashboard', function () {
     $role = Auth::user()->role;
     if ($role === 'admin') return redirect()->route('admin.dashboard');
@@ -28,7 +30,7 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-// --- 3. AUTHENTICATED AREA ---
+// --- 3. AUTHENTICATED AREA (Hanya User Login) ---
 Route::middleware('auth')->group(function () {
 
     // ==========================================
@@ -40,7 +42,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // ==========================================
-    // AREA KWT (Role: kwt) - Jalur Eksklusif
+    // AREA KWT (Role: kwt)
     // ==========================================
     Route::middleware(['role:kwt'])->prefix('kwt')->name('kwt.')->group(function () {
         Route::get('/dashboard', [OrderController::class, 'kwtDashboard'])->name('dashboard');
@@ -48,18 +50,13 @@ Route::middleware('auth')->group(function () {
         // Produk CRUD
         Route::get('/list-produk', [ProductController::class, 'kwtProducts'])->name('products');
         Route::post('/tambah-produk', [ProductController::class, 'store'])->name('products.store');
-
-        // --- ROUTE EDIT & UPDATE ---
         Route::get('/produk/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('/produk/{id}', [ProductController::class, 'update'])->name('products.update');
-
         Route::delete('/hapus-produk/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
         // Pesanan & Laporan
         Route::get('/list-pesanan', [OrderController::class, 'kwtOrders'])->name('orders');
         Route::post('/pesanan-selesai/{id}', [OrderController::class, 'markAsDone'])->name('orders.done');
-        
-        // --- INI ROUTE LAPORAN YANG BARU ---
         Route::get('/laporan', [ProductController::class, 'laporanTransaksi'])->name('laporan');
 
         // Profil Khusus KWT
@@ -67,19 +64,34 @@ Route::middleware('auth')->group(function () {
     });
 
     // ==========================================
-    // AREA UMUM / CUSTOMER
+    // AREA CUSTOMER / KERANJANG BELANJA
     // ==========================================
+    Route::controller(CartController::class)->group(function () {
+        // Tampil Halaman Keranjang
+        Route::get('/cart', 'index')->name('cart.index'); 
+        
+        // Tambah Produk ke Keranjang (AJAX dari Katalog)
+        Route::post('/cart/add/{id}', 'store')->name('cart.add'); 
+        
+        // Update Jumlah Barang (AJAX dari tombol +/- di Keranjang)
+        Route::patch('/cart/update/{id}', 'update')->name('cart.update'); 
+        
+        // Hapus Barang dari Keranjang
+        Route::delete('/cart/{id}', 'destroy')->name('cart.destroy'); 
+    });
+
+    // ==========================================
+    // AREA UMUM CUSTOMER (Order & Profile)
+    // ==========================================
+    
+    // Riwayat Pesanan
     Route::get('/riwayat-pesanan', [OrderController::class, 'history'])->name('orders.history');
 
-    // Profil Customer (Default)
+    // Profil Customer Dasar
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{id}', [CartController::class, 'store'])->name('cart.add');
-    Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 });
 
+// Load Route bawaan Laravel (Login, Register, dll)
 require __DIR__ . '/auth.php';
