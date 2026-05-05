@@ -55,11 +55,14 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/hapus-produk/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-        // Pesanan
+        // Pesanan & Laporan
         Route::get('/list-pesanan', [OrderController::class, 'kwtOrders'])->name('orders');
         Route::post('/pesanan-selesai/{id}', [OrderController::class, 'markAsDone'])->name('orders.done');
+        
+        // --- INI ROUTE LAPORAN YANG BARU ---
+        Route::get('/laporan', [ProductController::class, 'laporanTransaksi'])->name('laporan');
 
-        // Profil Khusus KWT (Mengarah ke view kwt.profile)
+        // Profil Khusus KWT
         Route::get('/profile', [ProfileController::class, 'editKwt'])->name('profile');
     });
 

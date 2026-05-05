@@ -14,7 +14,6 @@
         font-weight: 700;
         color: #334155;
         font-size: 0.8rem;
-        /* Font header dikecilkan */
         padding: 8px !important;
         text-align: center;
     }
@@ -22,14 +21,12 @@
     .table-bordered-custom td {
         border: 1px solid #dee2e6 !important;
         padding: 6px 10px !important;
-        /* Padding dikurangi biar lebih tipis */
         font-size: 0.85rem;
     }
 
     /* 2. Gambar Produk Lebih Kecil */
     .img-wrapper {
         width: 45px;
-        /* Kecilin dari 60px */
         height: 45px;
         border-radius: 6px;
         background: #f8fafc;
@@ -57,56 +54,14 @@
         justify-content: center;
     }
 
-    .btn-edit {
-        background: #ecfdf5;
-        color: #10b981;
-    }
+    .btn-edit { background: #ecfdf5; color: #10b981; }
+    .btn-delete { background: #fff1f2; color: #f43f5e; }
 
-    .btn-delete {
-        background: #fff1f2;
-        color: #f43f5e;
-    }
-
-    /* 3. Modal & Keterangan */
-    .modal-content {
-        border-radius: 20px;
-        border: none;
-    }
-
-    .form-label-bold {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #475569;
-        margin-bottom: 2px;
-    }
-
-    .input-clean {
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-
-    .petunjuk-ibu {
-        font-size: 0.7rem;
-        color: #64748b;
-        margin-top: 3px;
-        display: block;
-        line-height: 1.2;
-        font-style: italic;
-    }
-
-    .preview-box {
-        width: 100px;
-        height: 100px;
-        border: 2px dashed #cbd5e1;
-        border-radius: 12px;
-        margin: 8px auto;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .modal-content { border-radius: 20px; border: none; }
+    .form-label-bold { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 2px; }
+    .input-clean { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 0.9rem; }
+    .petunjuk-ibu { font-size: 0.7rem; color: #64748b; margin-top: 3px; display: block; font-style: italic; }
+    .preview-box { width: 100px; height: 100px; border: 2px dashed #cbd5e1; border-radius: 12px; margin: 8px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 </style>
 
 <div class="container-fluid py-4">
@@ -119,6 +74,13 @@
             <i class="bi bi-plus-lg me-1"></i> Tambah Barang
         </button>
     </div>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="table-container shadow-sm">
         <div class="table-responsive">
@@ -185,24 +147,21 @@
             @csrf @method('PUT')
             <div class="modal-body p-4">
                 <h6 class="fw-bold text-success mb-1"><i class="bi bi-pencil-square me-2"></i>Edit Barang</h6>
-                <p class="text-muted small mb-4">Silakan ubah data barang Ibu di bawah ini.</p>
+                <p class="text-muted small mb-4">Ubah data barang Ibu di bawah ini.</p>
 
                 <div class="mb-3">
                     <label class="form-label-bold">Nama Produk</label>
                     <input type="text" name="nama_produk" class="form-control input-clean" value="{{ $p->nama_produk }}" required>
-                    <span class="petunjuk-ibu">Contoh: Keripik Pisang Manis</span>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="form-label-bold">Harga (Rp)</label>
                         <input type="number" name="harga" class="form-control input-clean" value="{{ $p->harga }}" required>
-                        <span class="petunjuk-ibu">Hanya angka saja</span>
                     </div>
                     <div class="col-6">
                         <label class="form-label-bold">Stok</label>
                         <input type="number" name="stok" class="form-control input-clean" value="{{ $p->stok }}" required>
-                        <span class="petunjuk-ibu">Misal: 10</span>
                     </div>
                 </div>
 
@@ -217,7 +176,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label-bold">Foto (Boleh dikosongkan)</label>
+                    <label class="form-label-bold">Foto</label>
                     <div class="preview-box">
                         <img id="edit-img-{{ $p->id }}" src="{{ $p->foto_produk ? asset('storage/'.$p->foto_produk) : '' }}" class="w-100 h-100 {{ $p->foto_produk ? '' : 'd-none' }}" style="object-fit: cover;">
                         @if(!$p->foto_produk) <i class="bi bi-image text-muted fs-2"></i> @endif
@@ -226,7 +185,9 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success fw-bold rounded-pill"><i class="bi bi-check-circle me-1"></i> Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-success fw-bold rounded-pill" onclick="this.disabled=true;this.form.submit();">
+                        <i class="bi bi-check-circle me-1"></i> Simpan Perubahan
+                    </button>
                     <button type="button" class="btn btn-light rounded-pill border small" data-bs-dismiss="modal">Batal</button>
                 </div>
             </div>
@@ -247,19 +208,16 @@
                 <div class="mb-3">
                     <label class="form-label-bold">Nama Produk</label>
                     <input type="text" name="nama_produk" class="form-control input-clean" placeholder="Nama barang..." required>
-                    <span class="petunjuk-ibu">Tulis nama lengkap barangnya</span>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="form-label-bold">Harga (Rp)</label>
                         <input type="number" name="harga" class="form-control input-clean" placeholder="0" required>
-                        <span class="petunjuk-ibu">Tulis harganya saja</span>
                     </div>
                     <div class="col-6">
                         <label class="form-label-bold">Stok</label>
                         <input type="number" name="stok" class="form-control input-clean" placeholder="0" required>
-                        <span class="petunjuk-ibu">Jumlah tersedia</span>
                     </div>
                 </div>
 
@@ -271,7 +229,6 @@
                         <option value="Bungkus">Bungkus</option>
                         <option value="Buah">Buah</option>
                     </select>
-                    <span class="petunjuk-ibu">Pilih satuan jualnya</span>
                 </div>
 
                 <div class="mb-4">
@@ -281,11 +238,12 @@
                         <img id="preview-add" src="" class="d-none w-100 h-100" style="object-fit: cover;">
                     </div>
                     <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewAdd(this)">
-                    <span class="petunjuk-ibu">Pilih foto yang paling bagus ya, Bu</span>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success fw-bold rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> Simpan Barang</button>
+                    <button type="submit" class="btn btn-success fw-bold rounded-pill" onclick="this.disabled=true;this.form.submit();">
+                        <i class="bi bi-check-circle-fill me-1"></i> Simpan Barang
+                    </button>
                     <button type="button" class="btn btn-light rounded-pill border small" data-bs-dismiss="modal">Batal</button>
                 </div>
             </div>
