@@ -314,9 +314,11 @@
         }
     }
 
+    // Ganti bagian script di file cart.blade.php kamu dengan ini:
     function updateTotal() {
         let total = 0;
         let count = 0;
+        let selectedIds = [];
 
         document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
             const id = cb.value;
@@ -324,13 +326,23 @@
             const qty = qInput ? parseInt(qInput.value) : 0;
             total += parseInt(cb.dataset.price) * qty;
             count++;
+            selectedIds.push(id);
         });
 
         const formatted = 'Rp ' + total.toLocaleString('id-ID');
         document.getElementById('total-display').innerText = formatted;
         document.getElementById('sub-display').innerText = formatted;
         document.getElementById('count-display').innerText = count;
-        document.getElementById('btn-checkout').disabled = (count === 0);
+        
+        const btnCheckout = document.getElementById('btn-checkout');
+        btnCheckout.disabled = (count === 0);
+
+        // Update Link Checkout dengan ID yang dipilih
+        if(count > 0) {
+            btnCheckout.onclick = function() {
+                window.location.href = "{{ route('checkout.index') }}?items=" + selectedIds.join(',');
+            };
+        }
     }
 </script>
 @endsection

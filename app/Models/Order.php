@@ -9,21 +9,22 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $table = 'orders';
-
     protected $fillable = [
         'user_id',
-        'nama_produk',
-        'jumlah',
         'total_harga',
+        'ongkir',
         'status',
+        'catatan',
     ];
 
-    /**
-     * Relasi ke User: Satu pesanan dimiliki oleh satu customer.
-     */
+    // INI YANG HILANG! Relasi ke tabel order_details
+    public function details()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
+
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 }
