@@ -20,7 +20,7 @@ class Order extends Model
     // INI YANG HILANG! Relasi ke tabel order_details
     public function details()
     {
-        return $this->hasMany(OrderDetail::class);
+        return $this->hasMany(OrderDetail::class, 'order_id');
     }
 
     public function user()

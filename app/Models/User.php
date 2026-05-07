@@ -39,4 +39,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Cart::class);
     }
+
+    public function kwt()
+    {
+        return $this->hasOne(Kwt::class, 'user_id');
+    }
 }

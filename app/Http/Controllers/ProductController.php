@@ -37,7 +37,7 @@ class ProductController extends Controller
 
     public function kwtProducts()
     {
-        $products = Product::all();
+        $products = Product::where('user_id', Auth::id())->get();
         return view('kwt.list-produk', compact('products'));
     }
 

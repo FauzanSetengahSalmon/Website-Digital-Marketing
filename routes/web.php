@@ -16,8 +16,13 @@ Route::get('/katalog', [ProductController::class, 'index'])->name('customer.kata
 // Dashboard Redirector
 Route::get('/dashboard', function () {
     $role = Auth::user()->role;
-    if ($role === 'admin') return redirect()->route('admin.dashboard');
-    if ($role === 'kwt') return redirect()->route('kwt.dashboard');
+    
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($role === 'kwt') {
+        return redirect()->route('kwt.dashboard');
+    }
+    
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
