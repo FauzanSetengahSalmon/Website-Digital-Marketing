@@ -309,14 +309,50 @@
                 </div>
 
                 <div class="input-wrapper">
-                    <div class="input-wrapper">
-                        <label class="input-label">No. Telepon</label>
-                        <div class="input-field">
-                            <i class="fa-solid fa-phone"></i>
-                            <input type="text" name="phone_number" placeholder="0812xxxxxxx">
-                        </div>
+                    <label class="input-label">No. Telepon</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="text" name="phone_number" placeholder="0812xxxxxxx" required>
                     </div>
-                    <input type="hidden" name="role" value="customer">
+                </div>
+
+                <div class="input-wrapper">
+                    <label class="input-label">Provinsi</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-map"></i>
+                        <select name="province" required>
+                            <option value="" disabled selected>Pilih Provinsi</option>
+                            <option value="Jawa Barat">Jawa Barat</option>
+                            </select>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <label class="input-label">Kota/Kabupaten</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-city"></i>
+                        <select name="city" required>
+                            <option value="" disabled selected>Pilih Kota/Kabupaten</option>
+                            <option value="Bandung">Kota Bandung</option>
+                            <option value="Kab. Bandung">Kab. Bandung</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <label class="input-label">Kecamatan</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <input type="text" name="district" placeholder="Contoh: Cibiru" required>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <label class="input-label">Alamat Lengkap</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-house-chimney"></i>
+                        <input type="text" name="address" placeholder="Nama Jalan, No. Rumah, RT/RW" required>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-main">Buat Akun</button>
