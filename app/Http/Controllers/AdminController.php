@@ -13,7 +13,7 @@ class AdminController extends Controller
     public function index()
     {
         $totalKwt = User::where('role', 'kwt')->count();
-        $totalPembeli = User::where('role', 'pembeli')->count();
+        $totalPembeli = User::where('role', 'customer')->count();
         $totalTransaksi = Order::count();
 
         $pemasukanPerKwt = User::where('role', 'kwt')

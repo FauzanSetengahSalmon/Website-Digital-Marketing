@@ -309,6 +309,13 @@
                 </div>
 
                 <div class="input-wrapper">
+                    <label class="input-label">Konfirmasi Password</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-shield-check"></i> <input type="password" name="password_confirmation" placeholder="Ulangi Password" required>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
                     <label class="input-label">No. Telepon</label>
                     <div class="input-field">
                         <i class="fa-solid fa-phone"></i>
