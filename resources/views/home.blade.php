@@ -87,6 +87,59 @@
         color: var(--green-dark);
     }
 
+    .btn-search-clean {
+        background: var(--green-primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 9px 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .btn-search-clean:hover {
+        background: #2e7d32;
+        transform: translateY(-1px);
+    }
+
+    .btn-buy-now {
+        background: var(--green-primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        flex: 1;
+        transition: 0.2s;
+        margin-top: 8px;
+    }
+
+    .btn-buy-now:hover:not(:disabled) {
+        background: #2e7d32;
+    }
+
+    .btn-cart-outline {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        background: white;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+        margin-top: 8px;
+    }
+
+    .btn-cart-outline:hover:not(:disabled) {
+        border-color: var(--green-primary);
+        color: var(--green-primary);
+        background: var(--green-bg);
+    }
+
     .section-title {
         font-size: 2rem;
         font-weight: 800;
@@ -200,7 +253,7 @@
                 Nikmati hasil panen terbaik yang dipetik langsung dengan penuh kasih sayang dari kebun kami.
             </p>
             <div class="d-flex gap-3">
-                <a href="#produk" class="btn-green"><i class="bi bi-bag-check"></i> Belanja Sekarang</a>
+                <a href="{{ route('customer.katalog') }}" class="btn-green"><i class="bi bi-bag-check"></i> Belanja Sekarang</a>
                 <a href="{{ route('about') }}" class="btn-outline-green">Tentang Kami</a>
             </div>
         </div>
@@ -249,6 +302,26 @@
                                 <span class="fw-bold" style="color: #2d7a22; font-size: 1.05rem;">Rp. {{ number_format($product->harga, 0, ',', '.') }}</span><span class="text-secondary" style="font-size: 0.8rem;">/{{ $product->satuan }}</span>
                             </div>
                         </div>
+                        <div class="d-flex gap-2">
+                            @if($product->stok > 0)
+                            <form action="{{ route('customer.katalog')}}" method="POST" class="flex-grow-1">
+                                @csrf
+                                <input type="hidden" name="direct_buy" value="1">
+                                <button type="submit" class="btn-buy-now w-100">Beli</button>
+                            </form>
+
+                            <button type="button" class="btn-cart-outline add-to-cart-btn"
+                                data-id="{{ $product->id }}"
+                                data-name="{{ $product->nama_produk }}">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                            @else
+                            <button class="btn-buy-now w-100" disabled>Habis</button>
+                            <button class="btn-cart-outline" disabled>
+                                <i class="bi bi-cart-x"></i>
+                            </button>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -266,7 +339,7 @@
                 <h2 class="fw-bolder mb-3">Dukung Petani Lokal & Hidup Lebih Sehat 🌱</h2>
                 <p class="mb-4">Setiap pembelian membantu kesejahteraan KWT dan menghadirkan makanan sehat ke keluarga Anda.</p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="#produk" class="btn-green">Belanja Sekarang</a>
+                    <a href="{{ route('customer.katalog') }}" class="btn-green">Belanja Sekarang</a>
                     <a href="{{ route('about') }}" class="btn btn-outline-success px-4 py-2 fw-bold" style="border-radius: 12px; border-width: 2px;">Pelajari Lebih Lanjut</a>
                 </div>
             </div>

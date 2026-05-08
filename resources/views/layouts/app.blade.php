@@ -225,10 +225,10 @@
 
         .footer-heading {
             font-size: 13px;
-            font-weight: 700;
+            font-weight: bold;
             text-transform: uppercase;
             color: #2d7a22;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
 
         .footer-link {
