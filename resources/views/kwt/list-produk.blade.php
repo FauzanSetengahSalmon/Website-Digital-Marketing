@@ -54,14 +54,54 @@
         justify-content: center;
     }
 
-    .btn-edit { background: #ecfdf5; color: #10b981; }
-    .btn-delete { background: #fff1f2; color: #f43f5e; }
+    .btn-edit {
+        background: #ecfdf5;
+        color: #10b981;
+    }
 
-    .modal-content { border-radius: 20px; border: none; }
-    .form-label-bold { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 2px; }
-    .input-clean { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 0.9rem; }
-    .petunjuk-ibu { font-size: 0.7rem; color: #64748b; margin-top: 3px; display: block; font-style: italic; }
-    .preview-box { width: 100px; height: 100px; border: 2px dashed #cbd5e1; border-radius: 12px; margin: 8px auto; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .btn-delete {
+        background: #fff1f2;
+        color: #f43f5e;
+    }
+
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .form-label-bold {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 2px;
+    }
+
+    .input-clean {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .petunjuk-ibu {
+        font-size: 0.7rem;
+        color: #64748b;
+        margin-top: 3px;
+        display: block;
+        font-style: italic;
+    }
+
+    .preview-box {
+        width: 100px;
+        height: 100px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        margin: 8px auto;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -76,10 +116,10 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     @endif
 
     <div class="table-container shadow-sm">
@@ -152,16 +192,19 @@
                 <div class="mb-3">
                     <label class="form-label-bold">Nama Produk</label>
                     <input type="text" name="nama_produk" class="form-control input-clean" value="{{ $p->nama_produk }}" required>
+                    <small class="petunjuk-ibu">*Wajib isi nama produk dengan jelas</small>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="form-label-bold">Harga (Rp)</label>
                         <input type="number" name="harga" class="form-control input-clean" value="{{ $p->harga }}" required>
+                        <small class="petunjuk-ibu">*Isi harga tanpa titik</small>
                     </div>
                     <div class="col-6">
                         <label class="form-label-bold">Stok</label>
                         <input type="number" name="stok" class="form-control input-clean" value="{{ $p->stok }}" required>
+                        <small class="petunjuk-ibu">*Jumlah barang tersedia</small>
                     </div>
                 </div>
 
@@ -173,6 +216,7 @@
                         <option value="Bungkus" {{ $p->satuan == 'Bungkus' ? 'selected' : '' }}>Bungkus</option>
                         <option value="Buah" {{ $p->satuan == 'Buah' ? 'selected' : '' }}>Buah</option>
                     </select>
+                    <small class="petunjuk-ibu">*Pilih jenis ukuran barang</small>
                 </div>
 
                 <div class="mb-4">
@@ -182,6 +226,7 @@
                         @if(!$p->foto_produk) <i class="bi bi-image text-muted fs-2"></i> @endif
                     </div>
                     <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewEdit(this, '{{ $p->id }}')">
+                    <small class="petunjuk-ibu">*Kosongkan jika foto tidak diubah</small>
                 </div>
 
                 <div class="d-grid gap-2">
@@ -208,16 +253,19 @@
                 <div class="mb-3">
                     <label class="form-label-bold">Nama Produk</label>
                     <input type="text" name="nama_produk" class="form-control input-clean" placeholder="Nama barang..." required>
+                    <small class="petunjuk-ibu">*Wajib isi nama produk dengan jelas</small>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="form-label-bold">Harga (Rp)</label>
                         <input type="number" name="harga" class="form-control input-clean" placeholder="0" required>
+                        <small class="petunjuk-ibu">*Isi harga tanpa titik</small>
                     </div>
                     <div class="col-6">
                         <label class="form-label-bold">Stok</label>
                         <input type="number" name="stok" class="form-control input-clean" placeholder="0" required>
+                        <small class="petunjuk-ibu">*Jumlah barang tersedia</small>
                     </div>
                 </div>
 
@@ -229,6 +277,7 @@
                         <option value="Bungkus">Bungkus</option>
                         <option value="Buah">Buah</option>
                     </select>
+                    <small class="petunjuk-ibu">*Pilih jenis ukuran barang</small>
                 </div>
 
                 <div class="mb-4">
@@ -237,7 +286,8 @@
                         <i id="icon-add" class="bi bi-image text-muted fs-2"></i>
                         <img id="preview-add" src="" class="d-none w-100 h-100" style="object-fit: cover;">
                     </div>
-                    <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewAdd(this)">
+                    <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewAdd(this)" required>
+                    <small class="petunjuk-ibu">*Wajib pilih foto produk agar menarik</small>
                 </div>
 
                 <div class="d-grid gap-2">
