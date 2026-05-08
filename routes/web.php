@@ -41,6 +41,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
 |--------------------------------------------------------------------------
 | DASHBOARD REDIRECT
 |--------------------------------------------------------------------------
+| Verify email cukup di sini saja
 */
 
 Route::get('/dashboard', function () {
@@ -69,7 +70,7 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -77,7 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('role:admin')
+    Route::middleware(['role:admin'])
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
@@ -95,7 +96,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('role:kwt')
+    Route::middleware(['role:kwt'])
         ->prefix('kwt')
         ->name('kwt.')
         ->group(function () {
