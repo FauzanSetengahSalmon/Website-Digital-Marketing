@@ -4,41 +4,72 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Order;
-use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function index()
+    /**
+     * DASHBOARD ADMIN
+     */
+    public function dashboard()
     {
         $totalKwt = User::where('role', 'kwt')->count();
-        $totalPembeli = User::where('role', 'customer')->count();
-        $totalTransaksi = Order::count();
 
-        $pemasukanPerKwt = User::where('role', 'kwt')
-            ->leftJoin('products', 'users.id', '=', 'products.user_id')
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('orders', 'irder_items.order_id', '=', 'orders.id')
-            ->select(
-                'users.name as nama_kwt',
-                DB::raw('SUM(order_items.quantity * order_items.price) as total_pemasukan')
-            )
-            ->where('orders.status', 'completed') // Hanya hitung yang pembayarannya selesai
-            ->groupBy('users.id', 'users.name')
+        $totalPendapatan = Order::where('status', 'selesai')
+            ->sum('total_harga');
+
+        $totalProduk = Product::count();
+
+        $totalPesanan = Order::count();
+
+        // WAJIB: biar blade tidak error $kwts undefined
+        $kwts = User::where('role', 'kwt')
+            ->with('products') // biar $kwt->products->count() aman
+            ->latest()
             ->get();
 
         return view('admin.dashboard', compact(
-            'totalKwt', 
-            'totalPembeli', 
-            'totalTransaksi', 
-            'pemasukanPerKwt'
+            'totalKwt',
+            'totalPendapatan',
+            'totalProduk',
+            'totalPesanan',
+            'kwts'
         ));
     }
 
-    public function manageUsers()
+    /**
+     * HALAMAN LIST KWT
+     */
+    public function kwtIndex()
     {
-        $users = User::latest()->get();
-        return view('admin.users', compact('users'));
+        $kwts = User::where('role', 'kwt')
+            ->with('products')
+            ->latest()
+            ->get();
+
+        return view('admin.kwt', compact('kwts'));
+    }
+
+    /**
+     * SIMPAN KWT BARU
+     */
+    public function storeKwt(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => 'kwt',
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Akun KWT berhasil dibuat');
     }
 }

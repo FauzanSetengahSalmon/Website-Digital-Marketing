@@ -13,32 +13,39 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     /**
-     * Dashboard Statistik KWT
+     * DASHBOARD KWT
      */
     public function kwtDashboard()
     {
         $userId = Auth::id();
-        $totalReceived = Order::where('status', 'selesai')
-            ->whereHas('details.product', function($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })->sum('total_harga');
 
-        $soldCount = OrderDetail::whereHas('product', function($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })->whereHas('order', function($q) {
-                $q->where('status', 'selesai');
-            })->sum('jumlah');
+        $totalReceived = OrderDetail::whereHas('product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+        ->whereHas('order', function ($q) {
+            $q->where('status', 'selesai');
+        })
+        ->sum(DB::raw('harga_saat_ini * jumlah'));
+
+        $soldCount = OrderDetail::whereHas('product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+        ->whereHas('order', function ($q) {
+            $q->where('status', 'selesai');
+        })
+        ->sum('jumlah');
 
         $totalProducts = Product::where('user_id', $userId)->count();
 
-        $pendingOrders = Order::where('status', 'menunggu')
-            ->whereHas('details.product', function($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })->count();
+        $pendingOrders = Order::whereHas('details.product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+        ->where('status', 'menunggu')
+        ->count();
 
         $stats = [
             'total_received' => $totalReceived,
-            'sold_count'     => $soldCount,
+            'sold_count' => $soldCount,
             'total_products' => $totalProducts,
             'pending_orders' => $pendingOrders,
         ];
@@ -47,102 +54,209 @@ class OrderController extends Controller
     }
 
     /**
-     * Halaman Checkout (Setelah pilih barang di keranjang)
+     * CHECKOUT
      */
     public function checkout(Request $request)
     {
         if (!$request->has('items')) {
-            return redirect()->route('cart.index')->with('error', 'Pilih produk di keranjang terlebih dahulu!');
+            return redirect()->route('cart.index')
+                ->with('error', 'Pilih produk terlebih dahulu!');
         }
 
         $ids = explode(',', $request->query('items'));
-        $cartItems = Cart::with('product.user')->whereIn('id', $ids)->where('user_id', Auth::id())->get();
-        
-        if($cartItems->isEmpty()) return redirect()->route('cart.index');
 
-        $subtotal = $cartItems->sum(fn($item) => $item->jumlah * $item->product->harga);
-        $jarak = 2; // Default jarak (bisa dinamis nantinya)
+        $cartItems = Cart::with('product.user')
+            ->whereIn('id', $ids)
+            ->where('user_id', Auth::id())
+            ->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Keranjang kosong!');
+        }
+
+        $subtotal = $cartItems->sum(fn($item) =>
+            $item->jumlah * $item->product->harga
+        );
+
+        $jarak = 2;
         $ongkir = $jarak * 6500;
         $totalBayar = $subtotal + $ongkir;
 
-        return view('customer.checkout', compact('cartItems', 'subtotal', 'ongkir', 'totalBayar', 'jarak'));
+        return view('customer.checkout', compact(
+            'cartItems',
+            'subtotal',
+            'ongkir',
+            'totalBayar',
+            'jarak'
+        ));
     }
 
     /**
-     * Proses Simpan Pesanan ke Database
+     * PROCESS ORDER
      */
     public function process(Request $request)
     {
         DB::beginTransaction();
-        try {
-            $ids = explode(',', $request->item_ids);
-            $cartItems = Cart::with('product')->whereIn('id', $ids)->where('user_id', Auth::id())->get();
-            
-            if($cartItems->isEmpty()) throw new \Exception("Keranjang kosong atau item tidak ditemukan.");
 
-            $subtotal = $cartItems->sum(fn($item) => $item->jumlah * $item->product->harga);
-            $ongkir = 2 * 6500; // Samakan dengan logic di checkout
+        try {
+
+            $request->validate([
+                'item_ids' => 'required',
+            ]);
+
+            $ids = explode(',', $request->item_ids);
+
+            $cartItems = Cart::with('product')
+                ->whereIn('id', $ids)
+                ->where('user_id', Auth::id())
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                throw new \Exception('Keranjang kosong.');
+            }
+
+            $subtotal = $cartItems->sum(fn($item) =>
+                $item->jumlah * $item->product->harga
+            );
+
+            $ongkir = 2 * 6500;
 
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'total_harga' => $subtotal + $ongkir,
                 'ongkir' => $ongkir,
-                'status' => 'menunggu'
+                'status' => 'menunggu',
+                'catatan' => $request->catatan,
             ]);
 
             foreach ($cartItems as $item) {
+
+                // VALIDASI STOK
+                if ($item->jumlah > $item->product->stok) {
+                    throw new \Exception(
+                        'Stok produk ' .
+                        $item->product->nama_produk .
+                        ' tidak mencukupi.'
+                    );
+                }
+
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'jumlah' => $item->jumlah,
-                    'harga_saat_ini' => $item->product->harga, // Sesuai field DB kamu
+                    'harga_saat_ini' => $item->product->harga,
                 ]);
-                $item->delete(); 
+
+                // KURANGI STOK
+                $item->product->decrement('stok', $item->jumlah);
+
+                // HAPUS CART
+                $item->delete();
             }
 
             DB::commit();
-            return redirect()->route('orders.history')->with('success', 'Pesanan berhasil dibuat!');
+
+            return redirect()
+                ->route('orders.history')
+                ->with('success', 'Pesanan berhasil dibuat!');
+
         } catch (\Exception $e) {
+
             DB::rollBack();
-            return redirect()->route('cart.index')->with('error', 'Gagal memproses pesanan: ' . $e->getMessage());
+
+            return redirect()
+                ->route('cart.index')
+                ->with('error', $e->getMessage());
         }
     }
 
     /**
-     * Halaman Riwayat Pesanan (Sisi Customer)
+     * HISTORY CUSTOMER
      */
-    public function history() 
+    public function history()
     {
-        $orders = Order::with('details.product')
-                    ->where('user_id', Auth::id())
-                    ->latest()
-                    ->get();
-        
-        // SUDAH DIBENERIN: Memanggil riwayat-pesanan.blade.php
+        $orders = Order::with([
+            'details.product',
+            'user'
+        ])
+        ->where('user_id', Auth::id())
+        ->latest()
+        ->get();
+
         return view('customer.riwayat-pesanan', compact('orders'));
     }
 
     /**
-     * List Pesanan Masuk (Sisi KWT/Penjual)
+     * DETAIL HISTORY CUSTOMER
      */
-    public function kwtOrders() 
+    public function show($id)
     {
-        $orders = Order::with(['user', 'details.product'])
-                  ->whereHas('details.product', function($q) {
-                      $q->where('user_id', Auth::id());
-                  })->latest()->get();
+        $order = Order::with([
+            'details.product',
+            'user'
+        ])
+        ->where('user_id', Auth::id())
+        ->findOrFail($id);
+
+        return view('customer.detail-pesanan', compact('order'));
+    }
+
+    /**
+     * LIST PESANAN KWT
+     */
+    public function kwtOrders()
+    {
+        $orders = Order::with([
+            'user',
+            'details.product'
+        ])
+        ->whereHas('details.product', function ($q) {
+            $q->where('user_id', Auth::id());
+        })
+        ->latest()
+        ->get();
 
         return view('kwt.orders', compact('orders'));
     }
 
     /**
-     * Update Status oleh KWT (Terima/Tolak/Selesai)
+     * DETAIL PESANAN KWT
      */
-    public function updateStatus(Request $request, $id) 
+    public function kwtOrderDetail($id)
     {
-        $order = Order::findOrFail($id);
-        $order->update(['status' => $request->status]);
+        $order = Order::with([
+            'user',
+            'details.product'
+        ])
+        ->whereHas('details.product', function ($q) {
+            $q->where('user_id', Auth::id());
+        })
+        ->findOrFail($id);
 
-        return back()->with('success', 'Status pesanan diperbarui!');
+        return view('kwt.detail-order', compact('order'));
+    }
+
+    /**
+     * UPDATE STATUS
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:menunggu,diproses,selesai,dibatalkan'
+        ]);
+
+        $order = Order::whereHas('details.product', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->findOrFail($id);
+
+        $order->update([
+            'status' => $request->status
+        ]);
+
+        return back()->with(
+            'success',
+            'Status pesanan berhasil diperbarui!'
+        );
     }
 }

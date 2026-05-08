@@ -16,14 +16,9 @@ use App\Http\Controllers\ProfileController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [ProductController::class, 'home'])
-    ->name('home');
-
-Route::view('/tentang-kami', 'about')
-    ->name('about');
-
-Route::get('/katalog', [ProductController::class, 'index'])
-    ->name('customer.katalog');
+Route::get('/', [ProductController::class, 'home'])->name('home');
+Route::view('/tentang-kami', 'about')->name('about');
+Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
 
 /*
 |--------------------------------------------------------------------------
@@ -31,42 +26,34 @@ Route::get('/katalog', [ProductController::class, 'index'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/auth/google', [GoogleController::class, 'redirect'])
-    ->name('google.login');
-
-Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
-    ->name('google.callback');
+Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD REDIRECT
 |--------------------------------------------------------------------------
-| Verify email cukup di sini saja
 */
 
 Route::get('/dashboard', function () {
 
     $user = Auth::user();
 
-    // ADMIN
     if ($user->role === 'admin') {
         return redirect()->route('admin.dashboard');
     }
 
-    // KWT
     if ($user->role === 'kwt') {
         return redirect()->route('kwt.dashboard');
     }
 
-    // CUSTOMER
     return redirect()->route('home');
 
-})->middleware(['auth', 'verified'])
-  ->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATED ROUTES
+| AUTH ROUTES
 |--------------------------------------------------------------------------
 */
 
@@ -77,17 +64,34 @@ Route::middleware(['auth'])->group(function () {
     | ADMIN AREA
     |--------------------------------------------------------------------------
     */
-
     Route::middleware(['role:admin'])
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
 
-            Route::get('/dashboard', [AdminController::class, 'index'])
+            // DASHBOARD
+            Route::get('/dashboard', [AdminController::class, 'dashboard'])
                 ->name('dashboard');
 
-            Route::get('/users', [AdminController::class, 'manageUsers'])
+            /*
+            |--------------------------------------------------------------------------
+            | FIX ROUTE YANG ERROR DI DASHBOARD
+            |--------------------------------------------------------------------------
+            */
+
+            // ✅ FIX: admin.users (INI YANG KAMU ERROR SEBELUMNYA)
+            Route::get('/users', [AdminController::class, 'kwtIndex'])
                 ->name('users');
+
+            Route::post('/users/store', [AdminController::class, 'storeKwt'])
+                ->name('users.store');
+
+            // tambahan alias aman
+            Route::get('/kwt', [AdminController::class, 'kwtIndex'])
+                ->name('kwt');
+
+            Route::post('/kwt/store', [AdminController::class, 'storeKwt'])
+                ->name('kwt.store');
         });
 
     /*
@@ -95,7 +99,6 @@ Route::middleware(['auth'])->group(function () {
     | KWT AREA
     |--------------------------------------------------------------------------
     */
-
     Route::middleware(['role:kwt'])
         ->prefix('kwt')
         ->name('kwt.')
@@ -106,7 +109,7 @@ Route::middleware(['auth'])->group(function () {
 
             /*
             |--------------------------------------------------------------------------
-            | PRODUCT CRUD
+            | PRODUCT ROUTES (FIX ERROR KAMU DI SINI)
             |--------------------------------------------------------------------------
             */
 
@@ -122,7 +125,8 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/produk/{id}', [ProductController::class, 'update'])
                 ->name('products.update');
 
-            Route::delete('/hapus-produk/{id}', [ProductController::class, 'destroy'])
+            // ✅ FIX ERROR INI: kwt.products.destroy
+            Route::delete('/produk/{id}', [ProductController::class, 'destroy'])
                 ->name('products.destroy');
 
             /*
@@ -133,6 +137,9 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/list-pesanan', [OrderController::class, 'kwtOrders'])
                 ->name('orders');
+
+            Route::get('/detail-pesanan/{id}', [OrderController::class, 'kwtOrderDetail'])
+                ->name('orders.detail');
 
             Route::post('/update-status/{id}', [OrderController::class, 'updateStatus'])
                 ->name('order.status');
@@ -163,36 +170,23 @@ Route::middleware(['auth'])->group(function () {
     */
 
     Route::controller(CartController::class)->group(function () {
-
-        Route::get('/cart', 'index')
-            ->name('cart.index');
-
-        Route::post('/cart/add/{id}', 'store')
-            ->name('cart.add');
-
-        Route::patch('/cart/update/{id}', 'update')
-            ->name('cart.update');
-
-        Route::delete('/cart/{id}', 'destroy')
-            ->name('cart.destroy');
+        Route::get('/cart', 'index')->name('cart.index');
+        Route::post('/cart/add/{id}', 'store')->name('cart.add');
+        Route::patch('/cart/update/{id}', 'update')->name('cart.update');
+        Route::delete('/cart/{id}', 'destroy')->name('cart.destroy');
     });
 
     /*
     |--------------------------------------------------------------------------
-    | CUSTOMER ORDER
+    | ORDER CUSTOMER
     |--------------------------------------------------------------------------
     */
 
     Route::controller(OrderController::class)->group(function () {
-
-        Route::get('/checkout', 'checkout')
-            ->name('checkout.index');
-
-        Route::post('/checkout/process', 'process')
-            ->name('checkout.process');
-
-        Route::get('/riwayat-pesanan', 'history')
-            ->name('orders.history');
+        Route::get('/checkout', 'checkout')->name('checkout.index');
+        Route::post('/checkout/process', 'process')->name('checkout.process');
+        Route::get('/riwayat-pesanan', 'history')->name('orders.history');
+        Route::get('/riwayat-pesanan/{id}', 'show')->name('orders.detail');
     });
 
     /*
@@ -201,20 +195,9 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-/*
-|--------------------------------------------------------------------------
-| AUTH ROUTES
-|--------------------------------------------------------------------------
-*/
 
 require __DIR__ . '/auth.php';

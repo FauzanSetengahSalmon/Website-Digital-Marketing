@@ -42,13 +42,21 @@ class User extends Authenticatable implements MustVerifyEmail
     |--------------------------------------------------------------------------
     */
 
+    // CART
     public function carts()
     {
         return $this->hasMany(Cart::class);
     }
 
+    // KWT PROFILE
     public function kwt()
     {
         return $this->hasOne(Kwt::class, 'user_id');
+    }
+
+    // PRODUCTS
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
 }

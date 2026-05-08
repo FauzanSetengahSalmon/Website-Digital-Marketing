@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'EFood')</title>
+    <title>@yield('title', 'KWT Cibiru')</title>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -18,12 +18,16 @@
     <style>
         * { box-sizing: border-box; }
         a { text-decoration: none; }
-        body { background: #f5f6f7; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            background: #f5f6f7;
+            font-family: 'Segoe UI', sans-serif;
+            color: #334155;
+        }
 
         .navbar-efood {
             background: #ffffff;
             border-bottom: 1px solid #e8f5e2;
-            padding: 0;
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -33,316 +37,189 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 14px 0;
             gap: 16px;
         }
 
         .brand-logo-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: #1a1a1a;
             font-weight: 700;
             font-size: 20px;
-            letter-spacing: -0.3px;
         }
 
         .brand-icon {
-            width: 38px;
-            height: 38px;
-            background: #2d7a22;
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #f0f9eb;
+            border: 2px solid #dcefd5;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
         }
 
-        .brand-logo-wrap span { color: #2d7a22; }
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-title {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .brand-title strong {
+            color: #2d7a22;
+            font-size: 20px;
+        }
+
+        .brand-title small {
+            color: #64748b;
+            font-size: 11px;
+        }
 
         .nav-link-efood {
             color: #555;
-            font-weight: 500;
-            font-size: 15px;
-            padding: 8px 14px;
-            border-radius: 8px;
-            transition: all 0.15s;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            transition: .2s;
         }
 
         .nav-link-efood:hover,
         .nav-link-efood.active {
             color: #2d7a22;
-            background-color: #f0f9eb;
+            background: #f0f9eb;
         }
 
         .btn-cart {
-            background: #ffffff;
-            color: #28a745;
-            border: 1px solid #e8f5e9;
-            padding: 8px 12px;
-            border-radius: 10px;
-            display: inline-flex;
+            background: white;
+            color: #2d7a22;
+            border: 1px solid #dfeedd;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            margin-right: 10px;
+            position: relative;
         }
-
-        .btn-cart:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.1);
-        }
-
-        .btn-cart i { font-size: 1.2rem; }
-
-        .badge { border: 2px solid #ffffff; }
 
         .btn-masuk {
-            padding: 8px 18px;
-            border-radius: 8px;
-            border: 1.5px solid #ddd;
-            background: #fff;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: 1px solid #d8e6d5;
+            background: white;
             color: #444;
-            transition: all 0.15s;
+            font-weight: 600;
         }
-
-        .btn-masuk:hover { border-color: #2d7a22; color: #2d7a22; }
 
         .btn-daftar {
-            padding: 8px 18px;
-            border-radius: 8px;
+            padding: 9px 18px;
+            border-radius: 10px;
             border: none;
-            background: #2d7a22;
-            font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-            transition: background 0.15s;
-            cursor: pointer;
-        }
-
-        .btn-daftar:hover { background: #1b5e20; color: #fff; }
-
-        footer {
-            margin-top: 60px;
-            background: #f0f9eb;
-            border-top: 1px solid #c8e6b4;
-        }
-
-        .footer-top { padding: 50px 0 40px; }
-
-        .footer-brand-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #1a1a1a;
-            font-weight: 700;
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        .footer-brand-icon {
-            width: 36px;
-            height: 36px;
-            background: #2d7a22;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .footer-brand-wrap span { color: #2d7a22; }
-
-        .footer-tagline {
-            font-size: 13px;
-            color: #555;
-            line-height: 1.65;
-            margin-top: 10px;
-        }
-
-        .footer-social { margin-top: 14px; display: flex; gap: 8px; }
-
-        .footer-social a {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background: #fff;
-            border: 1.5px solid #c8e6b4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2d7a22;
-            transition: all 0.15s;
-        }
-
-        .footer-social a:hover { background: #2d7a22; color: #fff; border-color: #2d7a22; }
-
-        .footer-heading {
-            font-size: 12px;
-            font-weight: 700;
-            color: #1b5e20;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-            margin-bottom: 14px;
-        }
-
-        .footer-link { display: block; font-size: 14px; color: #555; margin-bottom: 8px; }
-        .footer-link:hover { color: #2d7a22; }
-
-        .footer-subscribe-input {
-            width: 100%;
-            padding: 9px 12px;
-            border-radius: 8px;
-            border: 1.5px solid #c8e6b4;
-            margin-bottom: 8px;
-        }
-
-        .btn-subscribe {
-            width: 100%;
-            background: #2d7a22;
-            border: none;
-            padding: 9px;
+            background: linear-gradient(135deg, #2d7a22, #43a047);
             color: white;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid #c8e6b4;
-            padding: 16px 0;
-            font-size: 13px;
-            color: #777;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar-efood">
-        <div class="container">
-            <div class="navbar-inner">
+<nav class="navbar-efood">
+    <div class="container">
+        <div class="navbar-inner">
 
-                <a href="{{ url('/') }}" class="brand-logo-wrap">
-                    <div class="brand-icon">
-                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                            <path d="M4 18c0-6 4-11 9-13" stroke="white" stroke-width="1.8" stroke-linecap="round" />
-                            <path d="M13 5c2-3 6-4 8-2-1 3-5 5-8 2z" fill="white" opacity="0.9" />
-                            <path d="M9 10c-2-3-5-3-7-1 1 3 5 5 7 1z" fill="white" opacity="0.7" />
-                            <circle cx="16" cy="3" r="1.8" fill="white" opacity="0.55" />
-                        </svg>
-                    </div>
-                    E<span>Food</span>
+            <a href="{{ url('/') }}" class="brand-logo-wrap">
+                <div class="brand-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909762.png">
+                </div>
+                <div class="brand-title">
+                    <strong>KWT Cibiru</strong>
+                    <small>Kelompok Wanita Tani Digital</small>
+                </div>
+            </a>
+
+            <ul class="nav d-none d-lg-flex gap-1">
+                <li><a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Beranda</a></li>
+                <li><a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="{{ route('customer.katalog') }}">Katalog</a></li>
+                <li><a class="nav-link-efood {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a></li>
+                <li><a class="nav-link-efood {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a></li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2">
+
+                {{-- CART FIX --}}
+                <a href="{{ route('cart.index') }}" class="btn-cart">
+                    <i class="bi bi-cart3"></i>
+
+                    @php
+                        $cartTotal = auth()->check()
+                            ? auth()->user()->carts()->sum('jumlah')
+                            : 0;
+                    @endphp
+
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger {{ $cartTotal > 0 ? '' : 'd-none' }}">
+                        {{ $cartTotal }}
+                    </span>
                 </a>
 
-                <ul class="nav d-none d-lg-flex gap-1">
-                    <li><a class="nav-link-efood {{ request()->is('/') ? 'active' : '' }}" href="{{ route('home') }}">Beranda</a></li>
-                    <li><a class="nav-link-efood {{ request()->is('katalog*') ? 'active' : '' }}" href="{{ route('customer.katalog') }}">Katalog</a></li>
-                    <li><a class="nav-link-efood {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}" href="{{ route('orders.history') }}">Riwayat</a></li>
-                    <li><a class="nav-link-efood {{ request()->is('tentang-kami') ? 'active' : '' }}" href="{{ route('about') }}">Tentang Kami</a></li>
-                </ul>
+                @auth
 
-                <div class="d-flex align-items-center gap-2">
-                    <a href="{{ route('cart.index') }}" class="btn-cart position-relative">
-                        <i class="bi bi-cart3"></i>
-                        @php
-                            $cartTotal = auth()->check() ? auth()->user()->carts()->sum('jumlah') : 0;
-                        @endphp
-                        <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger {{ $cartTotal > 0 ? '' : 'd-none' }}"
-                            style="font-size: 10px; padding: 4px 6px; line-height: 1;">
-                            {{ $cartTotal }}
-                        </span>
-                    </a>
+                {{-- 🔥 DROPDOWN FIX (INI YANG KAMU TANYA) --}}
+                <div class="dropdown">
+                    <button class="btn-daftar dropdown-toggle" data-bs-toggle="dropdown">
+                        {{ Auth::user()->name }}
+                    </button>
 
-                    @auth
-                    <div class="dropdown">
-                        <button class="btn-daftar dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle me-1"></i> {{ Auth::user()->name }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                            <li><a class="dropdown-item py-2" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2 text-success"></i> Profil Saya</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item py-2 text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                    @else
-                    <a href="{{ route('login') }}" class="btn-masuk">Masuk</a>
-                    <a href="{{ route('register') }}" class="btn-daftar">Daftar</a>
-                    @endauth
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                Profile
+                            </a>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="dropdown-item text-danger" type="submit">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
 
+                @else
+
+                <a href="{{ route('login') }}" class="btn-masuk">Masuk</a>
+                <a href="{{ route('register') }}" class="btn-daftar">Daftar</a>
+
+                @endauth
+
             </div>
+
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main>
-        @yield('content')
-    </main>
+<main>
+    @yield('content')
+</main>
 
-    <footer>
-        <div class="footer-top">
-            <div class="container">
-                <div class="row g-5">
-                    <div class="col-12 col-md-3">
-                        <div class="footer-brand-wrap">
-                            <div class="footer-brand-icon">
-                                <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-                                    <path d="M4 18c0-6 4-11 9-13" stroke="white" stroke-width="1.8" stroke-linecap="round" />
-                                    <path d="M13 5c2-3 6-4 8-2-1 3-5 5-8 2z" fill="white" opacity="0.9" />
-                                    <path d="M9 10c-2-3-5-3-7-1 1 3 5 5 7 1z" fill="white" opacity="0.7" />
-                                    <circle cx="16" cy="3" r="1.8" fill="white" opacity="0.55" />
-                                </svg>
-                            </div>
-                            E<span>Food</span>
-                        </div>
-                        <p class="footer-tagline">Lebih Cepat, Lebih Mudah, Lebih Nikmat – Makanan Pilihan Kini Sampai di Rumahmu!</p>
-                        <div class="footer-social">
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-tiktok"></i></a>
-                        </div>
-                    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-                    <div class="col-12 col-md-4">
-                        <p class="footer-heading">Laporkan Bug</p>
-                        <input type="email" class="footer-subscribe-input" placeholder="email@gmail.com">
-                        <button class="btn-subscribe">Kirim Laporan</button>
-                    </div>
-
-                    <div class="col-6 col-md-2 offset-md-1">
-                        <p class="footer-heading">Tentang Aplikasi</p>
-                        <a class="footer-link" href="{{ route('about') }}">Tentang Kami</a>
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <p class="footer-heading">Aksi Cepat</p>
-                        <a href="{{ route('customer.katalog') }}" class="footer-link">Katalog</a>
-                        @auth
-                        <a href="{{ route('orders.history') }}" class="footer-link">Riwayat</a>
-                        @endauth
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>© {{ date('Y') }} KWT — Kelompok Wanita Tani Desa Cibiru</span>
-                <span style="color:#2d7a22;">Dibuat dengan ♥ untuk masyarakat lokal</span>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @stack('scripts')
 </body>
 </html>

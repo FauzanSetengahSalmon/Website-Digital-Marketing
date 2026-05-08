@@ -13,16 +13,43 @@ class OrderDetail extends Model
         'order_id',
         'product_id',
         'jumlah',
-        'harga_saat_ini'
+        'harga_saat_ini',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION ORDER
+    |--------------------------------------------------------------------------
+    */
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(
+            Order::class,
+            'order_id'
+        );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION PRODUCT
+    |--------------------------------------------------------------------------
+    */
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(
+            Product::class,
+            'product_id'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUBTOTAL
+    |--------------------------------------------------------------------------
+    */
+    public function getSubtotalAttribute()
+    {
+        return $this->jumlah *
+            $this->harga_saat_ini;
     }
 }
