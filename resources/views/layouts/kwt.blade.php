@@ -179,7 +179,7 @@
                 <i class="bi bi-cart3"></i> Pesanan
             </a>
 
-            <a href="#" class="nav-link {{ request()->routeIs('kwt.transactions') ? 'active' : '' }}">
+            <a href="{{ route('kwt.laporan') }}" class="nav-link {{ request()->routeIs('kwt.transactions') ? 'active' : '' }}">
                 <i class="bi bi-receipt"></i> Laporan Transaksi
             </a>
 

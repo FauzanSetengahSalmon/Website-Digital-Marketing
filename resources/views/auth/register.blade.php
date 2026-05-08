@@ -18,6 +18,7 @@
             --white: #ffffff;
             --text-dark: #1f2937;
             --text-light: #6b7280;
+            --danger: #dc2626;
         }
 
         * {
@@ -36,7 +37,6 @@
             padding: 20px;
         }
 
-        /* ANIMASI IDENTIK DENGAN LOGIN */
         .container {
             background: rgba(255, 255, 255, 0.95);
             width: 100%;
@@ -44,24 +44,21 @@
             min-height: 600px;
             border-radius: 30px;
             display: flex;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
             animation: slideUp 0.6s ease-out;
-            /* Animasi hanya di sini */
         }
 
-        /* --- Left Side: Visual (Gambar Tetap di Kiri) --- */
         .visual-side {
             flex: 1.2;
-            position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)),
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)),
                 url('https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=1200') center/cover;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             padding: 50px;
-            color: var(--white);
+            color: white;
         }
 
         .badge {
@@ -71,26 +68,20 @@
             border-radius: 50px;
             font-size: 11px;
             font-weight: 700;
-            text-transform: uppercase;
             margin-bottom: 10px;
-            align-self: flex-start;
+            width: fit-content;
         }
 
         .visual-side h1 {
             font-size: 32px;
-            font-weight: 700;
-            line-height: 1.2;
             margin-bottom: 10px;
         }
 
-        /* --- Right Side: Form (Dibuat Rapat) --- */
         .form-side {
             flex: 1;
-            padding: 50px 60px;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            background: white;
+            padding: 45px 50px;
+            overflow-y: auto;
         }
 
         .form-header {
@@ -98,29 +89,35 @@
         }
 
         .form-header h2 {
-            font-size: 28px;
+            font-size: 30px;
             color: var(--text-dark);
-            font-weight: 700;
         }
 
         .form-header p {
+            margin-top: 5px;
             color: var(--text-light);
             font-size: 14px;
-            margin-top: 5px;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            font-size: 13px;
         }
 
         .input-wrapper {
-            margin-bottom: 15px;
-            /* Lebih rapat */
+            margin-bottom: 16px;
         }
 
         .input-label {
             display: block;
+            margin-bottom: 6px;
             font-size: 13px;
             font-weight: 600;
             color: var(--text-dark);
-            margin-bottom: 6px;
-            margin-left: 4px;
         }
 
         .input-field {
@@ -133,36 +130,51 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--primary);
-            font-size: 16px;
         }
 
         .input-field input,
         .input-field select {
             width: 100%;
-            padding: 12px 16px 12px 48px;
-            border: 1.5px solid #e5e7eb;
+            padding: 13px 16px 13px 48px;
             border-radius: 14px;
-            outline: none;
-            font-size: 14px;
+            border: 1.5px solid #e5e7eb;
             background: #f9fafb;
+            outline: none;
             transition: 0.3s;
+            font-size: 14px;
         }
 
-        .input-field input:focus {
+        .input-field input:focus,
+        .input-field select:focus {
             border-color: var(--primary);
-            background: #fff;
+            background: white;
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .error-text {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 5px;
+            margin-left: 3px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6b7280;
         }
 
         .btn-main {
             width: 100%;
+            border: none;
             background: var(--primary);
             color: white;
             padding: 14px;
-            border: none;
             border-radius: 14px;
             font-weight: 700;
-            font-size: 15px;
             cursor: pointer;
             transition: 0.3s;
             margin-top: 10px;
@@ -173,52 +185,67 @@
             transform: translateY(-2px);
         }
 
+        .btn-main:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .divider {
             display: flex;
             align-items: center;
-            text-align: center;
-            margin: 20px 0;
+            margin: 22px 0;
             color: #9ca3af;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .divider::before,
         .divider::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .divider:not(:empty)::before {
-            margin-right: 1.5em;
+        .divider::before {
+            margin-right: 10px;
         }
 
-        .divider:not(:empty)::after {
-            margin-left: 1.5em;
+        .divider::after {
+            margin-left: 10px;
         }
 
         .btn-google {
             width: 100%;
             background: white;
             border: 1.5px solid #e5e7eb;
-            padding: 12px;
+            padding: 13px;
             border-radius: 14px;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             gap: 10px;
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 600;
-            font-size: 14px;
             transition: 0.3s;
         }
 
-        .footer-text {
+        .btn-google:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .google-note {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 10px;
             text-align: center;
+            line-height: 1.5;
+        }
+
+        .footer-text {
             margin-top: 25px;
+            text-align: center;
             font-size: 14px;
             color: var(--text-light);
         }
@@ -232,7 +259,7 @@
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(25px);
             }
 
             to {
@@ -241,17 +268,18 @@
             }
         }
 
-        @media (max-width: 900px) {
+        @media(max-width:900px) {
+
             .visual-side {
                 display: none;
             }
 
             .container {
-                max-width: 450px;
+                max-width: 500px;
             }
 
             .form-side {
-                padding: 40px 30px;
+                padding: 35px 25px;
             }
         }
     </style>
@@ -260,6 +288,7 @@
 <body>
 
     <div class="container">
+
         <div class="visual-side">
             <span class="badge">Fresh & Healthy</span>
             <h1>Rasakan Manfaat <br>Hasil Alam.</h1>
@@ -267,79 +296,150 @@
         </div>
 
         <div class="form-side">
+
             <div class="form-header">
                 <h2>Daftar Akun</h2>
-                @if ($errors->any())
-                <div style="background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px;">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
                 <p>Mulai perjalanan sehat Anda bersama EFood.</p>
             </div>
 
-            <form method="POST" action="{{ route('register') }}">
+            @if ($errors->any())
+            <div class="alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('register') }}" id="registerForm">
                 @csrf
 
                 <div class="input-wrapper">
                     <label class="input-label">Nama Lengkap</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-signature"></i>
-                        <input type="text" name="name" placeholder="John Doe" required>
+
+                        <input
+                            type="text"
+                            name="name"
+                            value="{{ old('name') }}"
+                            placeholder="John Doe"
+                            autocomplete="name"
+                            autofocus
+                            required>
                     </div>
+
+                    @error('name')
+                    <div class="error-text">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">Alamat Email</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" name="email" placeholder="nama@email.com" required>
+
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="nama@email.com"
+                            autocomplete="email"
+                            required>
                     </div>
+
+                    @error('email')
+                    <div class="error-text">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">Password</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="password" name="password" placeholder="Min. 8 Karakter" required>
+
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            placeholder="Min. 8 Karakter"
+                            autocomplete="new-password"
+                            required>
+
+                        <span class="password-toggle" onclick="togglePassword('password', this)">
+                            <i class="fa-solid fa-eye"></i>
+                        </span>
                     </div>
+
+                    @error('password')
+                    <div class="error-text">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">Konfirmasi Password</label>
+
                     <div class="input-field">
-                        <i class="fa-solid fa-shield-check"></i> <input type="password" name="password_confirmation" placeholder="Ulangi Password" required>
+                        <i class="fa-solid fa-solid fa-lock"></i>
+
+                        <input
+                            type="password"
+                            name="password_confirmation"
+                            id="confirmPassword"
+                            placeholder="Ulangi Password"
+                            autocomplete="new-password"
+                            required>
+
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                            <i class="fa-solid fa-eye"></i>
+                        </span>
                     </div>
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">No. Telepon</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-phone"></i>
-                        <input type="text" name="phone_number" placeholder="0812xxxxxxx" required>
+
+                        <input
+                            type="text"
+                            name="phone_number"
+                            value="{{ old('phone_number') }}"
+                            placeholder="0812xxxxxxx"
+                            required>
                     </div>
+
+                    @error('phone_number')
+                    <div class="error-text">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">Provinsi</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-map"></i>
+
                         <select name="province" required>
-                            <option value="" disabled selected>Pilih Provinsi</option>
+                            <option value="">Pilih Provinsi</option>
                             <option value="Jawa Barat">Jawa Barat</option>
-                            </select>
+                        </select>
                     </div>
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">Kota/Kabupaten</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-city"></i>
+
                         <select name="city" required>
-                            <option value="" disabled selected>Pilih Kota/Kabupaten</option>
+                            <option value="">Pilih Kota/Kabupaten</option>
                             <option value="Bandung">Kota Bandung</option>
                             <option value="Kab. Bandung">Kab. Bandung</option>
                         </select>
@@ -348,35 +448,85 @@
 
                 <div class="input-wrapper">
                     <label class="input-label">Kecamatan</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-map-location-dot"></i>
-                        <input type="text" name="district" placeholder="Contoh: Cibiru" required>
+
+                        <input
+                            type="text"
+                            name="district"
+                            value="{{ old('district') }}"
+                            placeholder="Contoh: Cibiru"
+                            required>
                     </div>
                 </div>
 
                 <div class="input-wrapper">
                     <label class="input-label">Alamat Lengkap</label>
+
                     <div class="input-field">
                         <i class="fa-solid fa-house-chimney"></i>
-                        <input type="text" name="address" placeholder="Nama Jalan, No. Rumah, RT/RW" required>
+
+                        <input
+                            type="text"
+                            name="address"
+                            value="{{ old('address') }}"
+                            placeholder="Nama Jalan, No Rumah, RT/RW"
+                            required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-main">Buat Akun</button>
+                <button type="submit" class="btn-main" id="submitBtn">
+                    Buat Akun
+                </button>
 
-                <div class="divider">Atau daftar dengan</div>
+                <div class="divider">
+                    atau daftar dengan
+                </div>
 
-                <a href="/auth/google" class="btn-google">
-                    <img src="image/google.png" width="18" alt="Google">
-                    Akun Google
+                <a href="{{ route('google.login') }}" class="btn-google">
+                    <img src="{{ asset('image/google.png') }}" width="18">
+                    Lanjutkan dengan Google
                 </a>
+
+                <div class="google-note">
+                    Jika login menggunakan Google, data alamat dan nomor telepon
+                    dapat dilengkapi setelah berhasil masuk.
+                </div>
             </form>
 
             <div class="footer-text">
-                Sudah punya akun? <a href="/login">Masuk</a>
+                Sudah punya akun?
+                <a href="{{ route('login') }}">Masuk</a>
             </div>
+
         </div>
     </div>
+
+    <script>
+        function togglePassword(id, el) {
+
+            const input = document.getElementById(id);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                el.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                el.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            }
+        }
+
+        document.getElementById('registerForm')
+            .addEventListener('submit', function() {
+
+                const btn = document.getElementById('submitBtn');
+
+                btn.disabled = true;
+
+                btn.innerHTML = 'Memproses...';
+            });
+    </script>
 
 </body>
 

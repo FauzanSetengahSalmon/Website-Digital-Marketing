@@ -8,11 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Auth\Events\Verified;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Tampilkan halaman profile customer
      */
     public function edit(Request $request): View
     {
@@ -22,33 +24,80 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Update profile user
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $validated = $request->validated();
+
+        // Update data user
+        $user->fill([
+            'name'         => $validated['name'],
+            'email'        => $validated['email'],
+            'phone_number' => $validated['phone_number'] ?? null,
+            'province'     => $validated['province'] ?? null,
+            'city'         => $validated['city'] ?? null,
+            'district'     => $validated['district'] ?? null,
+            'address'      => $validated['address'] ?? null,
+        ]);
+
+        /**
+         * Kalau email diganti:
+         * - reset verifikasi email
+         * - kirim ulang verifikasi
+         */
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+
+            // Kirim ulang verifikasi email
+            $user->sendEmailVerificationNotification();
         }
 
-        $request->user()->save();
+        $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        /**
+         * Kalau login google dan profile masih kosong
+         * maka setelah update profile redirect dashboard
+         */
+        if (
+            empty($user->phone_number) ||
+            empty($user->address)
+        ) {
+            return Redirect::route('profile.edit')
+                ->with('success', 'Profile berhasil dilengkapi.');
+        }
+
+        return Redirect::route('profile.edit')
+            ->with('success', 'Profile berhasil diperbarui.');
     }
-    // Tambahkan ini di ProfileController.php
-    public function editKwt(Request $request)
+
+    /**
+     * Profile khusus KWT
+     */
+    public function editKwt(Request $request): View
     {
-        return view('kwt.profile', [ // Sesuai nama file profil KWT yang dibuat tadi
+        return view('kwt.profile', [
             'user' => $request->user(),
         ]);
     }
 
+    /**
+     * Hapus akun
+     */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        /**
+         * Kalau user login pakai Google
+         * password bisa kosong
+         */
+        if ($request->user()->password) {
+
+            $request->validateWithBag('userDeletion', [
+                'password' => ['required', 'current_password'],
+            ]);
+        }
 
         $user = $request->user();
 
