@@ -154,10 +154,13 @@
         font-weight: 600;
         flex: 1;
         transition: 0.2s;
+        text-align: center;
+        text-decoration: none;
     }
 
     .btn-buy-now:hover:not(:disabled) {
         background: #2e7d32;
+        color: white;
     }
 
     .btn-cart-outline {
@@ -191,13 +194,8 @@
         z-index: 2;
     }
 
-    .stock-available {
-        color: #2ecc71;
-    }
-
-    .stock-empty {
-        color: #e74c3c;
-    }
+    .stock-available { color: #2ecc71; }
+    .stock-empty { color: #e74c3c; }
 </style>
 @endpush
 
@@ -208,6 +206,7 @@
     <div class="row justify-content-center mb-5">
         <div class="col-lg-10">
             <div class="filter-wrapper">
+                {{-- Form filter ini pakai GET, jadi aman --}}
                 <form action="{{ route('customer.katalog') }}" method="GET" class="row g-2 align-items-center">
                     <div class="col-md-7">
                         <div class="search-container">
@@ -239,12 +238,12 @@
 
                 <div class="img-container">
                     @if($product->foto_produk)
-                    <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
+                        <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
                     @else
-                    <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted" style="opacity: 0.4;">
-                        <i class="bi bi-image" style="font-size: 2rem;"></i>
-                        <small style="font-size: 10px;">No Image</small>
-                    </div>
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted" style="opacity: 0.4;">
+                            <i class="bi bi-image" style="font-size: 2rem;"></i>
+                            <small style="font-size: 10px;">No Image</small>
+                        </div>
                     @endif
                 </div>
 
@@ -265,22 +264,25 @@
 
                         <div class="d-flex gap-2">
                             @if($product->stok > 0)
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-grow-1">
-                                @csrf
-                                <input type="hidden" name="direct_buy" value="1">
-                                <button type="submit" class="btn-buy-now w-100">Beli</button>
-                            </form>
+                                {{-- PERBAIKAN: Tombol Beli SEKARANG TANPA FORM HTML --}}
+                                <button type="button" class="btn-buy-now handle-cart" 
+                                    data-id="{{ $product->id }}" 
+                                    data-name="{{ $product->nama_produk }}"
+                                    data-type="direct">
+                                    Beli
+                                </button>
 
-                            <button type="button" class="btn-cart-outline add-to-cart-btn"
-                                data-id="{{ $product->id }}"
-                                data-name="{{ $product->nama_produk }}">
-                                <i class="bi bi-cart-plus"></i>
-                            </button>
+                                <button type="button" class="btn-cart-outline handle-cart"
+                                    data-id="{{ $product->id }}"
+                                    data-name="{{ $product->nama_produk }}"
+                                    data-type="cart">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
                             @else
-                            <button class="btn-buy-now w-100" disabled>Habis</button>
-                            <button class="btn-cart-outline" disabled>
-                                <i class="bi bi-cart-x"></i>
-                            </button>
+                                <button class="btn-buy-now w-100" disabled>Habis</button>
+                                <button class="btn-cart-outline" disabled>
+                                    <i class="bi bi-cart-x"></i>
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -300,15 +302,16 @@
 </div>
 
 <script>
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    document.querySelectorAll('.handle-cart').forEach(button => {
         button.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
             const productName = this.getAttribute('data-name');
-            const icon = this.querySelector('i');
+            const type = this.getAttribute('data-type');
+            const originalContent = this.innerHTML;
 
             // Loading state
-            icon.className = 'bi bi-hourglass-split';
             this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
             fetch(`/cart/add/${productId}`, {
                 method: 'POST',
@@ -320,46 +323,42 @@
                 body: JSON.stringify({ quantity: 1 })
             })
             .then(response => {
-                if (!response.ok) throw new Error('Unauthorized');
+                if (!response.ok) throw new Error('Unauthorized/Error');
                 return response.json();
             })
             .then(data => {
-                icon.className = 'bi bi-cart-plus';
                 this.disabled = false;
+                this.innerHTML = originalContent;
 
-                // Notifikasi Sukses
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: productName + ' masuk keranjang!',
-                        showConfirmButton: false,
-                        timer: 2500,
-                        timerProgressBar: true
-                    });
-                }
-
-                // Update Badge Merah secara Real-time
-                const cartBadge = document.getElementById('cart-badge');
-                if (cartBadge) {
-                    cartBadge.innerText = data.cartCount;
-                    cartBadge.classList.remove('d-none');
-                    cartBadge.style.display = 'inline-block';
+                if (type === 'direct') {
+                    // Jika klik Beli, langsung ke halaman keranjang
+                    window.location.href = "{{ route('cart.index') }}";
+                } else {
+                    // Jika klik icon keranjang, cuma kasih notifikasi
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: productName + ' masuk keranjang!',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                    
+                    // Update angka di badge keranjang navbar
+                    const cartBadge = document.getElementById('cart-badge');
+                    if (cartBadge) {
+                        cartBadge.innerText = data.cartCount;
+                        cartBadge.classList.remove('d-none');
+                    }
                 }
             })
             .catch(error => {
-                icon.className = 'bi bi-cart-plus';
                 this.disabled = false;
-                console.error('Error:', error);
-                
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: 'Silakan login terlebih dahulu untuk belanja.',
-                    });
-                }
+                this.innerHTML = originalContent;
+                alert('Silakan login terlebih dahulu!');
+                window.location.href = "{{ route('login') }}";
             });
         });
     });

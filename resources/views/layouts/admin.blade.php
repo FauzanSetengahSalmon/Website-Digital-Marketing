@@ -2,440 +2,277 @@
 <html lang="id">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>
-        @yield('title', 'Admin Dashboard')
-    </title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-          rel="stylesheet">
+    <title>@yield('title', 'Admin Dashboard') - {{ Auth::user()->name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
+        /* PINDAHKAN KE SINI (DI DALAM STYLE) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
-
-        body{
-            background:#f4f7fb;
-            font-family:'Segoe UI',sans-serif;
-            overflow-x:hidden;
-        }
-
-        a{
-            text-decoration:none;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f3f5;
+            color: #334155;
+            overflow-x: hidden;
         }
 
         /* SIDEBAR */
-
-        .sidebar{
-            width:270px;
-            height:100vh;
-
-            position:fixed;
-            top:0;
-            left:0;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #1b5e20 0%,
-                    #2e7d32 100%
-                );
-
-            z-index:999;
-
-            overflow-y:auto;
-
-            box-shadow:
-                5px 0 25px rgba(0,0,0,.08);
-
-            transition:.3s;
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #064e3b; /* Hijau Gelap Khas KWT */
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
         }
 
-        /* HEADER */
-
-        .sidebar-header{
-            padding:28px 24px;
-
-            border-bottom:
-                1px solid rgba(255,255,255,.08);
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .brand{
-            display:flex;
-            align-items:center;
-            gap:14px;
+        /* PROFILE BOX */
+        .profile-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
         }
 
-        .brand-logo{
-            width:55px;
-            height:55px;
-
-            border-radius:18px;
-
-            background:
-                rgba(255,255,255,.14);
-
-            display:flex;
-            align-items:center;
-            justify-content:center;
-
-            overflow:hidden;
+        .avatar-circle {
+            width: 65px;
+            height: 65px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
-        .brand-logo img{
-            width:34px;
-            height:34px;
-            object-fit:contain;
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .brand-text h5{
-            color:white;
-            margin:0;
-            font-weight:700;
+        .profile-info h6 {
+            font-size: 0.95rem;
+            margin: 0;
+            color: white;
+            font-weight: 600;
         }
 
-        .brand-text small{
-            color:rgba(255,255,255,.7);
+        .profile-info small {
+            color: #4ade80;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* PROFILE */
-
-        .profile-card{
-            margin:22px;
-
-            padding:18px;
-
-            border-radius:22px;
-
-            background:
-                rgba(255,255,255,.1);
-
-            display:flex;
-            align-items:center;
-            gap:14px;
-
-            backdrop-filter:blur(8px);
+        /* NAVIGATION */
+        .nav-list {
+            padding: 20px 0;
+            height: calc(100vh - 280px);
+            overflow-y: auto;
         }
 
-        .profile-avatar{
-            width:50px;
-            height:50px;
-
-            border-radius:16px;
-
-            background:white;
-
-            color:#2e7d32;
-
-            display:flex;
-            align-items:center;
-            justify-content:center;
-
-            font-weight:700;
-            font-size:20px;
+        .nav-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #4ade80;
+            margin: 20px 25px 10px;
+            font-weight: 800;
+            opacity: 0.7;
         }
 
-        .profile-info h6{
-            margin:0;
-            color:white;
-            font-weight:700;
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 20px;
+            margin: 4px 15px;
+            border-radius: 10px;
+            transition: 0.2s ease;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
 
-        .profile-info small{
-            color:rgba(255,255,255,.7);
+        .nav-link i {
+            font-size: 1.2rem;
+            margin-right: 12px;
         }
 
-        /* MENU */
-
-        .sidebar-menu{
-            padding:0 16px 20px;
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ecfdf5;
+            transform: translateX(5px);
         }
 
-        .menu-label{
-            color:rgba(255,255,255,.5);
-
-            font-size:11px;
-            font-weight:700;
-
-            text-transform:uppercase;
-            letter-spacing:1px;
-
-            margin:
-                24px 14px 10px;
+        .nav-link.active {
+            background: #ffffff !important;
+            color: #064e3b !important; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 700;
         }
 
-        .menu-link{
-            display:flex;
-            align-items:center;
-            gap:14px;
-
-            padding:14px 16px;
-
-            border-radius:16px;
-
-            color:rgba(255,255,255,.88);
-
-            font-weight:600;
-
-            transition:.2s ease;
-
-            margin-bottom:8px;
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
         }
 
-        .menu-link i{
-            font-size:18px;
+        /* LOGOUT SECTION */
+        .logout-section {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: #054131;
         }
 
-        .menu-link:hover{
-            background:
-                rgba(255,255,255,.12);
-
-            color:white;
-
-            transform:translateX(4px);
+        .btn-logout {
+            width: 100%;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            color: #f87171;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
         }
 
-        .menu-link.active{
-            background:white;
-
-            color:#2e7d32;
-
-            box-shadow:
-                0 10px 25px rgba(0,0,0,.12);
+        .btn-logout:hover {
+            background: #991b1b;
+            color: white;
+            border-color: transparent;
         }
 
-        /* CONTENT */
-
-        .main-content{
-            margin-left:270px;
-            min-height:100vh;
-            padding:30px;
-        }
-
-        /* MOBILE */
-
-        .mobile-topbar{
-            display:none;
-        }
-
-        /* LOGOUT */
-
-        .logout-box{
-            padding:20px;
-        }
-
-        .btn-logout{
-            width:100%;
-
-            border:none;
-
-            background:
-                rgba(255,255,255,.1);
-
-            color:white;
-
-            padding:14px;
-
-            border-radius:16px;
-
-            font-weight:600;
-
-            transition:.2s;
-        }
-
-        .btn-logout:hover{
-            background:#dc3545;
-        }
-
-        /* RESPONSIVE */
-
-        @media(max-width:768px){
-
-            .sidebar{
-                left:-270px;
-            }
-
-            .sidebar.show{
-                left:0;
-            }
-
-            .main-content{
-                margin-left:0;
-                padding:20px;
-            }
-
-            .mobile-topbar{
-                display:flex;
-
-                align-items:center;
-                justify-content:space-between;
-
-                background:white;
-
-                padding:14px 18px;
-
-                border-radius:18px;
-
-                margin-bottom:20px;
-
-                box-shadow:
-                    0 10px 30px rgba(0,0,0,.05);
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar { left: -260px; }
+            .sidebar.show { left: 0; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header {
+                display: flex !important;
             }
         }
 
+        .mobile-header {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
     </style>
-
     @stack('styles')
-
 </head>
 
 <body>
 
     {{-- SIDEBAR --}}
     <aside class="sidebar" id="sidebar">
-
-        {{-- HEADER --}}
+        
         <div class="sidebar-header">
-
-            <div class="brand">
-
-                <div class="brand-logo">
-
-                    <img src="https://cdn-icons-png.flaticon.com/512/766/766239.png"
-                         alt="logo">
-
+            <div class="profile-box">
+                <div class="avatar-circle">
+                    @if(Auth::user()->profile_photo)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Admin">
+                    @else
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    @endif
                 </div>
-
-                <div class="brand-text">
-
-                    <h5>Admin KWT</h5>
-
-                    <small>
-                        Management Panel
-                    </small>
-
+                <div class="profile-info">
+                    <h6>{{ Auth::user()->name }}</h6>
+                    <small>Super Admin</small>
                 </div>
-
             </div>
-
         </div>
 
-        {{-- PROFILE --}}
-        <div class="profile-card">
-
-            <div class="profile-avatar">
-                {{ strtoupper(substr(Auth::user()->name,0,1)) }}
-            </div>
-
-            <div class="profile-info">
-
-                <h6>
-                    {{ Auth::user()->name }}
-                </h6>
-
-                <small>
-                    Administrator
-                </small>
-
-            </div>
-
-        </div>
-
-        {{-- MENU --}}
-        <div class="sidebar-menu">
-
-            <div class="menu-label">
-                Menu Utama
-            </div>
-
-            <a href="{{ route('admin.dashboard') }}"
-               class="menu-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-
-                <i class="bi bi-grid-fill"></i>
-                Dashboard
-
+        <nav class="nav-list">
+            <div class="nav-label">Menu Utama</div>
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
             </a>
 
-            <a href="{{ route('admin.kwt') }}"
-               class="menu-link {{ request()->routeIs('admin.kwt*') ? 'active' : '' }}">
-
-                <i class="bi bi-people-fill"></i>
-                Kelola KWT
-
+            <div class="nav-label">Manajemen Data</div>
+            
+            {{-- Data Semua User --}}
+            <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+                <i class="bi bi-people-fill"></i> Data Semua User
             </a>
 
-        </div>
+            {{-- Kelola KWT --}}
+            <a href="{{ route('admin.kwt') }}" class="nav-link {{ request()->routeIs('admin.kwt*') ? 'active' : '' }}">
+                <i class="bi bi-shop-window"></i> Kelola Akun KWT
+            </a>
 
-        {{-- LOGOUT --}}
-        <div class="logout-box">
+            <div class="nav-label">Laporan Global</div>
 
-            <form method="POST"
-                  action="{{ route('logout') }}">
+            {{-- Data Penjualan Semua --}}
+            <a href="{{ route('admin.sales') }}" class="nav-link {{ request()->routeIs('admin.sales*') ? 'active' : '' }}">
+                <i class="bi bi-cart-check-fill"></i> Penjualan Semua
+            </a>
 
+            <div class="nav-label">Sistem</div>
+            <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                <i class="bi bi-shield-lock-fill"></i> Keamanan Akun
+            </a>
+        </nav>
+
+        <div class="logout-section">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-
-                <button type="submit"
-                        class="btn-logout">
-
-                    <i class="bi bi-box-arrow-right me-2"></i>
-                    Logout
-
+                <button type="submit" class="btn-logout">
+                    <i class="bi bi-power me-2"></i> Keluar Sistem
                 </button>
-
             </form>
-
         </div>
 
     </aside>
 
-    {{-- MAIN --}}
+    {{-- MAIN CONTENT --}}
     <main class="main-content">
-
-        {{-- MOBILE --}}
-        <div class="mobile-topbar">
-
-            <h6 class="m-0 fw-bold text-success">
-                Admin KWT
-            </h6>
-
-            <button class="btn btn-success"
-                    onclick="toggleSidebar()">
-
+        
+        <div class="mobile-header">
+            <span class="fw-bold text-success">Admin KWT</span>
+            <button class="btn btn-success btn-sm" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
-
             </button>
-
         </div>
 
         @yield('content')
 
     </main>
 
-    <script>
-
-        function toggleSidebar()
-        {
-            document
-                .getElementById('sidebar')
-                .classList
-                .toggle('show');
-        }
-
-    </script>
-
-    {{-- BOOTSTRAP JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+    </script>
     @stack('scripts')
 
 </body>

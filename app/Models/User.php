@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -17,13 +16,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'google_id',
-        'phone_number',
+        'phone_number', // Pastikan ada
         'role',
         'province',
         'city',
-        'district',
-        'address',
+        'district',     // Pastikan ada
+        'address',      // Pastikan ada
         'email_verified_at',
+        'profile_photo', // <--- SUDAH DITAMBAHKAN AGAR FOTO BISA TERSIMPAN
     ];
 
     protected $hidden = [

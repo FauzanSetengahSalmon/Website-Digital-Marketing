@@ -17,6 +17,8 @@ class Order extends Model
         'catatan',
         'alamat',
         'nomor_hp',
+        'kurir',        // Tambahan wajib untuk fitur kurir
+        'no_hp_kurir',  // Tambahan wajib untuk nomor HP kurir
     ];
 
     /*
@@ -36,15 +38,12 @@ class Order extends Model
     */
     public function details()
     {
-        return $this->hasMany(
-            OrderDetail::class,
-            'order_id'
-        );
+        return $this->hasMany(OrderDetail::class, 'order_id');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | TOTAL ITEM
+    | TOTAL ITEM (Accessor)
     |--------------------------------------------------------------------------
     */
     public function getTotalItemAttribute()
@@ -54,22 +53,34 @@ class Order extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | STATUS BADGE COLOR
+    | TOTAL BELANJA OTOMATIS (Accessor)
+    |--------------------------------------------------------------------------
+    */
+    public function getGrandTotalAttribute()
+    {
+        // Pastikan nama kolom di detail adalah 'harga_saat_ini' sesuai controller kamu tadi
+        $subtotal = $this->details->sum(function ($detail) {
+            return $detail->jumlah * ($detail->harga_saat_ini ?? $detail->harga_satuan);
+        });
+
+        return $subtotal + $this->ongkir;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS BADGE COLOR (Accessor)
     |--------------------------------------------------------------------------
     */
     public function getStatusColorAttribute()
     {
         return match ($this->status) {
-
-            'menunggu' => 'warning',
-
-            'diproses' => 'primary',
-
-            'selesai' => 'success',
-
+            'menunggu'   => 'warning',
+            'diterima'   => 'info',
+            'diproses'   => 'primary',
+            'selesai'    => 'success',
             'dibatalkan' => 'danger',
-
-            default => 'secondary',
+            'ditolak'    => 'dark',
+            default      => 'secondary',
         };
     }
 }

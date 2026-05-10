@@ -63,9 +63,17 @@
                     <h5 class="fw-bold text-success m-0">Rp {{ number_format($totalBayar, 0, ',', '.') }}</h5>
                 </div>
 
+                {{-- REVISI: Form action menggunakan ID Cart asli --}}
                 <form action="{{ route('checkout.process') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="item_ids" value="{{ request('items') }}">
+                    {{-- Mengirim ID Cart asli yang terpilih, dipisahkan koma --}}
+                    <input type="hidden" name="item_ids" value="{{ implode(',', $cartItems->pluck('id')->toArray()) }}">
+                    
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Catatan Pesanan (Opsional)</label>
+                        <textarea name="catatan" class="form-control form-control-sm" rows="2" placeholder="Contoh: Titip depan pagar"></textarea>
+                    </div>
+
                     <button type="submit" class="btn-confirm shadow-sm">
                         BUAT PESANAN
                     </button>

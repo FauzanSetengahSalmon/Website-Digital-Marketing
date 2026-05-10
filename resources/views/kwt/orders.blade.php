@@ -1,144 +1,83 @@
 @extends('layouts.kwt')
 
 @section('content')
-
-<div class="container-fluid">
-
+<div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">Pesanan Masuk</h4>
-            <p class="text-muted mb-0">Kelola pesanan customer</p>
-        </div>
-
-        <div class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
-            {{ $orders->count() }} Pesanan
-        </div>
+        <h2 class="fw-bold text-success">Daftar Pesanan Masuk</h2>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
-        <div class="table-responsive">
-
-            <table class="table align-middle mb-0">
-
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Order</th>
-                        <th>Pembeli</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @forelse($orders as $order)
-
-                    <tr>
-
-                        <td class="ps-4">
-                            <div class="fw-bold">#ORD-{{ $order->id }}</div>
-                            <small class="text-muted">
-                                {{ $order->created_at->format('d M Y H:i') }}
-                            </small>
-                        </td>
-
-                        <td>
-                            <div class="fw-semibold">
-                                {{ $order->user->name }}
-                            </div>
-
-                            <small class="text-muted">
-                                {{ $order->user->email }}
-                            </small>
-                        </td>
-
-                        <td class="fw-bold text-success">
-                            Rp {{ number_format($order->total_harga,0,',','.') }}
-                        </td>
-
-                        <td>
-
-                            @if($order->status == 'menunggu')
-
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                                    Menunggu
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID Pesanan</th>
+                            <th>Nama Pembeli</th>
+                            <th>Total Pembayaran</th>
+                            <th>Status</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($orders as $order)
+                        <tr>
+                            <td class="ps-4 fw-bold">#{{ $order->id }}</td>
+                            <td>{{ $order->user->name }}</td>
+                            <td>Rp {{ number_format($order->total_harga, 0, ',', '.') }}</td>
+                            <td>
+                                @php
+                                    $badgeColor = match($order->status) {
+                                        'menunggu' => 'warning',
+                                        'diterima', 'diproses' => 'info',
+                                        'selesai' => 'success',
+                                        'ditolak', 'dibatalkan' => 'danger',
+                                        default => 'secondary'
+                                    };
+                                @endphp
+                                <span class="badge rounded-pill bg-{{ $badgeColor }}">
+                                    {{ ucfirst($order->status) }}
                                 </span>
-
-                            @elseif($order->status == 'selesai')
-
-                                <span class="badge bg-success-subtle text-success border border-success-subtle">
-                                    Selesai
-                                </span>
-
-                            @else
-
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                                    Ditolak
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <div class="d-flex justify-content-center gap-2">
-
-                                <a href="{{ route('kwt.orders.detail', $order->id) }}"
-                                   class="btn btn-sm btn-light border rounded-pill px-3">
-                                    <i class="bi bi-eye"></i>
-                                    Detail
-                                </a>
-
+                            </td>
+                            <td class="text-center">
                                 @if($order->status == 'menunggu')
-
-                                <form action="{{ route('kwt.order.status',$order->id) }}"
-                                      method="POST">
-                                    @csrf
-
-                                    <input type="hidden"
-                                           name="status"
-                                           value="selesai">
-
-                                    <button class="btn btn-success btn-sm rounded-pill px-3">
-                                        Selesai
-                                    </button>
-                                </form>
-
+                                    <form action="{{ route('kwt.order.status', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="status" value="diterima">
+                                        <button type="submit" class="btn btn-sm btn-success px-3">Terima</button>
+                                    </form>
+                                    <form action="{{ route('kwt.order.status', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="status" value="ditolak">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger px-3">Tolak</button>
+                                    </form>
+                                @elseif($order->status == 'diterima')
+                                    <a href="{{ route('kwt.orders.process', $order->id) }}" class="btn btn-sm btn-primary px-3">Proses Kirim</a>
+                                @elseif($order->status == 'selesai')
+                                    <a href="{{ route('kwt.orders.detail', $order->id) }}" class="btn btn-sm btn-outline-success px-3">Lihat Laporan</a>
+                                @else
+                                    <span class="text-muted small">Tidak ada aksi</span>
                                 @endif
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    @empty
-
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-
-                            <i class="bi bi-cart-x fs-1 text-muted"></i>
-
-                            <p class="text-muted mt-3">
-                                Belum ada pesanan masuk
-                            </p>
-
-                        </td>
-                    </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <p class="mb-0">Belum ada pesanan masuk.</p>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-
     </div>
-
 </div>
-
 @endsection

@@ -16,54 +16,60 @@
             color: #334155;
         }
 
-        /* Sidebar - Ukuran lebih ramping */
+        /* Sidebar */
         .sidebar {
             width: 240px;
             height: 100vh;
             position: fixed;
-            background: #064e3b;
-            /* Hijau Emerald Gelap */
+            background: #064e3b; 
             transition: all 0.3s;
             z-index: 1000;
         }
 
-        /* Profil Section - Lebih Minimalis */
         .sidebar-header {
-            padding: 20px;
+            padding: 30px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
         }
 
         .profile-box {
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 12px;
         }
 
+        /* CSS UNTUK FOTO PROFIL AGAR BULAT & RAPI */
         .avatar-circle {
-            width: 38px;
-            height: 38px;
+            width: 60px;
+            height: 60px;
             background: #10b981;
             color: white;
-            border-radius: 10px;
+            border-radius: 50%; /* Dibuat bulat sempurna */
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            overflow: hidden; /* Penting agar gambar tidak keluar kotak */
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Agar foto tidak gepeng */
         }
 
         .profile-info h6 {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             margin: 0;
             color: white;
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 140px;
         }
 
-        /* Navigasi - Font Size Dikecilkan */
+        /* Navigasi */
         .nav-list {
             padding: 15px 0;
         }
@@ -75,7 +81,6 @@
             border-radius: 8px;
             transition: 0.2s;
             font-size: 0.88rem;
-            /* Ukuran font lebih proporsional */
             font-weight: 500;
             display: flex;
             align-items: center;
@@ -93,12 +98,12 @@
         }
 
         .nav-link.active {
-            background: #10b981;
-            color: white;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            background: #ffffff !important;
+            color: #064e3b !important; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
         }
 
-        /* Label Section */
         .nav-label {
             font-size: 0.7rem;
             text-transform: uppercase;
@@ -107,6 +112,7 @@
             margin: 15px 25px 8px;
             font-weight: 700;
             opacity: 0.7;
+            text-align: left;
         }
 
         /* Main Content */
@@ -115,7 +121,6 @@
             padding: 24px;
         }
 
-        /* Logout Button - Lebih Simpel */
         .btn-logout {
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -134,17 +139,9 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar {
-                margin-left: -240px;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .sidebar.show {
-                margin-left: 0;
-            }
+            .sidebar { margin-left: -240px; }
+            .main-content { margin-left: 0; }
+            .sidebar.show { margin-left: 0; }
         }
     </style>
 </head>
@@ -154,9 +151,15 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="profile-box">
+                {{-- REVISI LOGIKA FOTO DI SINI --}}
                 <div class="avatar-circle">
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                    @if(Auth::user()->profile_photo)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile">
+                    @else
+                        {{ substr(Auth::user()->name, 0, 1) }}
+                    @endif
                 </div>
+                
                 <div class="profile-info">
                     <h6>{{ Auth::user()->name }}</h6>
                     <small style="color: #4ade80; font-size: 0.7rem;">Admin KWT</small>
@@ -179,7 +182,7 @@
                 <i class="bi bi-cart3"></i> Pesanan
             </a>
 
-            <a href="{{ route('kwt.laporan') }}" class="nav-link {{ request()->routeIs('kwt.transactions') ? 'active' : '' }}">
+            <a href="{{ route('kwt.laporan') }}" class="nav-link {{ request()->routeIs('kwt.laporan') ? 'active' : '' }}">
                 <i class="bi bi-receipt"></i> Laporan Transaksi
             </a>
 
@@ -201,7 +204,6 @@
 
     {{-- CONTENT --}}
     <div class="main-content">
-        <!-- Top Mobile Nav -->
         <div class="d-md-none d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded-3 shadow-sm">
             <span class="fw-bold text-success">KWT Digital</span>
             <button class="btn btn-sm btn-success" onclick="toggleSidebar()">

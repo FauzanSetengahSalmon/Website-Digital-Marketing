@@ -33,7 +33,11 @@
         font-size: 0.9rem;
     }
 
-    /* Button yang lebih tipis dan elegan */
+    .form-control:focus {
+        border-color: var(--kwt-light);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
     .btn-thin {
         padding: 8px 20px;
         font-size: 0.85rem;
@@ -52,6 +56,10 @@
         background: #0d9488;
         transform: translateY(-1px);
     }
+
+    .avatar-wrapper:hover .camera-overlay {
+        opacity: 1 !important;
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -61,19 +69,39 @@
     </div>
 
     <!-- NOTIFIKASI BERHASIL -->
-    @if (session('status') === 'profile-updated' || session('status') === 'password-updated')
+    @if (session('success') || session('status') === 'profile-updated')
     <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 12px;">
         <i class="bi bi-check-circle-fill me-2"></i>
-        <strong>Berhasil!</strong> Data Anda telah diperbarui.
+        <strong>Berhasil!</strong> {{ session('success') ?: 'Data profil Anda telah diperbarui.' }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
 
-    <!-- NOTIFIKASI GAGAL (KHUSUS PASSWORD) -->
-    @if ($errors->updatePassword->any())
+    @if (session('status') === 'password-updated')
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 12px;">
+        <i class="bi bi-shield-check me-2"></i>
+        <strong>Berhasil!</strong> Password Anda telah diganti.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    <!-- NOTIFIKASI GAGAL (VERSI REVISI: MENAMPILKAN DETAIL ERROR) -->
+    @if ($errors->any() || $errors->updatePassword->any())
     <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 12px;">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <strong>Gagal!</strong> Password saat ini salah atau data tidak valid.
+        <div class="d-flex">
+            <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+            <div>
+                <strong>Gagal!</strong> Ada masalah dengan inputan Anda:
+                <ul class="mb-0 mt-2 small">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                    @foreach ($errors->updatePassword->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
@@ -101,28 +129,31 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Kelompok / Ketua</label>
-                                <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}">
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email Operasional</label>
-                                <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly>
+                                <input type="email" name="email" class="form-control bg-light @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                                <small class="text-muted" style="font-size: 0.7rem;">*Email digunakan untuk login</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">No. WhatsApp KWT</label>
-                                <input type="text" name="phone_number" class="form-control" value="{{ old('phone_number', $user->phone_number) }}">
+                                <input type="text" name="phone_number" class="form-control @error('phone_number') is-invalid @enderror" value="{{ old('phone_number', $user->phone_number) }}" placeholder="Contoh: 08123456789">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Wilayah (Kecamatan/Desa)</label>
-                                <input type="text" name="district" class="form-control" value="{{ old('district', $user->district) }}" placeholder="Contoh: Desa Makmur Jaya">
+                                <input type="text" name="district" class="form-control @error('district') is-invalid @enderror" value="{{ old('district', $user->district) }}" placeholder="Contoh: Desa Makmur Jaya">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Alamat Kantor/Kebun KWT</label>
-                                <textarea name="address" class="form-control" rows="3">{{ old('address', $user->address) }}</textarea>
+                                <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="3" placeholder="Alamat lengkap kelompok tani...">{{ old('address', $user->address) }}</textarea>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" class="btn-thin btn-update shadow-sm">Simpan Profil</button>
+                            <button type="submit" class="btn-thin btn-update shadow-sm">
+                                <i class="bi bi-save me-1"></i> Simpan Profil
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -142,16 +173,10 @@
                             <div class="col-md-4">
                                 <label class="form-label">Password Saat Ini</label>
                                 <input type="password" name="current_password" class="form-control @if($errors->updatePassword->has('current_password')) is-invalid @endif">
-                                @if($errors->updatePassword->has('current_password'))
-                                <div class="invalid-feedback" style="font-size: 0.75rem;">Password lama salah.</div>
-                                @endif
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Password Baru</label>
                                 <input type="password" name="password" class="form-control @if($errors->updatePassword->has('password')) is-invalid @endif">
-                                @if($errors->updatePassword->has('password'))
-                                <div class="invalid-feedback" style="font-size: 0.75rem;">Password minimal 8 karakter.</div>
-                                @endif
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Konfirmasi Baru</label>
@@ -164,18 +189,52 @@
             </div>
         </div>
 
+        {{-- SIDEBAR KANAN: FOTO PROFIL --}}
         <div class="col-xl-4">
             <div class="profile-card shadow-sm p-4 text-center">
-                <div class="avatar-large mx-auto mb-3 bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border: 4px solid #f8fafc;">
-                    <span class="fs-1 fw-bold text-success">{{ substr(Auth::user()->name, 0, 1) }}</span>
-                </div>
-                <h5 class="fw-bold mb-1 text-dark">{{ Auth::user()->name }}</h5>
+                <form action="{{ route('profile.update.photo') }}" method="POST" enctype="multipart/form-data" id="photoForm">
+                    @csrf
+                    <div class="position-relative d-inline-block avatar-wrapper">
+                        <div class="avatar-large mx-auto mb-3 bg-light rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 120px; height: 120px; border: 4px solid #f8fafc; overflow: hidden; cursor: pointer;"
+                             onclick="document.getElementById('photoInput').click()">
+                            
+                            @if(Auth::user()->profile_photo)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" class="w-100 h-100 object-fit-cover">
+                            @else
+                                <span class="fs-1 fw-bold text-success">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                            @endif
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-success position-absolute bottom-0 end-0 rounded-circle shadow-sm" 
+                                style="width: 35px; height: 35px; border: 2px solid white;"
+                                onclick="document.getElementById('photoInput').click()">
+                            <i class="bi bi-camera"></i>
+                        </button>
+                        
+                        <input type="file" name="profile_photo" id="photoInput" class="d-none" onchange="document.getElementById('photoForm').submit()">
+                    </div>
+                </form>
+
+                <h5 class="fw-bold mb-1 mt-3 text-dark">{{ Auth::user()->name }}</h5>
                 <p class="badge bg-success-subtle text-success px-3" style="border-radius: 6px;">Status: Pengelola KWT</p>
+                
                 <hr class="my-4 opacity-10">
                 <div class="text-start small text-muted">
-                    <p class="mb-2"><i class="bi bi-calendar-check me-2 text-success"></i>Bergabung: {{ Auth::user()->created_at->format('d M Y') }}</p>
-                    <p class="mb-0"><i class="bi bi-envelope me-2 text-success"></i>{{ Auth::user()->email }}</p>
+                    <p class="mb-2">
+                        <i class="bi bi-calendar-check me-2 text-success"></i>
+                        Bergabung: {{ Auth::user()->created_at->format('d M Y') }}
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-envelope me-2 text-success"></i>
+                        {{ Auth::user()->email }}
+                    </p>
                 </div>
+            </div>
+            
+            <div class="mt-3 p-3 bg-warning-subtle text-warning-emphasis small rounded-3 border border-warning-subtle">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Klik pada foto atau ikon kamera untuk mengganti foto profil Anda.
             </div>
         </div>
     </div>
