@@ -1,412 +1,456 @@
 @extends('layouts.app')
 
-@section('title', 'Profil Saya - KWT Cibiru')
+@section('title', 'Profil Saya')
 
-@push('styles')
+@section('content')
 <style>
     :root {
-        --green-dark: #166534;
-        --green-primary: #22c55e;
-        --green-soft: #dcfce7;
-        --green-light: #f0fdf4;
-        --text-dark: #1e293b;
-        --text-muted: #64748b;
-        --border-soft: #e2e8f0;
+        --green-dark: #065f46;
+        --green-light: #10b981;
+        --green-soft: #ecfdf5;
     }
 
     body {
         background: #f8fafc;
     }
 
-    .profile-wrapper {
-        animation: fadeUp .5s ease;
-    }
-
-    @keyframes fadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(18px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .profile-container {
+        max-width: 1320px;
+        margin: auto;
     }
 
     .profile-card {
-        background: white;
-        border-radius: 28px;
-        overflow: hidden;
+        background: #fff;
+        border-radius: 22px;
         border: 1px solid #edf2f7;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
     }
 
+    /* HEADER */
     .profile-header {
-        background:
-            linear-gradient(rgba(0, 0, 0, .28), rgba(0, 0, 0, .28)),
-            linear-gradient(135deg, #166534, #22c55e);
-        padding: 42px;
-        position: relative;
+        background: var(--green-dark);
+        padding: 28px 32px;
     }
 
-    .profile-header::after {
-        content: '';
-        position: absolute;
-        right: -50px;
-        top: -50px;
-        width: 180px;
-        height: 180px;
-        background: rgba(255, 255, 255, .08);
+    .header-profile {
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
+        overflow: hidden;
+        background: white;
+        flex-shrink: 0;
+        border: 3px solid rgba(255, 255, 255, .15);
     }
 
-    .profile-avatar {
-        width: 68px;
-        height: 68px;
-        border-radius: 20px;
-        background: white;
+    .header-profile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .header-profile-letter {
+        width: 100%;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .profile-avatar i {
-        font-size: 30px;
-        color: var(--green-dark);
-    }
-
-    .profile-body {
-        padding: 38px;
-    }
-
-    .section-title {
-        font-size: 1rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 20px;
+        color: var(--green-light);
+    }
+
+    .header-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 2px;
+    }
+
+    .header-subtitle {
+        color: rgba(255, 255, 255, .75);
+        font-size: .9rem;
+        margin: 0;
+    }
+
+    /* FORM */
+    .section-space {
+        padding: 30px;
     }
 
     .form-label {
-        font-size: .87rem;
+        font-size: .84rem;
         font-weight: 700;
-        color: #334155;
+        color: #475569;
         margin-bottom: 8px;
     }
 
     .form-control {
-        border-radius: 15px;
-        border: 1.5px solid var(--border-soft);
-        background: #f8fafc;
-        padding: 13px 15px;
+        border-radius: 12px;
+        border: 1px solid #dbe4ee;
+        padding: 12px 15px;
         font-size: .92rem;
-        transition: .25s;
+        background: white;
     }
 
     .form-control:focus {
-        border-color: var(--green-primary);
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, .12);
-        background: white;
+        border-color: var(--green-light);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, .10);
     }
 
     textarea.form-control {
         resize: none;
     }
 
+    /* BUTTON */
     .btn-save {
-        background: var(--green-dark);
-        border: none;
+        background: var(--green-light);
         color: white;
-        padding: 12px 28px;
-        border-radius: 14px;
-        font-weight: 700;
-        transition: .25s;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-size: .88rem;
+        font-weight: 600;
+        transition: .2s;
     }
 
     .btn-save:hover {
-        background: #15803d;
-        transform: translateY(-2px);
+        background: #059669;
     }
 
-    .side-card {
+    /* RIGHT SIDE */
+    .profile-side {
         background: white;
-        border-radius: 28px;
-        border: 1px solid #edf2f7;
-        overflow: hidden;
     }
 
-    .avatar-big {
-        width: 110px;
-        height: 110px;
+    .avatar-box {
+        width: 125px;
+        height: 125px;
         border-radius: 50%;
-        background: white;
+        overflow: hidden;
+        border: 4px solid #f8fafc;
+        background: #f1f5f9;
+        cursor: pointer;
+        margin: auto;
+    }
+
+    .avatar-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-letter {
+        width: 100%;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: auto;
-        border: 5px solid rgba(255, 255, 255, .25);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        font-size: 2.7rem;
+        font-weight: 700;
+        color: var(--green-light);
     }
 
-    .avatar-big span {
-        font-size: 42px;
-        font-weight: 800;
-        color: var(--green-dark);
+    .camera-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 3px solid white;
     }
 
-    .info-box {
-        display: flex;
-        align-items: flex-start;
-        gap: 14px;
-        padding: 15px;
-        border-radius: 18px;
+    .profile-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .status-badge {
+        background: #dcfce7;
+        color: #059669;
+        padding: 7px 16px;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    /* INFO ITEM */
+    .info-item {
         background: #f8fafc;
-        margin-bottom: 15px;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 14px;
+        border: 1px solid #eef2f7;
     }
 
     .info-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-        background: var(--green-light);
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: white;
+        color: #10b981;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: .95rem;
         flex-shrink: 0;
-    }
-
-    .info-icon i {
-        color: var(--green-dark);
-        font-size: 1rem;
+        border: 1px solid #ecf0f4;
     }
 
     .info-title {
-        font-size: .75rem;
-        color: var(--text-muted);
+        font-size: .74rem;
+        color: #64748b;
         margin-bottom: 3px;
     }
 
     .info-value {
         font-size: .92rem;
         font-weight: 600;
-        color: var(--text-dark);
+        color: #0f172a;
         line-height: 1.5;
-        word-break: break-word;
     }
 
-    .security-box {
-        border-top: 1px dashed #e2e8f0;
-        margin-top: 38px;
-        padding-top: 30px;
-    }
-
-    .alert-custom {
-        border-radius: 18px;
-        border: none;
-    }
-
-    .badge-customer {
-        background: rgba(255, 255, 255, .18);
-        border: 1px solid rgba(255, 255, 255, .18);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 999px;
-        font-size: .78rem;
+    .security-title {
+        font-size: 1.1rem;
         font-weight: 700;
-        display: inline-block;
-        backdrop-filter: blur(10px);
+        color: #0f172a;
+    }
+
+    @media(max-width:768px) {
+
+        .profile-header .d-flex {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .section-space {
+            padding: 22px;
+        }
+
+        .header-title {
+            font-size: 1.35rem;
+        }
     }
 </style>
-@endpush
 
-@section('content')
+<div class="container py-5">
+    <div class="profile-container">
 
-<div class="container py-5 profile-wrapper">
+        {{-- TITLE --}}
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">
+                Profil <span class="text-success">Customer</span>
+            </h2>
 
-    <div class="mb-4">
-        <h3 class="fw-bold text-dark mb-1">
-            Profil <span class="text-success">Pelanggan</span>
-        </h3>
+            <p class="text-muted mb-0">
+                Kelola informasi akun dan alamat pengiriman Anda.
+            </p>
+        </div>
 
-        <p class="text-muted mb-0">
-            Kelola informasi akun dan alamat pengiriman Anda dengan mudah.
-        </p>
-    </div>
+        {{-- SUCCESS --}}
+        @if(session('success') || session('status') === 'profile-updated')
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {{ session('success') ?: 'Profil berhasil diperbarui.' }}
+        </div>
+        @endif
 
-    {{-- ALERT --}}
-    @if (session('status') === 'profile-updated')
-    <div class="alert alert-success alert-dismissible fade show shadow-sm alert-custom mb-4">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        Profil berhasil diperbarui.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
+        {{-- ERROR --}}
+        @if ($errors->any() || $errors->updatePassword->any())
+        <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
 
-    @if (session('status') === 'password-updated')
-    <div class="alert alert-success alert-dismissible fade show shadow-sm alert-custom mb-4">
-        <i class="bi bi-shield-check me-2"></i>
-        Password berhasil diperbarui.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
+            <strong>Terjadi Kesalahan:</strong>
 
-    <div class="row g-4">
+            <ul class="mb-0 mt-2 small">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
 
-        {{-- LEFT --}}
-        <div class="col-xl-8">
+                @foreach ($errors->updatePassword->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
 
-            <div class="profile-card shadow-sm">
+        </div>
+        @endif
 
-                {{-- HEADER --}}
-                <div class="profile-header text-white">
-                    <div class="d-flex align-items-center gap-3 position-relative" style="z-index:2;">
+        <div class="row justify-content-center g-4">
 
-                        <div class="profile-avatar shadow-sm">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
+            {{-- LEFT --}}
+            <div class="col-xl-8 col-lg-7">
 
-                        <div>
-                            <h4 class="fw-bold mb-1">
-                                Detail Profil Customer
-                            </h4>
+                {{-- PROFILE --}}
+                <div class="profile-card mb-4">
 
-                            <p class="mb-0 opacity-75 small">
-                                Pastikan data pengiriman sudah benar agar produk sampai tepat waktu.
-                            </p>
+                    {{-- HEADER --}}
+                    <div class="profile-header">
+
+                        <div class="d-flex align-items-center gap-4">
+
+                            {{-- FOTO PROFIL --}}
+                            <div class="header-profile">
+
+                                @if(Auth::user()->profile_photo)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}">
+                                @else
+                                <div class="header-profile-letter">
+                                    {{ strtoupper(substr(Auth::user()->name,0,1)) }}
+                                </div>
+                                @endif
+
+                            </div>
+
+                            {{-- TEXT --}}
+                            <div>
+                                <div class="header-title">
+                                    Informasi Customer
+                                </div>
+
+                                <p class="header-subtitle">
+                                    Data digunakan untuk pengiriman pesanan dan informasi akun Anda.
+                                </p>
+                            </div>
+
                         </div>
 
                     </div>
+
+                    {{-- FORM --}}
+                    <div class="section-space">
+
+                        <form method="POST" action="{{ route('profile.update') }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="row g-4">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Nama Lengkap
+                                    </label>
+
+                                    <input type="text"
+                                        name="name"
+                                        class="form-control"
+                                        value="{{ old('name', $user->name) }}"
+                                        required>
+                                </div>
+
+                                {{-- FIX EMAIL --}}
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Email
+                                    </label>
+
+                                    <input type="email"
+                                        name="email"
+                                        class="form-control bg-light"
+                                        value="{{ old('email', $user->email) }}"
+                                        readonly>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Nomor WhatsApp
+                                    </label>
+
+                                    <input type="text"
+                                        name="phone_number"
+                                        class="form-control"
+                                        value="{{ old('phone_number', $user->phone_number) }}"
+                                        placeholder="08xxxxxxxxxx">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Kecamatan
+                                    </label>
+
+                                    <input type="text"
+                                        name="district"
+                                        class="form-control"
+                                        value="{{ old('district', $user->district) }}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Kota / Kabupaten
+                                    </label>
+
+                                    <input type="text"
+                                        name="city"
+                                        class="form-control"
+                                        value="{{ old('city', $user->city) }}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Provinsi
+                                    </label>
+
+                                    <input type="text"
+                                        name="province"
+                                        class="form-control"
+                                        value="{{ old('province', $user->province) }}">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        Alamat Lengkap
+                                    </label>
+
+                                    <textarea
+                                        name="address"
+                                        rows="4"
+                                        class="form-control"
+                                        placeholder="Masukkan alamat lengkap">{{ old('address', $user->address) }}</textarea>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn-save shadow-sm">
+                                    <i class="bi bi-save me-1"></i>
+                                    Simpan Profil
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
                 </div>
 
-                {{-- BODY --}}
-                <div class="profile-body">
+                {{-- PASSWORD --}}
+                <div class="profile-card">
 
-                    <form method="POST" action="{{ route('profile.update') }}">
-                        @csrf
-                        @method('patch')
+                    <div class="section-space">
 
-                        <div class="section-title">
-                            Informasi Akun
-                        </div>
-
-                        <div class="row g-4">
-
-                            <div class="col-md-6">
-                                <label class="form-label">Nama Lengkap</label>
-
-                                <input
-                                    type="text"
-                                    name="name"
-                                    class="form-control"
-                                    value="{{ old('name', $user->name) }}"
-                                    required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-
-                                <input
-                                    type="email"
-                                    class="form-control bg-light"
-                                    value="{{ $user->email }}"
-                                    readonly>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Nomor WhatsApp</label>
-
-                                <input
-                                    type="text"
-                                    name="phone_number"
-                                    class="form-control"
-                                    value="{{ old('phone_number', $user->phone_number) }}"
-                                    placeholder="08xxxxxxxxxx">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Provinsi</label>
-
-                                <input
-                                    type="text"
-                                    name="province"
-                                    class="form-control"
-                                    value="{{ old('province', $user->province) }}">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Kota / Kabupaten</label>
-
-                                <input
-                                    type="text"
-                                    name="city"
-                                    class="form-control"
-                                    value="{{ old('city', $user->city) }}">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Kecamatan</label>
-
-                                <input
-                                    type="text"
-                                    name="district"
-                                    class="form-control"
-                                    value="{{ old('district', $user->district) }}">
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label">Alamat Lengkap</label>
-
-                                <textarea
-                                    name="address"
-                                    rows="4"
-                                    class="form-control"
-                                    placeholder="Masukkan alamat lengkap">{{ old('address', $user->address) }}</textarea>
-                            </div>
-
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn-save shadow-sm">
-                                <i class="bi bi-floppy me-1"></i>
-                                Simpan Profil
-                            </button>
-                        </div>
-
-                    </form>
-
-                    {{-- PASSWORD --}}
-                    <div class="security-box">
-
-                        <h6 class="fw-bold text-dark mb-1">
+                        <div class="security-title mb-1">
                             <i class="bi bi-shield-lock-fill text-danger me-2"></i>
                             Keamanan Akun
-                        </h6>
+                        </div>
 
                         <p class="text-muted small mb-4">
                             Gunakan password yang kuat untuk menjaga keamanan akun Anda.
                         </p>
 
-                        <form method="POST" action="{{ route('password.update') }}">
+                        <form method="POST"
+                            action="{{ route('password.update') }}">
+
                             @csrf
-                            @method('put')
+                            @method('PUT')
 
                             <div class="row g-3">
 
                                 <div class="col-md-4">
                                     <label class="form-label">
-                                        Password Saat Ini
+                                        Password Lama
                                     </label>
 
-                                    <input
-                                        type="password"
+                                    <input type="password"
                                         name="current_password"
-                                        class="form-control @if($errors->updatePassword->has('current_password')) is-invalid @endif">
-
-                                    @if($errors->updatePassword->has('current_password'))
-                                    <div class="invalid-feedback">
-                                        Password saat ini salah.
-                                    </div>
-                                    @endif
+                                        class="form-control">
                                 </div>
 
                                 <div class="col-md-4">
@@ -414,16 +458,9 @@
                                         Password Baru
                                     </label>
 
-                                    <input
-                                        type="password"
+                                    <input type="password"
                                         name="password"
-                                        class="form-control @if($errors->updatePassword->has('password')) is-invalid @endif">
-
-                                    @if($errors->updatePassword->has('password'))
-                                    <div class="invalid-feedback">
-                                        Password minimal 8 karakter.
-                                    </div>
-                                    @endif
+                                        class="form-control">
                                 </div>
 
                                 <div class="col-md-4">
@@ -431,15 +468,15 @@
                                         Konfirmasi Password
                                     </label>
 
-                                    <input
-                                        type="password"
+                                    <input type="password"
                                         name="password_confirmation"
                                         class="form-control">
                                 </div>
 
                             </div>
 
-                            <button type="submit" class="btn btn-dark rounded-4 mt-4 px-4 py-2 fw-semibold">
+                            <button type="submit"
+                                class="btn btn-dark rounded-4 px-4 py-2 mt-4">
                                 Ganti Password
                             </button>
 
@@ -448,120 +485,164 @@
                     </div>
 
                 </div>
+
             </div>
-        </div>
 
-        {{-- RIGHT --}}
-        <div class="col-xl-4">
+            {{-- RIGHT --}}
+            <div class="col-xl-4 col-lg-5">
 
-            <div class="side-card shadow-sm border-0 overflow-hidden">
+                <div class="profile-card profile-side p-4 text-center">
 
-                {{-- TOP --}}
-                <div class="text-center px-4 pt-5 pb-4"
-                    style="background: linear-gradient(135deg,#166534,#22c55e);">
+                    {{-- PHOTO --}}
+                    <form action="{{ route('profile.update.photo') }}"
+                        method="POST"
+                        enctype="multipart/form-data"
+                        id="photoForm">
 
-                    <div class="avatar-big mb-3">
-                        <span>
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </span>
+                        @csrf
+
+                        <div class="position-relative d-inline-block">
+
+                            <div class="avatar-box"
+                                onclick="document.getElementById('photoInput').click()">
+
+                                @if(Auth::user()->profile_photo)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}">
+                                @else
+                                <div class="avatar-letter">
+                                    {{ strtoupper(substr(Auth::user()->name,0,1)) }}
+                                </div>
+                                @endif
+
+                            </div>
+
+                            <button type="button"
+                                class="btn btn-success camera-btn position-absolute bottom-0 end-0 shadow"
+                                onclick="document.getElementById('photoInput').click()">
+
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+
+                            <input type="file"
+                                name="profile_photo"
+                                id="photoInput"
+                                class="d-none"
+                                onchange="document.getElementById('photoForm').submit()">
+
+                        </div>
+
+                    </form>
+
+                    <div class="profile-name mt-4">
+                        {{ Auth::user()->name }}
                     </div>
 
-                    <h4 class="fw-bold text-white mb-1">
-                        {{ Auth::user()->name }}
-                    </h4>
-
-                    <p class="text-white opacity-75 small mb-3">
-                        Pelanggan KWT Cibiru
-                    </p>
-
-                    <div class="badge-customer">
+                    <div class="status-badge mt-2">
                         Customer Aktif
                     </div>
 
-                </div>
+                    <hr class="my-4">
 
-                {{-- CONTENT --}}
-                <div class="p-4">
+                    {{-- INFO --}}
+                    <div class="text-start">
 
-                    <div class="info-box">
-                        <div class="info-icon">
-                            <i class="bi bi-envelope-fill"></i>
-                        </div>
+                        <div class="info-item d-flex align-items-start gap-3">
 
-                        <div>
-                            <div class="info-title">Email</div>
-
-                            <div class="info-value">
-                                {{ Auth::user()->email }}
+                            <div class="info-icon">
+                                <i class="bi bi-envelope-fill"></i>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="info-box">
-                        <div class="info-icon">
-                            <i class="bi bi-telephone-fill"></i>
-                        </div>
+                            <div>
+                                <div class="info-title">
+                                    Email
+                                </div>
 
-                        <div>
-                            <div class="info-title">Nomor Telepon</div>
-
-                            <div class="info-value">
-                                {{ Auth::user()->phone_number ?: 'Belum diisi' }}
+                                <div class="info-value">
+                                    {{ Auth::user()->email }}
+                                </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="info-box">
-                        <div class="info-icon">
-                            <i class="bi bi-geo-alt-fill"></i>
                         </div>
 
-                        <div>
-                            <div class="info-title">Alamat Pengiriman</div>
+                        <div class="info-item d-flex align-items-start gap-3">
 
-                            <div class="info-value">
-
-                                @if(
-                                Auth::user()->address ||
-                                Auth::user()->district ||
-                                Auth::user()->city ||
-                                Auth::user()->province
-                                )
-
-                                {{ Auth::user()->address }}
-
-                                @if(Auth::user()->district)
-                                , {{ Auth::user()->district }}
-                                @endif
-
-                                @if(Auth::user()->city)
-                                , {{ Auth::user()->city }}
-                                @endif
-
-                                @if(Auth::user()->province)
-                                , {{ Auth::user()->province }}
-                                @endif
-
-                                @else
-                                Belum diisi
-                                @endif
-
+                            <div class="info-icon">
+                                <i class="bi bi-whatsapp"></i>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="info-box mb-0">
-                        <div class="info-icon">
-                            <i class="bi bi-calendar-check-fill"></i>
-                        </div>
+                            <div>
+                                <div class="info-title">
+                                    Nomor WhatsApp
+                                </div>
 
-                        <div>
-                            <div class="info-title">Bergabung Sejak</div>
-
-                            <div class="info-value">
-                                {{ Auth::user()->created_at->translatedFormat('d F Y') }}
+                                <div class="info-value">
+                                    {{ Auth::user()->phone_number ?: 'Belum diisi' }}
+                                </div>
                             </div>
+
                         </div>
+
+                        <div class="info-item d-flex align-items-start gap-3">
+
+                            <div class="info-icon">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Alamat Pengiriman
+                                </div>
+
+                                <div class="info-value">
+
+                                    @if(
+                                    Auth::user()->address ||
+                                    Auth::user()->district ||
+                                    Auth::user()->city ||
+                                    Auth::user()->province
+                                    )
+
+                                    {{ Auth::user()->address }}
+
+                                    @if(Auth::user()->district)
+                                    , {{ Auth::user()->district }}
+                                    @endif
+
+                                    @if(Auth::user()->city)
+                                    , {{ Auth::user()->city }}
+                                    @endif
+
+                                    @if(Auth::user()->province)
+                                    , {{ Auth::user()->province }}
+                                    @endif
+
+                                    @else
+                                    Belum diisi
+                                    @endif
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="info-item mb-0 d-flex align-items-start gap-3">
+
+                            <div class="info-icon">
+                                <i class="bi bi-calendar-check-fill"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Bergabung Sejak
+                                </div>
+
+                                <div class="info-value">
+                                    {{ Auth::user()->created_at->format('d M Y') }}
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -569,7 +650,6 @@
             </div>
 
         </div>
-
     </div>
 </div>
 @endsection

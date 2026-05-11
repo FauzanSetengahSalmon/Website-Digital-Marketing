@@ -58,9 +58,8 @@ class Order extends Model
     */
     public function getGrandTotalAttribute()
     {
-        // Pastikan nama kolom di detail adalah 'harga_saat_ini' sesuai controller kamu tadi
         $subtotal = $this->details->sum(function ($detail) {
-            return $detail->jumlah * ($detail->harga_saat_ini ?? $detail->harga_satuan);
+            return $detail->jumlah * $detail->harga_saat_ini;
         });
 
         return $subtotal + $this->ongkir;

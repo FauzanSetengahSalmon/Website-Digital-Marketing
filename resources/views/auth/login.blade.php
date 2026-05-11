@@ -119,6 +119,25 @@
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
         }
 
+        .input-error {
+            margin-top: 10px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .input-error i {
+            font-size: 14px;
+        }
+
+        /* Forgot Password */
         .forgot-pw {
             text-align: right;
             margin-top: -10px;
@@ -203,7 +222,8 @@
         /* --- Right Side: Image --- */
         .image-side {
             flex: 1.2;
-            background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
                 url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200') center/cover;
             display: flex;
             flex-direction: column;
@@ -243,6 +263,18 @@
             }
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (max-width: 850px) {
             .image-side {
                 display: none;
@@ -262,56 +294,110 @@
 <body>
 
     <div class="container">
+
+        <!-- FORM SIDE -->
         <div class="form-side">
+
             <div class="header">
                 <h2>Selamat Datang!</h2>
                 <p>Masuk untuk melanjutkan belanja sehat Anda.</p>
             </div>
 
+            {{-- SUCCESS MESSAGE --}}
+            @if (session('success'))
+            <div class="success-alert">
+                <i class="fa-solid fa-circle-check"></i>
+                {{ session('success') }}
+            </div>
+            @endif
+
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
+                <!-- EMAIL -->
                 <div class="input-group">
                     <label class="label">Alamat Email</label>
+
                     <div class="input-box">
                         <i class="fa-regular fa-envelope"></i>
-                        <input type="email" name="email" placeholder="nama@email.com" required>
+
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="nama@email.com"
+                            value="{{ old('email') }}"
+                            required>
                     </div>
+
+                    @error('email')
+                    <div class="input-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        {{ $message }}
+                    </div>
+                    @enderror
                 </div>
 
+                <!-- PASSWORD -->
                 <div class="input-group">
                     <label class="label">Password</label>
+
                     <div class="input-box">
                         <i class="fa-solid fa-lock-open"></i>
-                        <input type="password" name="password" placeholder="••••••••" required>
+
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="••••••••"
+                            required>
                     </div>
+
+                    @error('password')
+                    <div class="input-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        {{ $message }}
+                    </div>
+                    @enderror
                 </div>
 
+                <!-- FORGOT -->
                 <div class="forgot-pw">
                     <a href="#">Lupa Password?</a>
                 </div>
 
-                <button type="submit" class="btn-login">Masuk Sekarang</button>
+                <!-- LOGIN BUTTON -->
+                <button type="submit" class="btn-login">
+                    Masuk Sekarang
+                </button>
 
                 <div class="divider">Atau masuk dengan</div>
 
+                <!-- GOOGLE LOGIN -->
                 <a href="/auth/google" class="btn-google">
                     <img src="image/google.png" width="20" alt="Google">
                     Akun Google
                 </a>
+
             </form>
 
             <div class="footer">
-                Belum bergabung? <a href="/register">Buat akun baru</a>
+                Belum bergabung?
+                <a href="/register">Buat akun baru</a>
             </div>
+
         </div>
 
+        <!-- IMAGE SIDE -->
         <div class="image-side">
             <div class="image-text">
                 <h3>Segar & Organik</h3>
-                <p>Membawa hasil tani terbaik langsung ke pintu rumah Anda dengan kasih sayang.</p>
+
+                <p>
+                    Membawa hasil tani terbaik langsung ke pintu rumah Anda
+                    dengan kasih sayang.
+                </p>
             </div>
         </div>
+
     </div>
 
 </body>

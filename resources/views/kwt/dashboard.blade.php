@@ -59,6 +59,35 @@
         display: inline-block;
         margin-bottom: 5px;
     }
+
+    .illustration-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .dashboard-illustration {
+        width: 100%;
+        max-width: 240px;
+        height: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.08));
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -128,19 +157,39 @@
         </div>
     </div>
 
-    <div class="row align-items-center bg-white mx-1 rounded-4 shadow-sm p-4 border-top border-success border-4">
-        <div class="col-md-3 text-center">
-            <img src="https://illustrations.popsy.co/green/data-analysis.svg" style="height: 160px;" alt="illustration">
+    <div class="row align-items-center bg-white mx-1 rounded-4 shadow-sm p-4 border-top border-success border-4 overflow-hidden">
+
+        <!-- ILUSTRASI -->
+        <div class="col-md-4 text-center">
+            <div class="illustration-wrapper">
+                <img
+                    src="https://cdni.iconscout.com/illustration/premium/thumb/farmer-selling-organic-food-illustration-download-in-svg-png-gif-file-formats--vegetable-agriculture-pack-people-illustrations-4759507.png"
+                    class="dashboard-illustration"
+                    alt="KWT Illustration">
+            </div>
         </div>
-        <div class="col-md-9 text-center text-md-start">
-            <h4 class="fw-bold text-dark">Laporan Bisnis {{ Auth::user()->name }}</h4>
-            <p class="text-muted small">Semua data di atas adalah hasil kerja keras kelompok kita. Mari terus jaga kualitas produk.</p>
-            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start mt-3">
-                <a href="{{ route('kwt.orders') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
-                    <i class="bi bi-receipt me-2"></i> Periksa Pesanan
+
+        <!-- TEXT -->
+        <div class="col-md-8 text-center text-md-start mt-4 mt-md-0">
+            <h4 class="fw-bold text-dark">
+                Laporan Bisnis {{ Auth::user()->name }}
+            </h4>
+
+            <p class="text-muted small mb-3">
+                Semua data di atas adalah hasil kerja keras kelompok kita.
+                Mari terus menjaga kualitas produk dan meningkatkan penjualan setiap harinya.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+                <a href="{{ route('kwt.orders') }}"
+                    class="btn btn-success rounded-pill px-4 shadow-sm">
+
+                    <i class="bi bi-receipt me-2"></i>
+                    Periksa Pesanan
                 </a>
             </div>
         </div>
+
     </div>
 </div>
 @endsection

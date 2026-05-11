@@ -1,10 +1,10 @@
-@extends('layouts.kwt')
+@extends('layouts.admin')
 
 @section('content')
 <style>
     :root {
-        --kwt-green: #064e3b;
-        --kwt-light: #10b981;
+        --admin-dark: #111827;
+        --admin-primary: #2563eb;
     }
 
     .profile-card {
@@ -14,8 +14,8 @@
         overflow: hidden;
     }
 
-    .profile-header-kwt {
-        background: var(--kwt-green);
+    .profile-header-admin {
+        background: linear-gradient(135deg, #111827, #1e3a8a);
         padding: 30px;
         position: relative;
     }
@@ -34,8 +34,8 @@
     }
 
     .form-control:focus {
-        border-color: var(--kwt-light);
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
     .btn-thin {
@@ -47,13 +47,13 @@
     }
 
     .btn-update {
-        background: var(--kwt-light);
+        background: var(--admin-primary);
         color: white;
         border: none;
     }
 
     .btn-update:hover {
-        background: #0d9488;
+        background: #1d4ed8;
         transform: translateY(-1px);
     }
 
@@ -61,54 +61,31 @@
         opacity: 1 !important;
     }
 
-    .avatar-large img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .role-badge {
-        border-radius: 8px;
+    .admin-badge {
+        background: #dbeafe;
+        color: #1d4ed8;
+        padding: 6px 14px;
+        border-radius: 50px;
         font-size: 0.8rem;
         font-weight: 700;
-        padding: 8px 14px;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
+        display: inline-block;
     }
 </style>
 
-@php
-$roleLabel = match(Auth::user()->role) {
-'admin' => 'Super Admin',
-'kwt' => 'Pengelola KWT',
-default => 'Customer'
-};
-
-$roleClass = match(Auth::user()->role) {
-'admin' => 'bg-danger-subtle text-danger',
-'kwt' => 'bg-success-subtle text-success',
-default => 'bg-primary-subtle text-primary'
-};
-@endphp
-
 <div class="container-fluid py-4">
 
-    {{-- HEADER --}}
+    <!-- HEADER -->
     <div class="mb-4">
         <h4 class="fw-bold mb-0">
-            Profil
-            <span class="text-success">
-                {{ Auth::user()->role === 'admin' ? 'Admin' : 'KWT' }}
-            </span>
+            Profil <span class="text-primary">Administrator</span>
         </h4>
 
         <p class="text-muted small">
-            Kelola identitas akun Anda agar data tetap aman dan terpercaya.
+            Kelola informasi akun administrator sistem.
         </p>
     </div>
 
-    {{-- SUCCESS --}}
+    <!-- SUCCESS -->
     @if (session('success') || session('status') === 'profile-updated')
     <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4"
         role="alert"
@@ -117,33 +94,17 @@ default => 'bg-primary-subtle text-primary'
         <i class="bi bi-check-circle-fill me-2"></i>
 
         <strong>Berhasil!</strong>
-        {{ session('success') ?: 'Data profil Anda telah diperbarui.' }}
+        {{ session('success') ?: 'Data profil berhasil diperbarui.' }}
 
         <button type="button"
             class="btn-close"
-            data-bs-dismiss="alert"></button>
+            data-bs-dismiss="alert">
+        </button>
     </div>
     @endif
 
-    {{-- PASSWORD SUCCESS --}}
-    @if (session('status') === 'password-updated')
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4"
-        role="alert"
-        style="border-radius: 12px;">
-
-        <i class="bi bi-shield-check me-2"></i>
-
-        <strong>Berhasil!</strong>
-        Password Anda telah diganti.
-
-        <button type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    {{-- ERROR --}}
-    @if ($errors->any() || $errors->updatePassword->any())
+    <!-- ERROR -->
+    @if ($errors->any())
     <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4"
         role="alert"
         style="border-radius: 12px;">
@@ -152,58 +113,54 @@ default => 'bg-primary-subtle text-primary'
             <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
 
             <div>
-                <strong>Gagal!</strong> Ada masalah dengan inputan Anda:
+                <strong>Terjadi Kesalahan!</strong>
 
                 <ul class="mb-0 mt-2 small">
-
                     @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                     @endforeach
-
-                    @foreach ($errors->updatePassword->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-
                 </ul>
             </div>
         </div>
 
         <button type="button"
             class="btn-close"
-            data-bs-dismiss="alert"></button>
+            data-bs-dismiss="alert">
+        </button>
     </div>
     @endif
 
     <div class="row">
 
-        {{-- FORM PROFILE --}}
+        <!-- FORM -->
         <div class="col-xl-8">
 
             <div class="profile-card shadow-sm mb-4">
 
-                <div class="profile-header-kwt text-white">
+                <!-- HEADER -->
+                <div class="profile-header-admin text-white">
 
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="bg-white rounded-3 d-flex align-items-center justify-content-center"
                             style="width: 50px; height: 50px;">
 
-                            <i class="bi bi-person-vcard text-success fs-4"></i>
+                            <i class="bi bi-shield-lock text-primary fs-4"></i>
                         </div>
 
                         <div>
                             <h5 class="fw-bold mb-0">
-                                Informasi Akun
+                                Informasi Administrator
                             </h5>
 
                             <p class="mb-0 small opacity-75">
-                                Data ini akan digunakan pada sistem.
+                                Data ini digunakan untuk identitas admin sistem.
                             </p>
                         </div>
-
                     </div>
                 </div>
 
+                <!-- BODY -->
                 <div class="p-4">
 
                     <form method="POST" action="{{ route('profile.update') }}">
@@ -212,101 +169,72 @@ default => 'bg-primary-subtle text-primary'
 
                         <div class="row g-3">
 
-                            {{-- NAME --}}
                             <div class="col-md-6">
                                 <label class="form-label">
-                                    Nama
+                                    Nama Lengkap
                                 </label>
 
-                                <input
-                                    type="text"
+                                <input type="text"
                                     name="name"
-                                    class="form-control @error('name') is-invalid @enderror"
+                                    class="form-control"
                                     value="{{ old('name', $user->name) }}"
                                     required>
-
-
-                                <small class="text-muted"
-                                    style="font-size: 0.72rem;">
-                                    *Nama sesuai dengan KWTnya, agar mudah dikenali pelanggan
-                                </small>
                             </div>
 
-                            {{-- EMAIL --}}
                             <div class="col-md-6">
                                 <label class="form-label">
-                                    Email
+                                    Email Administrator
                                 </label>
 
-                                <input
-                                    type="email"
+                                <input type="email"
                                     name="email"
-                                    class="form-control @error('email') is-invalid @enderror"
+                                    class="form-control"
                                     value="{{ old('email', $user->email) }}"
                                     required>
-
-                                <small class="text-muted"
-                                    style="font-size: 0.72rem;">
-                                    *Email digunakan untuk login
-                                </small>
                             </div>
 
-                            {{-- PHONE --}}
                             <div class="col-md-6">
                                 <label class="form-label">
-                                    Nomor WhatsApp
+                                    Nomor Telepon
                                 </label>
 
-                                <input
-                                    type="text"
+                                <input type="text"
                                     name="phone_number"
-                                    class="form-control @error('phone_number') is-invalid @enderror"
+                                    class="form-control"
                                     value="{{ old('phone_number', $user->phone_number) }}"
-                                    placeholder="08123456789">
-
-
-                                <small class="text-muted"
-                                    style="font-size: 0.72rem;">
-                                    *Nomor WA digunakan untuk komunikasi dengan pelanggan
-                                </small>
+                                    placeholder="08xxxxxxxxxx">
                             </div>
 
-                            {{-- DISTRICT --}}
                             <div class="col-md-6">
                                 <label class="form-label">
-                                    Wilayah
+                                    Role Akun
                                 </label>
 
-                                <input
-                                    type="text"
-                                    name="district"
-                                    class="form-control @error('district') is-invalid @enderror"
-                                    value="{{ old('district', $user->district) }}"
-                                    placeholder="Contoh: Bandung">
+                                <input type="text"
+                                    class="form-control bg-light"
+                                    value="Administrator"
+                                    readonly>
                             </div>
 
-                            {{-- ADDRESS --}}
                             <div class="col-12">
                                 <label class="form-label">
                                     Alamat
                                 </label>
 
-                                <textarea
-                                    name="address"
+                                <textarea name="address"
                                     rows="3"
-                                    class="form-control @error('address') is-invalid @enderror"
+                                    class="form-control"
                                     placeholder="Masukkan alamat lengkap...">{{ old('address', $user->address) }}</textarea>
                             </div>
 
                         </div>
 
-                        {{-- BUTTON --}}
                         <div class="mt-4">
                             <button type="submit"
                                 class="btn-thin btn-update shadow-sm">
 
                                 <i class="bi bi-save me-1"></i>
-                                Simpan Profil
+                                Simpan Perubahan
                             </button>
                         </div>
 
@@ -316,12 +244,11 @@ default => 'bg-primary-subtle text-primary'
             </div>
         </div>
 
-        {{-- SIDEBAR --}}
+        <!-- SIDEBAR -->
         <div class="col-xl-4">
 
             <div class="profile-card shadow-sm p-4 text-center">
 
-                {{-- PHOTO FORM --}}
                 <form action="{{ route('profile.update.photo') }}"
                     method="POST"
                     enctype="multipart/form-data"
@@ -336,85 +263,67 @@ default => 'bg-primary-subtle text-primary'
                             onclick="document.getElementById('photoInput').click()">
 
                             @if(Auth::user()->profile_photo)
-
-                            <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}">
-
+                            <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
+                                class="w-100 h-100 object-fit-cover">
                             @else
-
-                            <span class="fs-1 fw-bold text-success">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            <span class="fs-1 fw-bold text-primary">
+                                {{ substr(Auth::user()->name, 0, 1) }}
                             </span>
-
                             @endif
 
                         </div>
 
-                        {{-- CAMERA BUTTON --}}
                         <button type="button"
-                            class="btn btn-sm btn-success position-absolute bottom-0 end-0 rounded-circle shadow-sm"
+                            class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle shadow-sm"
                             style="width: 35px; height: 35px; border: 2px solid white;"
                             onclick="document.getElementById('photoInput').click()">
 
                             <i class="bi bi-camera"></i>
                         </button>
 
-                        <input
-                            type="file"
+                        <input type="file"
                             name="profile_photo"
                             id="photoInput"
                             class="d-none"
                             onchange="document.getElementById('photoForm').submit()">
-
                     </div>
 
                 </form>
 
-                {{-- USER --}}
                 <h5 class="fw-bold mb-1 mt-3 text-dark">
                     {{ Auth::user()->name }}
                 </h5>
 
-                {{-- ROLE --}}
-                <div class="d-flex justify-content-center mt-2">
-                    <span class="role-badge {{ $roleClass }}">
-                        <i class="bi bi-person-badge-fill"></i>
-                        {{ $roleLabel }}
-                    </span>
-                </div>
+                <p class="admin-badge">
+                    Administrator Sistem
+                </p>
 
                 <hr class="my-4 opacity-10">
 
-                {{-- INFO --}}
                 <div class="text-start small text-muted">
 
                     <p class="mb-2">
-                        <i class="bi bi-calendar-check me-2 text-success"></i>
+                        <i class="bi bi-calendar-check me-2 text-primary"></i>
 
                         Bergabung:
                         {{ Auth::user()->created_at->format('d M Y') }}
                     </p>
 
                     <p class="mb-0">
-                        <i class="bi bi-envelope me-2 text-success"></i>
+                        <i class="bi bi-envelope me-2 text-primary"></i>
 
                         {{ Auth::user()->email }}
                     </p>
 
                 </div>
-
             </div>
 
-            {{-- INFO --}}
-            <div class="mt-3 p-3 bg-warning-subtle text-warning-emphasis small rounded-3 border border-warning-subtle">
-
+            <div class="mt-3 p-3 bg-primary-subtle text-primary-emphasis small rounded-3 border border-primary-subtle">
                 <i class="bi bi-info-circle-fill me-2"></i>
-
-                Klik foto atau ikon kamera untuk mengganti foto profil Anda.
-
+                Klik foto profil untuk mengganti avatar administrator.
             </div>
 
         </div>
-
     </div>
 </div>
 @endsection

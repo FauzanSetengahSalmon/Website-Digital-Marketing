@@ -15,6 +15,7 @@ use App\Http\Controllers\ProfileController;
 | PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', [ProductController::class, 'home'])->name('home');
 Route::view('/tentang-kami', 'about')->name('about');
 Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
@@ -45,42 +46,37 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-
-    /* --- ADMIN AREA --- */
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        
-        // Manajemen User (Customer)
+        Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile');
         Route::get('/users', [AdminController::class, 'usersIndex'])->name('users');
-        
-        // Manajemen Akun KWT
         Route::get('/kwt', [AdminController::class, 'kwtIndex'])->name('kwt');
         Route::post('/kwt/store', [AdminController::class, 'storeKwt'])->name('kwt.store');
-        
-        // Penjualan Global
         Route::get('/sales', [AdminController::class, 'allSales'])->name('sales');
     });
 
     /* --- KWT AREA --- */
     Route::middleware(['role:kwt'])->prefix('kwt')->name('kwt.')->group(function () {
         Route::get('/dashboard', [OrderController::class, 'kwtDashboard'])->name('dashboard');
-        
+
         // Produk KWT
         Route::get('/list-produk', [ProductController::class, 'kwtProducts'])->name('products');
         Route::post('/tambah-produk', [ProductController::class, 'store'])->name('products.store');
         Route::get('/produk/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('/produk/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
-        
+
         // Pesanan Masuk
         Route::get('/list-pesanan', [OrderController::class, 'kwtOrders'])->name('orders');
         Route::get('/proses-pesanan/{id}', [OrderController::class, 'kwtOrderProcess'])->name('orders.process');
         Route::get('/detail-pesanan/{id}', [OrderController::class, 'kwtOrderDetail'])->name('orders.detail');
         Route::post('/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.status');
-        
-        // Laporan & Profile
+
         Route::get('/laporan', [OrderController::class, 'kwtLaporan'])->name('laporan');
         Route::delete('/laporan/reset', [OrderController::class, 'resetLaporan'])->name('laporan.reset');
+        Route::get('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
+        Route::post('/withdraw', [OrderController::class, 'withdrawPendapatan'])->name('withdraw');
         Route::get('/profile', [ProfileController::class, 'editKwt'])->name('profile');
     });
 

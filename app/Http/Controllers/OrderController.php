@@ -6,106 +6,74 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderDetail;
-use App\Models\Kurir; 
+use App\Models\Kurir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+// ⭐ WAJIB UNTUK EXPORT EXCEL
+use App\Exports\KwtTransactionExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class OrderController extends Controller
 {
-    /**
-     * Dashboard untuk KWT
-     */
+    /* =====================================================
+     | KWT AREA
+     ===================================================== */
+
     public function kwtDashboard()
     {
         $userId = Auth::id();
 
-        $totalReceived = OrderDetail::whereHas('product', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->whereHas('order', function ($q) {
-                $q->where('status', 'selesai');
-            })
+        $totalReceived = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
+            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
             ->sum(DB::raw('harga_saat_ini * jumlah'));
 
-        $soldCount = OrderDetail::whereHas('product', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->whereHas('order', function ($q) {
-                $q->where('status', 'selesai');
-            })
+        $soldCount = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
+            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
             ->sum('jumlah');
 
         $totalProducts = Product::where('user_id', $userId)->count();
 
-        $pendingOrders = Order::whereHas('details.product', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
+        $pendingOrders = Order::whereHas('details.product', fn($q) => $q->where('user_id', $userId))
             ->where('status', 'menunggu')
             ->count();
 
-        $stats = [
-            'total_received' => $totalReceived,
-            'sold_count' => $soldCount,
-            'total_products' => $totalProducts,
-            'pending_orders' => $pendingOrders,
-        ];
+        $stats = compact('totalReceived', 'soldCount', 'totalProducts', 'pendingOrders');
 
         return view('kwt.dashboard', compact('stats'));
     }
 
-    /**
-     * Laporan Penjualan KWT
-     */
     public function kwtLaporan()
     {
         $userId = Auth::id();
 
         $orders = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->latest()
-            ->get();
+            ->whereHas('details.product', fn($q) => $q->where('user_id', $userId))
+            ->latest()->get();
 
-        $totalPendapatan = OrderDetail::whereHas('product', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->whereHas('order', function ($q) {
-                $q->where('status', 'selesai');
-            })
+        $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
+            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
             ->sum(DB::raw('harga_saat_ini * jumlah'));
 
         return view('kwt.laporan', compact('orders', 'totalPendapatan'));
     }
 
-    /**
-     * Daftar Pesanan Masuk (Route: kwt.orders)
-     */
     public function kwtOrders()
     {
         $orders = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', function ($q) {
-                $q->where('user_id', Auth::id());
-            })
-            ->latest()
-            ->get();
+            ->whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
+            ->latest()->get();
 
-        $list_kurir = Kurir::all(); 
+        $list_kurir = Kurir::all();
 
         return view('kwt.orders', compact('orders', 'list_kurir'));
     }
 
-    /**
-     * Halaman Proses Pesanan (Route: kwt.orders.process)
-     * INI FUNGSI YANG TADI BIKIN ERROR KARENA HILANG
-     */
     public function kwtOrderProcess($id)
     {
         $order = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', function ($q) {
-                $q->where('user_id', Auth::id());
-            })
+            ->whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
             ->findOrFail($id);
 
         $list_kurir = Kurir::all();
@@ -113,23 +81,15 @@ class OrderController extends Controller
         return view('kwt.process-orders', compact('order', 'list_kurir'));
     }
 
-    /**
-     * Detail Pesanan KWT (Route: kwt.orders.detail)
-     */
     public function kwtOrderDetail($id)
     {
         $order = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', function ($q) {
-                $q->where('user_id', Auth::id());
-            })
+            ->whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
             ->findOrFail($id);
 
         return view('kwt.detail-orders', compact('order'));
     }
 
-    /**
-     * Update Status & Kurir (Route: kwt.order.status)
-     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -138,9 +98,8 @@ class OrderController extends Controller
             'no_hp_kurir' => 'nullable'
         ]);
 
-        $order = Order::whereHas('details.product', function ($q) {
-            $q->where('user_id', Auth::id());
-        })->findOrFail($id);
+        $order = Order::whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
+            ->findOrFail($id);
 
         $order->update([
             'status' => $request->status,
@@ -148,68 +107,87 @@ class OrderController extends Controller
             'no_hp_kurir' => $request->no_hp_kurir
         ]);
 
-        return redirect()->route('kwt.orders')->with('success', 'Pesanan berhasil diperbarui!');
+        return redirect()->route('kwt.orders')->with('success', 'Pesanan diperbarui!');
     }
 
-    /**
-     * Reset Laporan KWT
-     */
-    public function resetLaporan()
+    /* ================= EXPORT EXCEL ================= */
+
+    public function exportExcel()
     {
-        $userId = Auth::id();
-        OrderDetail::whereHas('product', function($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->delete();
-
-        return back()->with('success', 'Data laporan berhasil direset.');
+        return Excel::download(
+            new KwtTransactionExport(Auth::id()),
+            'laporan-penjualan-kwt.xlsx'
+        );
     }
 
-    /* |--------------------------------------------------------------------------
-    | CUSTOMER METHODS
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+     | CUSTOMER AREA
+     ===================================================== */
 
     public function checkout(Request $request)
     {
         if (!$request->has('items')) {
             return redirect()->route('cart.index')->with('error', 'Pilih produk!');
         }
-        
+
         $ids = explode(',', $request->query('items'));
-        $cartItems = Cart::with('product.user')->whereIn('id', $ids)->where('user_id', Auth::id())->get();
-        
+
+        $cartItems = Cart::with('product.user')
+            ->whereIn('id', $ids)
+            ->where('user_id', Auth::id())
+            ->get();
+
         $subtotal = $cartItems->sum(fn($item) => $item->jumlah * $item->product->harga);
-        $jarak = 2; 
-        $ongkir = $jarak * 6500;
+        $ongkir = 2 * 6500;
 
         return view('customer.checkout', [
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
             'ongkir' => $ongkir,
             'totalBayar' => $subtotal + $ongkir,
-            'jarak' => $jarak
+            'jarak' => 2
         ]);
     }
 
     public function process(Request $request)
     {
         DB::beginTransaction();
+
         try {
+            $user = Auth::user();
+
+            // 🔥 WAJIB ADA ALAMAT + HP
+            if (!$user->address || !$user->phone_number) {
+                return back()->with('error', 'Lengkapi alamat & nomor HP di profil!');
+            }
+
             $ids = explode(',', $request->item_ids);
-            $cartItems = Cart::with('product')->whereIn('id', $ids)->where('user_id', Auth::id())->get();
-            
-            if ($cartItems->isEmpty()) throw new \Exception("Item tidak ditemukan.");
 
-            $subtotal = $cartItems->sum(fn($item) => $item->jumlah * $item->product->harga);
-            $jarak = 2;
-            $ongkir = $jarak * 6500;
+            $cartItems = Cart::with('product')
+                ->whereIn('id', $ids)
+                ->where('user_id', $user->id)
+                ->get();
 
+            if ($cartItems->isEmpty()) throw new \Exception("Cart kosong");
+
+            $subtotal = $cartItems->sum(fn($i) => $i->jumlah * $i->product->harga);
+            $ongkir = 2 * 6500;
+
+            /* 🔥 SNAPSHOT DATA CUSTOMER KE ORDER 🔥 */
             $order = Order::create([
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'total_harga' => $subtotal + $ongkir,
                 'ongkir' => $ongkir,
                 'status' => 'menunggu',
                 'catatan' => $request->catatan,
+
+                // ⭐ INI YANG BIKIN HP CUSTOMER MUNCUL
+                'alamat' => $user->address,
+                'nomor_hp' => $user->phone_number,
+
+                // default kurir
+                'kurir' => 'Menunggu penugasan',
+                'no_hp_kurir' => '-'
             ]);
 
             foreach ($cartItems as $item) {
@@ -225,7 +203,9 @@ class OrderController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('orders.history');
+
+            return redirect()->route('orders.history')
+                ->with('success', 'Pesanan berhasil dibuat!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', $e->getMessage());
@@ -236,8 +216,8 @@ class OrderController extends Controller
     {
         $orders = Order::with(['details.product.user'])
             ->where('user_id', Auth::id())
-            ->latest()
-            ->get();
+            ->latest()->get();
+
         return view('customer.riwayat-pesanan', compact('orders'));
     }
 
@@ -246,6 +226,7 @@ class OrderController extends Controller
         $order = Order::with(['details.product.user'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
+
         return view('customer.detail-pesanan', compact('order'));
     }
 }

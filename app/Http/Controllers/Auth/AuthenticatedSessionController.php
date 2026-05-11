@@ -3,45 +3,88 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
+    /**
+     * Tampilkan halaman login
+     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    /**
+     * Proses login user
+     */
+    public function store(Request $request): RedirectResponse
     {
-        $request->authenticate();
+        // VALIDASI
+        $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.',
+        ]);
+
+        // CARI USER BERDASARKAN EMAIL
+        $user = User::where('email', $request->email)->first();
+
+        // JIKA EMAIL TIDAK ADA
+        if (!$user) {
+            return back()
+                ->withErrors([
+                    'email' => 'Email belum terdaftar di sistem.',
+                ])
+                ->withInput();
+        }
+
+        // JIKA PASSWORD SALAH
+        if (!Hash::check($request->password, $user->password)) {
+            return back()
+                ->withErrors([
+                    'password' => 'Password yang Anda masukkan salah.',
+                ])
+                ->withInput();
+        }
+
+        // LOGIN USER
+        Auth::login($user);
+
         $request->session()->regenerate();
 
-        // Ambil data user yang baru saja login
+        // AMBIL USER LOGIN
         $user = Auth::user();
 
-        // PENGALIHAN KHUSUS BERDASARKAN ROLE
+        // REDIRECT BERDASARKAN ROLE
         if ($user->role === 'admin') {
             return redirect()->intended(route('admin.dashboard'));
-        } 
-        
+        }
+
         if ($user->role === 'kwt') {
-            // Ini akan melempar KWT langsung ke http://127.0.0.1:8000/kwt/dashboard
             return redirect()->intended(route('kwt.dashboard'));
         }
 
-        // Jika dia Customer biasa, ke Home atau Dashboard biasa
         return redirect()->intended(route('home'));
     }
 
+    /**
+     * Logout user
+     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
+
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
         return redirect('/');

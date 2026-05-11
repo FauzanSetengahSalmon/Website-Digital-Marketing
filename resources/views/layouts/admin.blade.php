@@ -27,10 +27,11 @@
             position: fixed;
             top: 0;
             left: 0;
-            background: #064e3b; /* Hijau Gelap Khas KWT */
+            background: #064e3b;
+            /* Hijau Gelap Khas KWT */
             z-index: 1000;
             transition: all 0.3s;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-header {
@@ -58,7 +59,7 @@
             justify-content: center;
             font-weight: 700;
             font-size: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
@@ -127,7 +128,7 @@
 
         .nav-link.active {
             background: #ffffff !important;
-            color: #064e3b !important; 
+            color: #064e3b !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             font-weight: 700;
         }
@@ -168,9 +169,19 @@
 
         /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
-            .sidebar { left: -260px; }
-            .sidebar.show { left: 0; }
-            .main-content { margin-left: 0; padding: 20px; }
+            .sidebar {
+                left: -260px;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
             .mobile-header {
                 display: flex !important;
             }
@@ -184,7 +195,7 @@
             padding: 15px 20px;
             border-radius: 15px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
     </style>
     @stack('styles')
@@ -194,14 +205,14 @@
 
     {{-- SIDEBAR --}}
     <aside class="sidebar" id="sidebar">
-        
+
         <div class="sidebar-header">
             <div class="profile-box">
                 <div class="avatar-circle">
                     @if(Auth::user()->profile_photo)
-                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Admin">
+                    <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Admin">
                     @else
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     @endif
                 </div>
                 <div class="profile-info">
@@ -218,7 +229,7 @@
             </a>
 
             <div class="nav-label">Manajemen Data</div>
-            
+
             {{-- Data Semua User --}}
             <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
                 <i class="bi bi-people-fill"></i> Data Semua User
@@ -237,8 +248,10 @@
             </a>
 
             <div class="nav-label">Sistem</div>
-            <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
-                <i class="bi bi-shield-lock-fill"></i> Keamanan Akun
+            <a href="{{ route('admin.profile') }}"
+                class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i>
+                Profile Admin
             </a>
         </nav>
 
@@ -255,7 +268,7 @@
 
     {{-- MAIN CONTENT --}}
     <main class="main-content">
-        
+
         <div class="mobile-header">
             <span class="fw-bold text-success">Admin KWT</span>
             <button class="btn btn-success btn-sm" onclick="toggleSidebar()">
@@ -276,4 +289,5 @@
     @stack('scripts')
 
 </body>
+
 </html>
