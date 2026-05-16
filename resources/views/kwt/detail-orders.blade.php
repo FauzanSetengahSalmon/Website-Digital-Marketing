@@ -2,36 +2,36 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
 
     body{
-        background:#f5f7f4;
-        font-family:'Manrope',sans-serif;
+        background:#f5f7fb;
+        font-family:'Plus Jakarta Sans',sans-serif;
         color:#111827;
     }
 
     /* CONTAINER */
-    .invoice-container{
-        max-width:760px;
-        margin:35px auto;
-        padding:0 18px;
+    .invoice-wrapper{
+        max-width:700px;
+        margin:28px auto;
+        padding:0 16px;
     }
 
     /* ACTION */
-    .top-action{
+    .top-bar{
         display:flex;
         justify-content:space-between;
         align-items:center;
         margin-bottom:18px;
     }
 
-    .back-btn{
+    .back-link{
         text-decoration:none;
         color:#166534;
-        font-size:13px;
+        font-size:11px;
         font-weight:700;
     }
 
@@ -39,265 +39,268 @@
         border:none;
         background:#111827;
         color:white;
-        padding:11px 20px;
         border-radius:999px;
-        font-size:13px;
+        padding:9px 16px;
+        font-size:11px;
         font-weight:600;
-        transition:.3s;
+        transition:.2s;
     }
 
     .print-btn:hover{
         background:#000;
-        transform:translateY(-2px);
     }
 
     /* CARD */
     .invoice-card{
         background:white;
-        border-radius:34px;
+        border-radius:24px;
         overflow:hidden;
-        box-shadow:0 18px 60px rgba(0,0,0,0.05);
+        box-shadow:0 8px 30px rgba(0,0,0,.04);
     }
 
     /* HEADER */
     .invoice-header{
-        background:linear-gradient(135deg,#1b4332,#2d6a4f);
-        padding:38px;
-        color:white;
-        position:relative;
+        padding:26px 28px;
+        border-bottom:1px solid #f1f5f9;
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        flex-wrap:wrap;
+        gap:14px;
     }
 
-    .invoice-header::after{
-        content:'';
-        position:absolute;
-        width:180px;
-        height:180px;
-        background:rgba(255,255,255,0.06);
-        border-radius:50%;
-        top:-70px;
-        right:-70px;
-    }
-
-    .invoice-header small{
-        font-size:11px;
-        letter-spacing:2px;
-        text-transform:uppercase;
-        opacity:.75;
-    }
-
-    .invoice-header h2{
-        margin-top:10px;
-        margin-bottom:6px;
-        font-size:28px;
+    .invoice-title{
+        font-size:22px;
         font-weight:800;
+        margin-bottom:3px;
     }
 
-    .invoice-header p{
-        margin:0;
-        font-size:13px;
-        opacity:.9;
+    .invoice-sub{
+        font-size:11px;
+        color:#6b7280;
+    }
+
+    .invoice-badge{
+        background:#f0fdf4;
+        color:#15803d;
+        padding:8px 14px;
+        border-radius:999px;
+        font-size:11px;
+        font-weight:700;
     }
 
     /* BODY */
     .invoice-body{
-        padding:32px;
+        padding:24px 28px;
     }
 
     /* INFO */
-    .info-box{
-        background:#f8faf8;
-        border-radius:22px;
-        padding:18px;
+    .info-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+        margin-bottom:22px;
     }
 
-    .info-box label{
-        display:block;
-        font-size:10px;
-        font-weight:800;
+    .info-card{
+        background:#f9fafb;
+        border-radius:18px;
+        padding:14px 16px;
+    }
+
+    .info-label{
+        font-size:9px;
+        font-weight:700;
         text-transform:uppercase;
         letter-spacing:1px;
         color:#9ca3af;
-        margin-bottom:6px;
-    }
-
-    .info-box div{
-        font-size:15px;
-        font-weight:700;
-    }
-
-    /* PRODUCT */
-    .section-title{
-        font-size:15px;
-        font-weight:800;
-        margin-bottom:16px;
-    }
-
-    .product-card{
-        background:#fafafa;
-        border-radius:24px;
-        padding:18px 20px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:14px;
-    }
-
-    .product-info h5{
-        font-size:15px;
-        font-weight:700;
         margin-bottom:5px;
     }
 
-    .product-info p{
-        margin:0;
+    .info-value{
         font-size:12px;
+        font-weight:700;
+    }
+
+    /* SECTION */
+    .section-title{
+        font-size:12px;
+        font-weight:700;
+        margin-bottom:12px;
+    }
+
+    /* PRODUCT */
+    .product-item{
+        border:1px solid #f1f5f9;
+        border-radius:18px;
+        padding:14px 16px;
+        margin-bottom:10px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        background:white;
+    }
+
+    .product-name{
+        font-size:12px;
+        font-weight:700;
+        margin-bottom:2px;
+    }
+
+    .product-detail{
+        font-size:10px;
         color:#6b7280;
     }
 
-    .product-total{
+    .product-price{
         text-align:right;
     }
 
-    .product-total small{
+    .product-price small{
         display:block;
-        font-size:11px;
+        font-size:9px;
         color:#9ca3af;
-        margin-bottom:4px;
+        margin-bottom:2px;
     }
 
-    .product-total strong{
-        font-size:15px;
-        color:#166534;
+    .product-price strong{
+        font-size:12px;
+        color:#16a34a;
     }
 
     /* SUMMARY */
-    .summary-box{
-        margin-top:28px;
-        background:#1b4332;
-        color:white;
-        border-radius:28px;
-        padding:26px;
+    .summary-card{
+        margin-top:22px;
+        border:1px solid #f1f5f9;
+        border-radius:20px;
+        padding:18px;
+        background:#fafafa;
     }
 
-    .summary-item{
+    .summary-row{
         display:flex;
         justify-content:space-between;
-        margin-bottom:14px;
-        font-size:14px;
-        opacity:.9;
+        font-size:11px;
+        margin-bottom:10px;
+        color:#374151;
     }
 
     .summary-total{
-        margin-top:18px;
-        padding-top:18px;
-        border-top:1px solid rgba(255,255,255,.15);
+        margin-top:12px;
+        padding-top:14px;
+        border-top:1px dashed #d1d5db;
         display:flex;
         justify-content:space-between;
         align-items:center;
     }
 
-    .summary-total label{
-        font-size:15px;
+    .summary-total span{
+        font-size:12px;
         font-weight:700;
     }
 
     .summary-total strong{
-        font-size:30px;
+        font-size:22px;
         font-weight:800;
+        color:#111827;
     }
 
     /* DELIVERY */
-    .delivery-box{
-        margin-top:22px;
-        background:#f8faf8;
-        border-radius:24px;
-        padding:20px;
+    .delivery-card{
+        margin-top:20px;
+        border:1px solid #f1f5f9;
+        border-radius:18px;
+        padding:16px;
+        background:white;
     }
 
     .delivery-top{
         display:flex;
+        gap:12px;
         align-items:center;
-        gap:14px;
     }
 
     .delivery-icon{
-        width:52px;
-        height:52px;
-        border-radius:18px;
-        background:white;
+        width:42px;
+        height:42px;
+        border-radius:14px;
+        background:#f3f4f6;
         display:flex;
         align-items:center;
         justify-content:center;
         color:#16a34a;
-        font-size:20px;
+        font-size:16px;
     }
 
-    .delivery-info label{
-        display:block;
-        font-size:10px;
-        font-weight:800;
-        letter-spacing:1px;
+    .delivery-label{
+        font-size:9px;
+        font-weight:700;
         text-transform:uppercase;
+        letter-spacing:1px;
         color:#9ca3af;
-        margin-bottom:4px;
+        margin-bottom:3px;
     }
 
-    .delivery-info div{
-        font-size:14px;
+    .delivery-name{
+        font-size:12px;
         font-weight:700;
     }
 
     .delivery-phone{
-        display:block;
-        margin-top:6px;
+        font-size:10px;
         color:#6b7280;
-        font-size:12px;
+        margin-top:2px;
     }
 
+    /* NOTE */
     .note-box{
-        margin-top:14px;
-        background:white;
-        border-radius:16px;
-        padding:14px;
-        font-size:12px;
+        margin-top:12px;
+        background:#f9fafb;
+        border-radius:14px;
+        padding:12px;
+        font-size:10px;
         color:#6b7280;
-        font-style:italic;
+        line-height:1.6;
     }
 
     /* FOOTER */
     .footer{
-        margin-top:30px;
+        margin-top:24px;
         text-align:center;
     }
 
     .footer small{
         display:block;
-        font-size:11px;
+        font-size:9px;
         color:#9ca3af;
-        margin-bottom:6px;
+        margin-bottom:4px;
     }
 
     .footer strong{
-        font-size:14px;
+        font-size:12px;
         color:#166534;
     }
 
     @media(max-width:576px){
 
-        .product-card{
-            flex-direction:column;
-            align-items:flex-start;
-            gap:10px;
+        .info-grid{
+            grid-template-columns:1fr;
         }
 
-        .product-total{
+        .product-item{
+            flex-direction:column;
+            align-items:flex-start;
+            gap:8px;
+        }
+
+        .product-price{
             text-align:left;
         }
 
-        .top-action{
+        .top-bar{
             flex-direction:column;
             align-items:flex-start;
-            gap:12px;
+            gap:10px;
         }
 
     }
@@ -312,9 +315,10 @@
             background:white;
         }
 
-        .invoice-container{
+        .invoice-wrapper{
             max-width:100%;
             margin:0;
+            padding:0;
         }
 
         .invoice-card{
@@ -325,18 +329,18 @@
 
 </style>
 
-<div class="invoice-container">
+<div class="invoice-wrapper">
 
-    <!-- ACTION -->
-    <div class="top-action no-print">
+    <!-- TOP -->
+    <div class="top-bar no-print">
 
-        <a href="{{ route('kwt.orders') }}" class="back-btn">
+        <a href="{{ route('kwt.orders') }}" class="back-link">
             <i class="bi bi-arrow-left"></i>
             Kembali
         </a>
 
         <button onclick="window.print()" class="print-btn">
-            <i class="bi bi-printer"></i>
+            <i class="bi bi-printer me-1"></i>
             Cetak Invoice
         </button>
 
@@ -348,13 +352,21 @@
         <!-- HEADER -->
         <div class="invoice-header">
 
-            <small>Invoice Pesanan</small>
+            <div>
 
-            <h2>Kelompok Wanita Tani</h2>
+                <div class="invoice-title">
+                    Invoice Pesanan
+                </div>
 
-            <p>
-                Order #{{ $order->id }}
-            </p>
+                <div class="invoice-sub">
+                    Kelompok Wanita Tani • Order #{{ $order->id }}
+                </div>
+
+            </div>
+
+            <div class="invoice-badge">
+                {{ ucfirst($order->status) }}
+            </div>
 
         </div>
 
@@ -362,16 +374,30 @@
         <div class="invoice-body">
 
             <!-- INFO -->
-            <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+            <div class="info-grid">
 
-                <div class="info-box" style="min-width:220px;">
-                    <label>Customer</label>
-                    <div>{{ $order->user->name }}</div>
+                <div class="info-card">
+
+                    <div class="info-label">
+                        Customer
+                    </div>
+
+                    <div class="info-value">
+                        {{ $order->user->name }}
+                    </div>
+
                 </div>
 
-                <div class="info-box text-end" style="min-width:220px;">
-                    <label>Tanggal</label>
-                    <div>{{ $order->created_at->format('d F Y') }}</div>
+                <div class="info-card text-end">
+
+                    <div class="info-label">
+                        Tanggal
+                    </div>
+
+                    <div class="info-value">
+                        {{ $order->created_at->format('d F Y') }}
+                    </div>
+
                 </div>
 
             </div>
@@ -383,23 +409,23 @@
 
             @foreach($order->details as $detail)
 
-            <div class="product-card">
+            <div class="product-item">
 
-                <div class="product-info">
+                <div>
 
-                    <h5>
+                    <div class="product-name">
                         {{ $detail->product->nama_produk }}
-                    </h5>
+                    </div>
 
-                    <p>
+                    <div class="product-detail">
                         {{ $detail->jumlah }} {{ $detail->product->satuan }}
                         ×
                         Rp {{ number_format($detail->harga_saat_ini,0,',','.') }}
-                    </p>
+                    </div>
 
                 </div>
 
-                <div class="product-total">
+                <div class="product-price">
 
                     <small>Subtotal</small>
 
@@ -414,27 +440,31 @@
             @endforeach
 
             <!-- SUMMARY -->
-            <div class="summary-box">
+            <div class="summary-card">
 
-                <div class="summary-item">
+                <div class="summary-row">
+
                     <span>Subtotal</span>
 
                     <span>
                         Rp {{ number_format($order->total_harga - $order->ongkir,0,',','.') }}
                     </span>
+
                 </div>
 
-                <div class="summary-item">
+                <div class="summary-row">
+
                     <span>Ongkir</span>
 
                     <span>
                         Rp {{ number_format($order->ongkir,0,',','.') }}
                     </span>
+
                 </div>
 
                 <div class="summary-total">
 
-                    <label>Total Bayar</label>
+                    <span>Total Bayar</span>
 
                     <strong>
                         Rp {{ number_format($order->total_harga,0,',','.') }}
@@ -445,7 +475,7 @@
             </div>
 
             <!-- DELIVERY -->
-            <div class="delivery-box">
+            <div class="delivery-card">
 
                 <div class="delivery-top">
 
@@ -453,18 +483,19 @@
                         <i class="bi bi-truck"></i>
                     </div>
 
-                    <div class="delivery-info">
+                    <div>
 
-                        <label>Pengiriman</label>
-
-                        <div>
-                            {{ $order->kurir ?? 'Pengiriman Internal KWT' }}
+                        <div class="delivery-label">
+                            Pengiriman
                         </div>
 
-                        <small class="delivery-phone">
-                            No. Pengirim :
-                            {{ $order->no_pengirim ?? '08xxxxxxxxxx' }}
-                        </small>
+                        <div class="delivery-name">
+                            {{ $order->kurir ?? 'Kurir KWT' }}
+                        </div>
+
+                        <div class="delivery-phone">
+                            {{ $order->no_hp_kurir ?? '-' }}
+                        </div>
 
                     </div>
 
@@ -485,7 +516,9 @@
 
                 <small>Tanda Tangan</small>
 
-                <strong>{{ Auth::user()->name }}</strong>
+                <strong>
+                    {{ Auth::user()->name }}
+                </strong>
 
             </div>
 

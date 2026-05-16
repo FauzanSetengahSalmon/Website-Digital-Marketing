@@ -59,14 +59,75 @@ class OrderController extends Controller
             ->where('status', 'menunggu')
             ->count();
 
+        // Mengambil jumlah total kurir
+        $total_kurir = Kurir::count();
+
         $stats = [
             'total_received' => $total_received,
             'sold_count' => $sold_count,
             'total_products' => $total_products,
             'pending_orders' => $pending_orders,
+            'total_kurir' => $total_kurir, // Ditambahkan ke array stats
         ];
 
         return view('kwt.dashboard', compact('stats'));
+    }
+
+    // Method menampilkan halaman khusus Kurir
+    public function kwtKurirIndex()
+    {
+        $kurirs = Kurir::latest()->get();
+        return view('kwt.kurir', compact('kurirs'));
+    }
+
+    // Method Aksi Tambah Kurir (Create)
+    public function storeKurir(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:15',
+            'kendaraan' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
+
+        Kurir::create([
+            'nama' => $request->nama,
+            'no_hp' => $request->no_hp,
+            'kendaraan' => $request->kendaraan,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Data kurir berhasil ditambahkan!');
+    }
+
+    // Method Aksi Edit Kurir (Update)
+    public function updateKurir(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:15',
+            'kendaraan' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
+
+        $kurir = Kurir::findOrFail($id);
+        $kurir->update([
+            'nama' => $request->nama,
+            'no_hp' => $request->no_hp,
+            'kendaraan' => $request->kendaraan,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Data kurir berhasil diperbarui!');
+    }
+
+    // Method Aksi Hapus Kurir (Delete)
+    public function destroyKurir($id)
+    {
+        $kurir = Kurir::findOrFail($id);
+        $kurir->delete();
+
+        return redirect()->back()->with('success', 'Data kurir berhasil dihapus!');
     }
 
     public function kwtLaporan()
@@ -181,7 +242,6 @@ class OrderController extends Controller
         try {
             $user = Auth::user();
 
-            // 🔥 WAJIB ADA ALAMAT + HP
             if (!$user->address || !$user->phone_number) {
                 return back()->with('error', 'Lengkapi alamat & nomor HP di profil!');
             }
@@ -198,19 +258,14 @@ class OrderController extends Controller
             $subtotal = $cartItems->sum(fn($i) => $i->jumlah * $i->product->harga);
             $ongkir = 2 * 6500;
 
-            /* 🔥 SNAPSHOT DATA CUSTOMER KE ORDER 🔥 */
             $order = Order::create([
                 'user_id' => $user->id,
                 'total_harga' => $subtotal + $ongkir,
                 'ongkir' => $ongkir,
                 'status' => 'menunggu',
                 'catatan' => $request->catatan,
-
-                // ⭐ INI YANG BIKIN HP CUSTOMER MUNCUL
                 'alamat' => $user->address,
                 'nomor_hp' => $user->phone_number,
-
-                // default kurir
                 'kurir' => 'Menunggu penugasan',
                 'no_hp_kurir' => '-'
             ]);
