@@ -25,21 +25,46 @@ class OrderController extends Controller
     {
         $userId = Auth::id();
 
-        $totalReceived = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
-            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
+        $total_received = OrderDetail::whereHas(
+            'product',
+            fn($q) =>
+            $q->where('user_id', $userId)
+        )
+            ->whereHas(
+                'order',
+                fn($q) =>
+                $q->where('status', 'selesai')
+            )
             ->sum(DB::raw('harga_saat_ini * jumlah'));
 
-        $soldCount = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
-            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
+        $sold_count = OrderDetail::whereHas(
+            'product',
+            fn($q) =>
+            $q->where('user_id', $userId)
+        )
+            ->whereHas(
+                'order',
+                fn($q) =>
+                $q->where('status', 'selesai')
+            )
             ->sum('jumlah');
 
-        $totalProducts = Product::where('user_id', $userId)->count();
+        $total_products = Product::where('user_id', $userId)->count();
 
-        $pendingOrders = Order::whereHas('details.product', fn($q) => $q->where('user_id', $userId))
+        $pending_orders = Order::whereHas(
+            'details.product',
+            fn($q) =>
+            $q->where('user_id', $userId)
+        )
             ->where('status', 'menunggu')
             ->count();
 
-        $stats = compact('totalReceived', 'soldCount', 'totalProducts', 'pendingOrders');
+        $stats = [
+            'total_received' => $total_received,
+            'sold_count' => $sold_count,
+            'total_products' => $total_products,
+            'pending_orders' => $pending_orders,
+        ];
 
         return view('kwt.dashboard', compact('stats'));
     }
