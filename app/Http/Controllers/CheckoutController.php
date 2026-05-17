@@ -8,7 +8,6 @@ use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 
 class CheckoutController extends Controller
 {
@@ -32,34 +31,105 @@ class CheckoutController extends Controller
         $subtotal = $cartItems->sum(fn($item) => $item->jumlah * $item->product->harga);
         $user = Auth::user();
 
-        // Ambil alamat dasar dari profile jika ada
         $alamatCustomer = trim(($user->address ?? '') . ', ' . ($user->district ?? '') . ', ' . ($user->city ?? '') . ', ' . ($user->province ?? ''));
 
-        // 🟢 FIX PERMANEN: Koordinat Akurat Toko KWT (Cileunyi, Bandung)
-        $latKwt = -6.921186; 
-        $lonKwt = 107.729420;
+        // 1. TITIK PUSAT PENGIRIMAN (Kantor Desa Cibiru Wetan)
+        // Meskipun ada 5 KWT, ongkir dihitung satu pintu dari lokasi ini
+        $latAsal = -6.914744;
+        $lonAsal = 107.733260;
 
-        // Set nilai default awal agar peta tidak memproses koordinat sampah/salah dari background
         $jarak = 0;
         $ongkir = 0;
 
-        // 👑 DAFTAR RESMI KECAMATAN DI BANDUNG RAYA (Tanpa Sumedang)
+        // 2. HITUNG JARAK BERDASARKAN LATITUDE & LONGITUDE USER
+        if (!empty($user->latitude) && !empty($user->longitude)) {
+            $earthRadius = 6371; // Radius bumi dalam kilometer
+
+            $latDelta = deg2rad($user->latitude - $latAsal);
+            $lonDelta = deg2rad($user->longitude - $lonAsal);
+
+            $a = sin($latDelta / 2) * sin($latDelta / 2) +
+                cos(deg2rad($latAsal)) * cos(deg2rad($user->latitude)) *
+                sin($lonDelta / 2) * sin($lonDelta / 2);
+
+            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+            // Jarak dalam KM
+            $jarak = round($earthRadius * $c, 1);
+
+            // 3. TARIF: 1 KM = Rp 4.000
+            $tarifPerKm = 4000;
+            $ongkir = $jarak * $tarifPerKm;
+
+            // Opsional: Pembulatan ke atas agar tidak ada angka receh (misal ke kelipatan 500)
+            $ongkir = ceil($ongkir / 500) * 500;
+        }
+
         $dataWilayah = [
             'Kota Bandung' => [
-                'Andir', 'Astana Anyar', 'Antapani', 'Arcamanik', 'Babakan Ciparay', 
-                'Bandung Kidul', 'Bandung Kulon', 'Bandung Wetan', 'Batununggal', 'Bojongloa Kaler', 
-                'Bojongloa Kidul', 'Buahbatu', 'Cibeunying Kaler', 'Cibeunying Kidul', 'Cibiru', 
-                'Cicendo', 'Cidadap', 'Cinambo', 'Coblong', 'Gedebage', 
-                'Kiaracondong', 'Lengkong', 'Mandalajati', 'Panyileukan', 'Rancasari', 
-                'Regol', 'Sukajadi', 'Sukasari', 'Sumur Bandung', 'Ujungberung'
+                'Andir',
+                'Astana Anyar',
+                'Antapani',
+                'Arcamanik',
+                'Babakan Ciparay',
+                'Bandung Kidul',
+                'Bandung Kulon',
+                'Bandung Wetan',
+                'Batununggal',
+                'Bojongloa Kaler',
+                'Bojongloa Kidul',
+                'Buahbatu',
+                'Cibeunying Kaler',
+                'Cibeunying Kidul',
+                'Cibiru',
+                'Cicendo',
+                'Cidadap',
+                'Cinambo',
+                'Coblong',
+                'Gedebage',
+                'Kiaracondong',
+                'Lengkong',
+                'Mandalajati',
+                'Panyileukan',
+                'Rancasari',
+                'Regol',
+                'Sukajadi',
+                'Sukasari',
+                'Sumur Bandung',
+                'Ujungberung'
             ],
             'Kabupaten Bandung' => [
-                'Arjasari', 'Baleendah', 'Banjaran', 'Bojongsoang', 'Cangkuang', 
-                'Cicalengka', 'Cimenyan', 'Cileunyi', 'Cilengkrang', 'Cimaung', 
-                'Ciparay', 'Ciwidey', 'Dayeuhkolot', 'Ibun', 'Katapang', 
-                'Kertasari', 'Kutawaringin', 'Majalaya', 'Margaasih', 'Margahayu', 
-                'Nagreg', 'Pacet', 'Pameungpeuk', 'Pangalengan', 'Paseh', 
-                'Pasirjambu', 'Rancaekek', 'Solokanjeruk', 'Soreang', 'Rancabali', 'Tegalluar'
+                'Arjasari',
+                'Baleendah',
+                'Banjaran',
+                'Bojongsoang',
+                'Cangkuang',
+                'Cicalengka',
+                'Cimenyan',
+                'Cileunyi',
+                'Cilengkrang',
+                'Cimaung',
+                'Ciparay',
+                'Ciwidey',
+                'Dayeuhkolot',
+                'Ibun',
+                'Katapang',
+                'Kertasari',
+                'Kutawaringin',
+                'Majalaya',
+                'Margaasih',
+                'Margahayu',
+                'Nagreg',
+                'Pacet',
+                'Pameungpeuk',
+                'Pangalengan',
+                'Paseh',
+                'Pasirjambu',
+                'Rancaekek',
+                'Solokanjeruk',
+                'Soreang',
+                'Rancabali',
+                'Tegalluar'
             ]
         ];
 
@@ -70,9 +140,9 @@ class CheckoutController extends Controller
             'totalBayar' => $subtotal + $ongkir,
             'jarak' => $jarak,
             'alamatCustomer' => $alamatCustomer,
-            'dataWilayah' => $dataWilayah, 
-            'latKWT' => $latKwt,
-            'lonKWT' => $lonKwt
+            'dataWilayah' => $dataWilayah,
+            'latKWT' => $latAsal, // Mengirim koordinat kantor desa sebagai acuan peta
+            'lonKWT' => $lonAsal
         ]);
     }
 
@@ -93,7 +163,6 @@ class CheckoutController extends Controller
                 throw new \Exception("Keranjang belanja kosong!");
             }
 
-            // Validasi ketat penangkapan data kiriman dari form HTML
             $request->validate([
                 'ongkir' => 'required|numeric',
                 'jarak' => 'required|numeric',
@@ -106,13 +175,12 @@ class CheckoutController extends Controller
 
             $subtotal = $cartItems->sum(fn($i) => $i->jumlah * $i->product->harga);
             $ongkir = $request->input('ongkir', 0);
-            
-            // Penggabungan alamat final terstruktur untuk disimpan ke database
-            $alamatFinal = $request->input('detail_alamat') . ', ' . 
-                            $request->input('rtrw') . ', Kel/Desa ' . 
-                            $request->input('kelurahan') . ', Kecamatan ' . 
-                            $request->input('kecamatan') . ', ' . 
-                            $request->input('kota_kab') . ', Jawa Barat';
+
+            $alamatFinal = $request->input('detail_alamat') . ', ' .
+                $request->input('rtrw') . ', Kel/Desa ' .
+                $request->input('kelurahan') . ', Kecamatan ' .
+                $request->input('kecamatan') . ', ' .
+                $request->input('kota_kab') . ', Jawa Barat';
 
             $order = Order::create([
                 'user_id' => $user->id,

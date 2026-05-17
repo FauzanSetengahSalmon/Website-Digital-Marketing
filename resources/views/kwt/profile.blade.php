@@ -231,7 +231,6 @@ default => 'bg-primary-subtle text-primary'
                                     *Nama sesuai dengan KWTnya, agar mudah dikenali pelanggan
                                 </small>
                             </div>
-
                             {{-- EMAIL --}}
                             <div class="col-md-6">
                                 <label class="form-label">
@@ -241,13 +240,13 @@ default => 'bg-primary-subtle text-primary'
                                 <input
                                     type="email"
                                     name="email"
-                                    class="form-control @error('email') is-invalid @enderror"
+                                    class="form-control bg-light @error('email') is-invalid @enderror"
                                     value="{{ old('email', $user->email) }}"
+                                    readonly
                                     required>
 
-                                <small class="text-muted"
-                                    style="font-size: 0.72rem;">
-                                    *Email digunakan untuk login
+                                <small class="text-muted" style="font-size: 0.72rem;">
+                                    *Email tidak dapat diubah karena digunakan untuk login
                                 </small>
                             </div>
 
@@ -270,34 +269,6 @@ default => 'bg-primary-subtle text-primary'
                                     *Nomor WA digunakan untuk komunikasi dengan pelanggan
                                 </small>
                             </div>
-
-                            {{-- DISTRICT --}}
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    Wilayah
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="district"
-                                    class="form-control @error('district') is-invalid @enderror"
-                                    value="{{ old('district', $user->district) }}"
-                                    placeholder="Contoh: Bandung">
-                            </div>
-
-                            {{-- ADDRESS --}}
-                            <div class="col-12">
-                                <label class="form-label">
-                                    Alamat
-                                </label>
-
-                                <textarea
-                                    name="address"
-                                    rows="3"
-                                    class="form-control @error('address') is-invalid @enderror"
-                                    placeholder="Masukkan alamat lengkap...">{{ old('address', $user->address) }}</textarea>
-                            </div>
-
                         </div>
 
                         {{-- BUTTON --}}

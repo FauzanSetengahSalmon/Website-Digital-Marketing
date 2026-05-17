@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -15,12 +18,18 @@ return new class extends Migration
             $table->string('google_id')->nullable();
             $table->string('password')->nullable();
             $table->string('phone_number')->nullable();
-            $table->enum('role', ['admin', 'customer', 'kwt'])
-                ->default('customer');
+            $table->enum('role', ['admin', 'customer', 'kwt'])->default('customer');
+
+            // Kolom Alamat Utama
             $table->string('province')->nullable();
-            $table->string('city')->nullable();
-            $table->string('district')->nullable();
-            $table->text('address')->nullable();
+            $table->string('city')->nullable(); // Kota / Kabupaten
+            $table->string('district')->nullable(); // Kecamatan
+            $table->string('subdistrict')->nullable(); // TAMBAHAN: Kelurahan / Desa
+            $table->text('address')->nullable(); // Detail Jalan / Alamat Lengkap
+
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
@@ -42,6 +51,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('users');

@@ -49,8 +49,16 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Update data
-        $user->fill($request->validated());
+        // 1. Ambil semua data yang lolos validasi utama dari ProfileUpdateRequest
+        $validatedData = $request->validated();
+
+        // 2. Satukan data tervalidasi dengan input RT, RW, dan Detail Tambahan secara aman
+        $user->fill(array_merge($validatedData, [
+            'rt'             => $request->input('rt'),
+            'rw'             => $request->input('rw'),
+            'address_detail' => $request->input('address_detail'),
+            'district'       => $request->input('district'), // Memastikan district ikut terisi
+        ]));
 
         // Jika email berubah
         if ($user->isDirty('email')) {
@@ -91,11 +99,9 @@ class ProfileController extends Controller
         ]);
 
         try {
-
             $user = Auth::user();
 
             if ($request->hasFile('profile_photo')) {
-
                 // Hapus foto lama
                 if ($user->profile_photo) {
                     Storage::disk('public')
@@ -120,7 +126,6 @@ class ProfileController extends Controller
                 'File foto tidak ditemukan.'
             );
         } catch (\Exception $e) {
-
             return back()->with(
                 'error',
                 'Terjadi kesalahan saat upload foto.'
@@ -134,7 +139,6 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         if ($request->user()->password) {
-
             $request->validateWithBag('userDeletion', [
                 'password' => ['required', 'current_password'],
             ]);

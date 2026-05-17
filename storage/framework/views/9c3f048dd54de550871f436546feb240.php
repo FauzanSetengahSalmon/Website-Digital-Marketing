@@ -39,27 +39,26 @@
             gap: 12px;
         }
 
-        /* CSS UNTUK FOTO PROFIL AGAR BULAT & RAPI */
         .avatar-circle {
             width: 60px;
             height: 60px;
             background: #10b981;
             color: white;
-            border-radius: 50%; /* Dibuat bulat sempurna */
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             font-size: 1.5rem;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            overflow: hidden; /* Penting agar gambar tidak keluar kotak */
+            overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .avatar-circle img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Agar foto tidak gepeng */
+            object-fit: cover;
         }
 
         .profile-info h6 {
@@ -151,7 +150,6 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="profile-box">
-                
                 <div class="avatar-circle">
                     <?php if(Auth::user()->profile_photo): ?>
                         <img src="<?php echo e(asset('storage/' . Auth::user()->profile_photo)); ?>" alt="Profile">
@@ -185,6 +183,11 @@
 
             <a href="<?php echo e(route('kwt.laporan')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.laporan') ? 'active' : ''); ?>">
                 <i class="bi bi-receipt"></i> Laporan Transaksi
+            </a>
+
+            <!-- MENU BARU UNTUK HALAMAN KURIR -->
+            <a href="<?php echo e(route('kwt.kurir.index')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.kurir.*') ? 'active' : ''); ?>">
+                <i class="bi bi-bicycle"></i> Data Kurir
             </a>
 
             <div class="nav-label">Akun</div>
