@@ -65,7 +65,7 @@
             <h5 class="fw-bold text-dark mb-0">Daftar Antrean Pesanan</h5>
             <span class="badge bg-light text-dark rounded-pill px-3 py-2 fw-semibold">Total: {{ $orders->count() }}</span>
         </div>
-        
+
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-hover">
                 <thead class="bg-light text-secondary text-uppercase fs-7 fw-bold border-bottom">
@@ -84,50 +84,50 @@
                         <td class="ps-4 py-3">
                             <span class="fw-bold text-primary">#ORD-{{ $o->id }}</span>
                         </td>
-                        
+
                         <td class="py-3">
                             <div class="fw-semibold text-dark">{{ $o->details->first()->product->nama_produk ?? 'Produk' }}</div>
                             @if($o->details->count() > 1)
-                                <small class="text-muted" style="font-size: 0.75rem;">
-                                    +{{ $o->details->count() - 1 }} produk lainnya
-                                </small>
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                +{{ $o->details->count() - 1 }} produk lainnya
+                            </small>
                             @endif
                         </td>
-                        
+
                         <td class="py-3 text-secondary">
                             {{ $o->details->sum('jumlah') }} Item
                         </td>
-                        
+
                         <td class="py-3">
                             <span class="fw-bold text-success">
                                 Rp {{ number_format($o->total_harga, 0, ',', '.') }}
                             </span>
                         </td>
-                        
+
                         <td class="py-3">
                             @if($o->status == 'menunggu')
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-hourglass-split me-1"></i> MENUNGGU
-                                </span>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
+                                <i class="bi bi-hourglass-split me-1"></i> MENUNGGU
+                            </span>
                             @elseif($o->status == 'diproses')
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-arrow-repeat me-1"></i> DIPROSES
-                                </span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
+                                <i class="bi bi-arrow-repeat me-1"></i> DIPROSES
+                            </span>
                             @else
-                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-check-circle-fill me-1"></i> {{ strtoupper($o->status) }}
-                                </span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
+                                <i class="bi bi-check-circle-fill me-1"></i> {{ strtoupper($o->status) }}
+                            </span>
                             @endif
                         </td>
 
                         <td class="py-3 text-center pe-4">
                             <div class="d-flex justify-content-center gap-2">
                                 @if($o->status == 'menunggu')
-                                    <button type="button" class="btn btn-sm btn-dark rounded-pill px-3"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#modalKurir{{ $o->id }}">
-                                        <i class="bi bi-check2-circle me-1"></i> Terima
-                                    </button>
+                                <button type="button" class="btn btn-sm btn-dark rounded-pill px-3"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalKurir{{ $o->id }}">
+                                    <i class="bi bi-check2-circle me-1"></i> Terima
+                                </button>
                                 @endif
                                 <a href="{{ route('kwt.orders.detail', $o->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
                                     <i class="bi bi-eye me-1"></i> Detail
@@ -142,7 +142,7 @@
                                 <form action="{{ route('kwt.order.status', $o->id) }}" method="POST">
                                     @csrf
                                     @method('PUT')
-                                    
+
                                     <input type="hidden" name="status" value="diproses">
 
                                     <div class="modal-header border-0 py-3 px-4 bg-light">
@@ -158,7 +158,7 @@
                                             <select name="kurir" class="form-select select-kurir py-2.5 border-0 bg-light rounded-3 text-dark" style="font-size: 0.85rem;" required>
                                                 <option value="">-- Pilih Anggota Kurir --</option>
                                                 @foreach($list_kurir as $kurir)
-                                                    <option value="{{ $kurir->nama }}" data-phone="{{ $kurir->no_hp }}">{{ $kurir->nama }}</option>
+                                                <option value="{{ $kurir->nama }}" data-phone="{{ $kurir->no_hp }}">{{ $kurir->nama }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -194,29 +194,55 @@
 </div>
 
 <style>
-    .fs-7 { font-size: 0.78rem !important; letter-spacing: 0.5px; }
-    .bg-success-subtle { background-color: #e8f5e9 !important; }
-    .bg-primary-subtle { background-color: #e3f2fd !important; }
-    .bg-warning-subtle { background-color: #fff8e1 !important; }
-    .bg-danger-subtle { background-color: #ffebee !important; }
-    .table-hover tbody tr:hover { background-color: #f8f9fa !important; }
+    .fs-7 {
+        font-size: 0.78rem !important;
+        letter-spacing: 0.5px;
+    }
+
+    .bg-success-subtle {
+        background-color: #e8f5e9 !important;
+    }
+
+    .bg-primary-subtle {
+        background-color: #e3f2fd !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: #fff8e1 !important;
+    }
+
+    .bg-danger-subtle {
+        background-color: #ffebee !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa !important;
+    }
 </style>
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Handler otomatisasi nomor HP kurir saat select dipilih
-    document.querySelectorAll('.select-kurir').forEach(select => {
-        select.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const phone = selectedOption.getAttribute('data-phone');
-            const modal = this.closest('.modal');
-            const phoneInput = modal.querySelector('.input-phone');
-            
-            phoneInput.value = phone || '';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Kita pakai cara yang lebih 'galak' supaya pasti terdeteksi
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('select-kurir')) {
+                const select = e.target;
+                const selectedOption = select.options[select.selectedIndex];
+
+                // Ambil nomor dari atribut data-phone
+                const phone = selectedOption.getAttribute('data-phone');
+
+                // Cari input nomor hp di dalam modal yang sedang terbuka
+                const modal = select.closest('.modal-content');
+                const phoneInput = modal.querySelector('.input-phone');
+
+                if (phoneInput) {
+                    phoneInput.value = phone || '';
+                    console.log("Nomor otomatis terisi: " + phone);
+                }
+            }
         });
     });
-});
 </script>
 @endpush
 @endsection
