@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
-
     body{
         background:#f5f7fb;
         font-family:'Plus Jakarta Sans',sans-serif;
@@ -282,250 +281,175 @@
     }
 
     @media(max-width:576px){
-
         .info-grid{
             grid-template-columns:1fr;
         }
-
         .product-item{
             flex-direction:column;
             align-items:flex-start;
             gap:8px;
         }
-
         .product-price{
             text-align:left;
         }
-
         .top-bar{
             flex-direction:column;
             align-items:flex-start;
             gap:10px;
         }
-
     }
 
     @media print{
-
         .no-print{
             display:none !important;
         }
-
         body{
             background:white;
         }
-
         .invoice-wrapper{
             max-width:100%;
             margin:0;
             padding:0;
         }
-
         .invoice-card{
             box-shadow:none;
         }
-
     }
-
 </style>
 
 <div class="invoice-wrapper">
 
-    <!-- TOP -->
     <div class="top-bar no-print">
-
         <a href="{{ route('kwt.orders') }}" class="back-link">
-            <i class="bi bi-arrow-left"></i>
-            Kembali
+            <i class="bi bi-arrow-left"></i> Kembali
         </a>
-
         <button onclick="window.print()" class="print-btn">
-            <i class="bi bi-printer me-1"></i>
-            Cetak Invoice
+            <i class="bi bi-printer me-1"></i> Cetak Invoice
         </button>
-
     </div>
 
-    <!-- CARD -->
     <div class="invoice-card">
 
-        <!-- HEADER -->
         <div class="invoice-header">
-
             <div>
-
-                <div class="invoice-title">
-                    Invoice Pesanan
-                </div>
-
-                <div class="invoice-sub">
-                    Kelompok Wanita Tani • Order #{{ $order->id }}
-                </div>
-
+                <div class="invoice-title">Invoice Pesanan</div>
+                <div class="invoice-sub">Kelompok Wanita Tani • Order #{{ $order->id }}</div>
             </div>
-
             <div class="invoice-badge">
-                {{ ucfirst($order->status) }}
+                {{ strtoupper($order->status) }}
             </div>
-
         </div>
 
-        <!-- BODY -->
         <div class="invoice-body">
 
-            <!-- INFO -->
             <div class="info-grid">
-
                 <div class="info-card">
-
-                    <div class="info-label">
-                        Customer
-                    </div>
-
+                    <div class="info-label">Customer</div>
                     <div class="info-value">
-                        {{ $order->user->name }}
+                        {{ $order->user->name ?? 'Pelanggan' }}
                     </div>
-
+                    <div class="text-muted mt-1" style="font-size: 10px;">
+                        <i class="bi bi-telephone"></i> {{ $order->nomor_hp ?? '-' }}
+                    </div>
                 </div>
 
                 <div class="info-card text-end">
-
-                    <div class="info-label">
-                        Tanggal
-                    </div>
-
+                    <div class="info-label">Tanggal</div>
                     <div class="info-value">
                         {{ $order->created_at->format('d F Y') }}
                     </div>
-
                 </div>
-
             </div>
 
-            <!-- PRODUCT -->
-            <div class="section-title">
-                Produk Pesanan
-            </div>
+            <div class="section-title">Produk Pesanan</div>
 
             @foreach($order->details as $detail)
-
             <div class="product-item">
-
                 <div>
-
                     <div class="product-name">
                         {{ $detail->product->nama_produk }}
                     </div>
-
                     <div class="product-detail">
-                        {{ $detail->jumlah }} {{ $detail->product->satuan }}
+                        {{ $detail->jumlah }} {{ $detail->product->satuan ?? 'Pcs' }}
                         ×
                         Rp {{ number_format($detail->harga_saat_ini,0,',','.') }}
                     </div>
-
                 </div>
-
                 <div class="product-price">
-
                     <small>Subtotal</small>
-
                     <strong>
                         Rp {{ number_format($detail->harga_saat_ini * $detail->jumlah,0,',','.') }}
                     </strong>
-
                 </div>
-
             </div>
-
             @endforeach
 
-            <!-- SUMMARY -->
             <div class="summary-card">
-
                 <div class="summary-row">
-
                     <span>Subtotal</span>
-
-                    <span>
-                        Rp {{ number_format($order->total_harga - $order->ongkir,0,',','.') }}
-                    </span>
-
+                    <span>Rp {{ number_format($order->total_harga - $order->ongkir,0,',','.') }}</span>
                 </div>
-
                 <div class="summary-row">
-
                     <span>Ongkir</span>
-
-                    <span>
-                        Rp {{ number_format($order->ongkir,0,',','.') }}
-                    </span>
-
+                    <span>Rp {{ number_format($order->ongkir,0,',','.') }}</span>
                 </div>
-
                 <div class="summary-total">
-
                     <span>Total Bayar</span>
-
-                    <strong>
-                        Rp {{ number_format($order->total_harga,0,',','.') }}
-                    </strong>
-
+                    <strong>Rp {{ number_format($order->total_harga,0,',','.') }}</strong>
                 </div>
-
             </div>
 
-            <!-- DELIVERY -->
             <div class="delivery-card">
-
                 <div class="delivery-top">
-
                     <div class="delivery-icon">
                         <i class="bi bi-truck"></i>
                     </div>
-
                     <div>
-
-                        <div class="delivery-label">
-                            Pengiriman
-                        </div>
-
+                        <div class="delivery-label">Pengiriman</div>
                         <div class="delivery-name">
-                            {{ $order->kurir ?? 'Kurir KWT' }}
+                            {{ $order->kurir ?? 'Kurir Belum Ditunjuk' }}
                         </div>
-
                         <div class="delivery-phone">
                             {{ $order->no_hp_kurir ?? '-' }}
                         </div>
-
                     </div>
-
                 </div>
-
-                @if($order->catatan)
-
                 <div class="note-box">
-                    "{{ $order->catatan }}"
+                    <strong>Alamat Kirim:</strong> {{ $order->alamat }}
+                    @if($order->catatan)
+                        <br><br><strong>Catatan Pembeli:</strong> "{{ $order->catatan }}"
+                    @endif
                 </div>
-
-                @endif
-
             </div>
 
-            <!-- FOOTER -->
+            {{-- 📸 FOTO BUKTI DARI CUSTOMER (Sudah dilepas pengunci status 'selesai'-nya) --}}
+            <div class="mt-4 p-3 border rounded-4 text-center bg-light">
+                @if($order->bukti_sampai)
+                    <div class="info-label text-start mb-2" style="color: #15803d; font-weight: 800;">
+                        <i class="bi bi-image-fill"></i> Foto Bukti Unggahan Customer:
+                    </div>
+                    <div class="d-flex justify-content-center bg-white p-2 border rounded-3">
+                        <img src="{{ asset('storage/' . $order->bukti_sampai) }}" 
+                             class="img-fluid rounded-2" 
+                             style="max-height: 280px; width: auto; object-fit: contain;"
+                             alt="Bukti Customer">
+                    </div>
+                @else
+                    <div class="text-muted p-2" style="font-size: 11px;">
+                        <i class="bi bi-camera-video-off me-1"></i> Customer belum mengunggah foto bukti kiriman.
+                    </div>
+                @endif
+            </div>
+
             <div class="footer">
-
-                <small>Tanda Tangan</small>
-
+                <small>Tanda Tangan Pengurus</small>
                 <strong>
                     {{ Auth::user()->name }}
                 </strong>
-
             </div>
 
         </div>
-
     </div>
-
 </div>
 
 @endsection

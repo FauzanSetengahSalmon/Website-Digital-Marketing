@@ -8,6 +8,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CheckoutController;
 
 // --- PUBLIC ROUTES ---
 Route::get('/', [ProductController::class, 'home'])->name('home');
@@ -90,12 +91,18 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/cart/{id}', 'destroy')->name('cart.destroy');
     });
 
-    // --- CHECKOUT & ORDERS ---
-    Route::controller(OrderController::class)->group(function () {
+    // --- CHECKOUT AREA ---
+    Route::controller(CheckoutController::class)->group(function () {
         Route::get('/checkout', 'checkout')->name('checkout.index');
         Route::post('/checkout/process', 'process')->name('checkout.process');
+    });
+
+    // --- ORDERS HISTORY AREA ---
+    Route::controller(OrderController::class)->group(function () {
         Route::get('/riwayat-pesanan', 'history')->name('orders.history');
         Route::get('/riwayat-pesanan/{id}', 'show')->name('orders.detail');
+        // 🟢 TAMBAHAN ROUTE: Tombol klik selesai milik customer
+        Route::patch('/riwayat-pesanan/{id}/complete', 'complete')->name('orders.complete');
     });
 
     // --- PROFILE GLOBAL ---

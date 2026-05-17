@@ -121,17 +121,18 @@
                         </td>
 
                         <td class="py-3 text-center pe-4">
-                            @if($o->status == 'menunggu')
-                                <button type="button" class="btn btn-sm btn-dark rounded-pill px-3"
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#modalKurir{{ $o->id }}">
-                                    <i class="bi bi-check2-circle me-1"></i> Terima
-                                </button>
-                            @else
+                            <div class="d-flex justify-content-center gap-2">
+                                @if($o->status == 'menunggu')
+                                    <button type="button" class="btn btn-sm btn-dark rounded-pill px-3"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalKurir{{ $o->id }}">
+                                        <i class="bi bi-check2-circle me-1"></i> Terima
+                                    </button>
+                                @endif
                                 <a href="{{ route('kwt.orders.detail', $o->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
                                     <i class="bi bi-eye me-1"></i> Detail
                                 </a>
-                            @endif
+                            </div>
                         </td>
                     </tr>
 

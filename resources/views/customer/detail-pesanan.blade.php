@@ -99,58 +99,95 @@
         font-weight: 800;
         color: #16a34a;
     }
+    
+    .btn-selesai {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        color: white;
+        font-weight: 700;
+        border: none;
+        border-radius: 12px;
+        transition: 0.2s;
+    }
+    .btn-selesai:hover {
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        color: white;
+    }
 </style>
 
 <div class="container py-5">
 
+    {{-- Alert Success Flash Message --}}
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <div class="page-title">Detail Pesanan</div>
-            <small class="text-muted">Invoice #{{ $order->id }}</small>
+            <div class="page-title">Detail Pesanan Anda</div>
+            <small class="text-muted fw-bold">Invoice #INV-{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</small>
         </div>
 
-        <span class="badge bg-{{ $order->status_color }} status-pill">
+        @php
+            $statusColor = 'warning';
+            if($order->status == 'diterima' || $order->status == 'diproses') $statusColor = 'info';
+            if($order->status == 'selesai') $statusColor = 'success';
+            if($order->status == 'ditolak' || $order->status == 'dibatalkan') $statusColor = 'danger';
+        @endphp
+        <span class="badge bg-{{ $statusColor }} status-pill">
             {{ strtoupper($order->status) }}
         </span>
     </div>
 
     <div class="row g-4">
 
-        {{-- LEFT --}}
+        {{-- LEFT SIDE --}}
         <div class="col-lg-7">
 
             {{-- TIMELINE STATUS --}}
             <div class="card-modern mb-4">
-                <h6 class="fw-bold mb-3">Status Pesanan</h6>
+                <h6 class="fw-bold mb-3">Status Lacak Pesanan</h6>
 
                 <div class="timeline position-relative">
                     <div class="timeline-step position-relative">
                         <div class="timeline-dot"></div>
                         <strong>Pesanan Dibuat</strong>
                         <div class="text-muted small">
-                            {{ $order->created_at->format('d M Y H:i') }}
+                            {{ $order->created_at->format('d M Y H:i') }} WIB
                         </div>
                     </div>
 
-                    @if($order->status != 'menunggu')
+                    @if($order->status != 'menunggu' && $order->status != 'ditolak' && $order->status != 'dibatalkan')
                     <div class="timeline-step position-relative">
                         <div class="timeline-dot"></div>
-                        <strong>Pesanan Diproses KWT</strong>
+                        <strong>Pesanan Diterima oleh KWT</strong>
+                        <div class="text-muted small">Sedang dipersiapkan dan dikemas</div>
                     </div>
                     @endif
 
-                    @if($order->kurir)
+                    @if($order->status == 'diproses' || $order->status == 'selesai')
                     <div class="timeline-step position-relative">
                         <div class="timeline-dot"></div>
-                        <strong>Dikirim Kurir</strong>
+                        <strong>Dalam Pengiriman / Kurir Jalan</strong>
+                        <div class="text-muted small">Pesanan sedang dibawa oleh kurir menuju rumahmu</div>
                     </div>
                     @endif
 
                     @if($order->status == 'selesai')
                     <div class="timeline-step position-relative">
                         <div class="timeline-dot"></div>
-                        <strong>Pesanan Selesai</strong>
+                        <strong class="text-success">Pesanan Selesai</strong>
+                        <div class="text-muted small">Paket telah sampai dan dikonfirmasi pembeli</div>
                     </div>
                     @endif
                 </div>
@@ -164,90 +201,133 @@
                     </div>
                     <div>
                         <h6 class="fw-bold mb-1">Alamat Pengiriman</h6>
-                        <div class="fw-semibold">{{ $order->user->name }}</div>
-                        <div class="text-muted">{{ $order->alamat }}</div>
-                        <div class="text-muted">HP: {{ $order->nomor_hp ?? '-' }}</div>
+                        <div class="fw-semibold">{{ $order->user->name ?? 'Pelanggan' }}</div>
+                        <div class="text-muted small mt-1" style="line-height: 1.4;">{{ $order->alamat }}</div>
+                        <div class="text-muted small mt-1">No. HP: {{ $order->nomor_hp ?? '-' }}</div>
 
                         @if($order->catatan)
-                        <div class="mt-2 small">
-                            <strong>Catatan:</strong> {{ $order->catatan }}
+                        <div class="mt-2 small p-2 bg-light rounded" style="border-left: 3px solid #16a34a;">
+                            <strong>Catatan untuk KWT:</strong> {{ $order->catatan }}
                         </div>
                         @endif
                     </div>
                 </div>
             </div>
 
-            {{-- KURIR --}}
+            {{-- INFORMASI KURIR --}}
             <div class="card-modern mb-4">
                 <div class="d-flex gap-3">
                     <div class="icon-box">
                         <i class="bi bi-truck"></i>
                     </div>
                     <div>
-                        <h6 class="fw-bold mb-1">Informasi Kurir</h6>
+                        <h6 class="fw-bold mb-1">Informasi Pengantar</h6>
 
                         @if($order->kurir)
-                        <div class="fw-semibold">{{ $order->kurir }}</div>
-                        <div class="text-muted">
-                            Hubungi kurir: <strong>{{ $order->no_hp_kurir }}</strong>
+                        <div class="fw-semibold text-dark">{{ $order->kurir }}</div>
+                        <div class="text-muted small mt-1">
+                            Hubungi Kurir: 
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}" target="_blank" class="fw-bold text-success text-decoration-none">
+                                <i class="bi bi-whatsapp"></i> {{ $order->no_hp_kurir ?? '-' }}
+                            </a>
                         </div>
-                        @else
-                        <div class="text-muted">Kurir belum ditentukan oleh KWT</div>
                         @endif
                     </div>
                 </div>
             </div>
 
-            {{-- PRODUK --}}
-            <h5 class="fw-bold mb-3">Produk Dibeli</h5>
+            {{-- PRODUK DIBELI --}}
+            <h5 class="fw-bold mb-3">Produk yang Dibeli</h5>
 
             @foreach($order->details as $detail)
             <div class="product-row d-flex gap-3 align-items-center mb-3">
-                <img src="{{ $detail->product->image_url }}" class="product-img">
+                @if($detail->product->foto_produk)
+                    <img src="{{ asset('storage/' . $detail->product->foto_produk) }}" class="product-img" alt="Produk">
+                @else
+                    <div class="product-img bg-secondary d-flex align-items-center justify-content-center text-white rounded-3"><i class="bi bi-box"></i></div>
+                @endif
 
                 <div class="flex-grow-1">
-                    <div class="fw-bold">{{ $detail->product->nama_produk }}</div>
+                    <div class="fw-bold" style="font-size: 0.95rem;">{{ $detail->product->nama_produk }}</div>
                     <small class="text-muted">
-                        {{ $detail->jumlah }} × Rp {{ number_format($detail->harga_saat_ini,0,',','.') }}
+                        {{ $detail->jumlah }} {{ $detail->product->satuan ?? 'Pcs' }} × Rp {{ number_format($detail->harga_saat_ini, 0, ',', '.') }}
                     </small>
                 </div>
 
                 <div class="fw-bold text-success">
-                    Rp {{ number_format($detail->subtotal,0,',','.') }}
+                    Rp {{ number_format($detail->jumlah * $detail->harga_saat_ini, 0, ',', '.') }}
                 </div>
             </div>
             @endforeach
 
         </div>
 
-        {{-- RIGHT --}}
+        {{-- RIGHT SIDE --}}
         <div class="col-lg-5">
-            <div class="card-modern summary-card">
-
-                <h5 class="fw-bold mb-4">Ringkasan Pembayaran</h5>
-
-                <div class="d-flex justify-content-between mb-3">
-                    <span>Subtotal Produk</span>
-                    <strong>Rp {{ number_format($order->grand_total - $order->ongkir,0,',','.') }}</strong>
+            <div class="summary-card">
+                
+                {{-- TOMBOL SELESAI & FORM UPLOAD BUKTI (Hanya muncul jika status 'diproses') --}}
+                @if($order->status == 'diproses')
+                <div class="card-modern mb-4 border border-success bg-white shadow-sm">
+                    <h5 class="fw-bold text-success mb-2"><i class="bi bi-box-seam-fill me-1"></i> Pesanan Sudah Sampai?</h5>
+                    <p class="text-muted small mb-3">Silakan upload foto bukti paket telah kamu terima untuk menyelesaikan pesanan ini.</p>
+                    
+                    <form action="{{ route('orders.complete', $order->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PATCH')
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Foto Bukti Penerimaan:</label>
+                            <input type="file" name="bukti_sampai" class="form-control" accept="image/*" required style="border-radius: 10px;">
+                        </div>
+                        <button type="submit" class="btn btn-selesai w-100 py-2-5" onclick="return confirm('Apakah kamu yakin barang sudah diterima dengan benar?')">
+                            Klik Pesanan Selesai
+                        </button>
+                    </form>
                 </div>
+                @endif
 
-                <div class="d-flex justify-content-between mb-3">
-                    <span>Ongkos Kirim</span>
-                    <strong class="text-success">+ Rp {{ number_format($order->ongkir,0,',','.') }}</strong>
+                {{-- TAMPILKAN FOTO JIKA PESANAN SUDAH SELESAI --}}
+                @if($order->status == 'selesai')
+                <div class="card-modern mb-4 bg-light">
+                    <h6 class="fw-bold mb-2 text-success"><i class="bi bi-patch-check-fill me-1"></i> Pesanan Selesai</h6>
+                    @if($order->bukti_sampai)
+                        <small class="text-muted d-block mb-2">Foto bukti penerimaan paket:</small>
+                        <img src="{{ asset('storage/' . $order->bukti_sampai) }}" class="img-fluid rounded-4 w-100 border shadow-sm" style="max-height: 250px; object-fit: contain; background: #fff;">
+                    @else
+                        <div class="alert alert-warning small rounded-3 p-2 mb-0">
+                            <i class="bi bi-exclamation-circle-fill"></i> Selesai tanpa berkas lampiran foto.
+                        </div>
+                    @endif
                 </div>
+                @endif
 
-                <hr>
+                {{-- RINGKASAN PEMBAYARAN --}}
+                <div class="card-modern">
+                    <h5 class="fw-bold mb-4">Ringkasan Pembayaran</h5>
 
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">Total Bayar</span>
-                    <div class="total-price">
-                        Rp {{ number_format($order->grand_total,0,',','.') }}
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-secondary">Subtotal Produk</span>
+                        <strong class="text-dark">Rp {{ number_format($order->total_harga - $order->ongkir, 0, ',', '.') }}</strong>
                     </div>
-                </div>
 
-                <a href="/riwayat-pesanan" class="btn btn-outline-secondary w-100 mt-4">
-                    ← Kembali ke Riwayat Pesanan
-                </a>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-secondary">Ongkos Kirim</span>
+                        <strong class="text-success">+ Rp {{ number_format($order->ongkir, 0, ',', '.') }}</strong>
+                    </div>
+
+                    <hr class="my-3" style="border-top: 1px dashed #cbd5e1;">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-dark">Total Transaksi</span>
+                        <div class="total-price">
+                            Rp {{ number_format($order->total_harga, 0, ',', '.') }}
+                        </div>
+                    </div>
+
+                    <a href="{{ route('orders.history') }}" class="btn btn-outline-secondary w-100 mt-4" style="border-radius: 12px; font-weight: 600;">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Riwayat
+                    </a>
+                </div>
 
             </div>
         </div>
