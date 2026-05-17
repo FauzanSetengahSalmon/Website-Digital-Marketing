@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileController;
 Route::get('/', [ProductController::class, 'home'])->name('home');
 Route::view('/tentang-kami', 'about')->name('about');
 Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
+Route::get('/produk/{id}', [ProductController::class, 'show'])->name('customer.products.show');
 
 // --- GOOGLE AUTH ---
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');

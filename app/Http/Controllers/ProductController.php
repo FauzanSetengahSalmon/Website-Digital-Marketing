@@ -39,6 +39,21 @@ class ProductController extends Controller
     }
 
     /**
+     * DETAIL PRODUK CUSTOMER
+     */
+    public function show($id)
+    {
+        $product = Product::with('user')->findOrFail($id);
+        
+        $relatedProducts = Product::where('user_id', $product->user_id)
+            ->where('id', '!=', $product->id)
+            ->limit(4)
+            ->get();
+
+        return view('customer.detail-produk', compact('product', 'relatedProducts'));
+    }
+
+    /**
      * HOME
      */
     public function home()
@@ -83,7 +98,6 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('foto_produk')) {
-
             $data['foto_produk'] = $request
                 ->file('foto_produk')
                 ->store('products', 'public');
@@ -133,7 +147,6 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('foto_produk')) {
-
             if ($product->foto_produk) {
                 Storage::disk('public')
                     ->delete($product->foto_produk);
@@ -189,14 +202,11 @@ class ProductController extends Controller
         $totalPendapatan = 0;
 
         foreach ($orders as $order) {
-
             foreach ($order->details as $detail) {
-
                 if (
                     $detail->product &&
                     $detail->product->user_id == Auth::id()
                 ) {
-
                     $totalPendapatan +=
                         $detail->harga_saat_ini *
                         $detail->jumlah;

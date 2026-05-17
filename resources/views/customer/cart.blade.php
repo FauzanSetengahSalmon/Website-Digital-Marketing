@@ -156,15 +156,34 @@
         font-weight: 600;
     }
 
-    /* Custom Checkbox Slim */
+    /* -----------------------------------------------------------
+       PERBAIKAN AREA CHECKBOX BIAR JELAS, RAPI, & SEJAJAR
+    ----------------------------------------------------------- */
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-left: 5px; /* Memberikan ruang agar kotak select tidak mentok kiri */
+    }
+
     .form-check-input {
-        width: 18px;
-        height: 18px;
+        width: 20px; /* Diperbesar sedikit biar pas di jari/klik */
+        height: 20px;
         cursor: pointer;
+        border: 2px solid #ced4da;
+        border-radius: 6px; /* Bikin lengkungan halus di ujung kotak */
+        margin: 0 !important; /* Reset margin bawaan bootstrap */
+        transition: all 0.2s ease-in-out;
     }
 
     .form-check-input:checked {
         background-color: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+    }
+    
+    .form-check-input:focus {
+        box-shadow: none; /* Hilangkan glow biru default bootstrap */
         border-color: #28a745;
     }
 
@@ -175,7 +194,6 @@
 
 <div class="container py-5">
     <div class="row g-5">
-        <!-- Main Content -->
         <div class="col-lg-7">
             <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
                 <h5 class="text-success-kwt">Keranjang Belanja</h5>
@@ -188,8 +206,8 @@
             @forelse($cartItems as $item)
             @php $isOutOfStock = $item->product->stok <= 0; @endphp
                 <div class="cart-item d-flex align-items-center gap-3 {{ $isOutOfStock ? 'out-of-stock' : '' }}">
-                <!-- Checkbox -->
-                <div class="form-check">
+                
+                <div class="checkbox-wrapper">
                     <input class="form-check-input item-checkbox shadow-none" type="checkbox"
                         value="{{ $item->id }}"
                         data-price="{{ $item->product->harga }}"
@@ -197,7 +215,6 @@
                         onchange="updateTotal()">
                 </div>
 
-                <!-- Product Img -->
                 <div class="img-wrapper">
                     <img src="{{ asset('storage/'.$item->product->foto_produk) }}" class="img-cart">
                 </div>
@@ -227,7 +244,6 @@
                     @endif
                 </div>
 
-                <!-- Actions -->
                 <div class="d-flex align-items-center gap-3">
                     @if(!$isOutOfStock)
                     <div class="qty-box">
@@ -245,48 +261,47 @@
                         </button>
                     </form>
                 </div>
-        </div>
-        @empty
-        <div class="py-5 text-center">
+            </div>
+            @empty
+            <div class="py-5 text-center">
                 <i class="bi bi-cart-x" style="font-size: 3rem; color: #ccc;"></i>
                 <p class="text-muted small">Keranjang kosong.</p>
-            <a href="{{ route('customer.katalog') }}" class="btn btn-outline-success btn-sm">Mulai Belanja</a>
+                <a href="{{ route('customer.katalog') }}" class="btn btn-outline-success btn-sm">Mulai Belanja</a>
+            </div>
+            @endforelse
         </div>
-        @endforelse
-    </div>
 
-    <!-- Sidebar Summary -->
-    <div class="col-lg-5">
-        <div class="summary-side shadow-sm">
-            <h6 class="fw-bold mb-4">Ringkasan Pesanan</h6>
+        <div class="col-lg-5">
+            <div class="summary-side shadow-sm">
+                <h6 class="fw-bold mb-4">Ringkasan Pesanan</h6>
 
-            <div class="d-flex justify-content-between mb-2 small">
-                <span class="text-muted">Total Barang</span>
-                <span id="count-display">0</span>
-            </div>
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">Total Barang</span>
+                    <span id="count-display">0</span>
+                </div>
 
-            <div class="d-flex justify-content-between mb-4 small">
-                <span class="text-muted">Subtotal</span>
-                <span id="sub-display">Rp 0</span>
-            </div>
+                <div class="d-flex justify-content-between mb-4 small">
+                    <span class="text-muted">Subtotal</span>
+                    <span id="sub-display">Rp 0</span>
+                </div>
 
-            <hr style="border-top: 1px dashed #eee;">
+                <hr style="border-top: 1px dashed #eee;">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <span class="fw-bold small">Total Bayar</span>
-                <h5 class="fw-bold text-success m-0" id="total-display">Rp 0</h5>
-            </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold small">Total Bayar</span>
+                    <span class="fw-bold text-success m-0" id="total-display">Rp 0</span>
+                </div>
 
-            <button class="btn btn-main shadow-sm" id="btn-checkout" disabled>
-                Lanjut Checkout
-            </button>
+                <button class="btn btn-main shadow-sm" id="btn-checkout" disabled>
+                    Lanjut Checkout
+                </button>
 
-            <div class="mt-4 p-3 bg-light rounded-3" style="font-size: 11px; line-height: 1.6;">
-                <i class="bi bi-shield-check text-success"></i> Semua produk berasal dari <strong>Kelompok Wanita Tani (KWT)</strong> yang dikelola secara organik dan higienis.
+                <div class="mt-4 p-3 bg-light rounded-3" style="font-size: 11px; line-height: 1.6;">
+                    <i class="bi bi-shield-check text-success"></i> Semua produk berasal dari <strong>Kelompok Wanita Tani (KWT)</strong> yang dikelola secara organik dan higienis.
+                </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <script>
@@ -314,7 +329,6 @@
         }
     }
 
-    // Ganti bagian script di file cart.blade.php kamu dengan ini:
     function updateTotal() {
         let total = 0;
         let count = 0;
@@ -337,7 +351,6 @@
         const btnCheckout = document.getElementById('btn-checkout');
         btnCheckout.disabled = (count === 0);
 
-        // Update Link Checkout dengan ID yang dipilih
         if(count > 0) {
             btnCheckout.onclick = function() {
                 window.location.href = "{{ route('checkout.index') }}?items=" + selectedIds.join(',');

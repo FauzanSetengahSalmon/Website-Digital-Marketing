@@ -206,7 +206,6 @@
     <div class="row justify-content-center mb-5">
         <div class="col-lg-10">
             <div class="filter-wrapper">
-                {{-- Form filter ini pakai GET, jadi aman --}}
                 <form action="{{ route('customer.katalog') }}" method="GET" class="row g-2 align-items-center">
                     <div class="col-md-7">
                         <div class="search-container">
@@ -264,18 +263,15 @@
 
                         <div class="d-flex gap-2">
                             @if($product->stok > 0)
-                                {{-- PERBAIKAN: Tombol Beli SEKARANG TANPA FORM HTML --}}
-                                <button type="button" class="btn-buy-now handle-cart" 
-                                    data-id="{{ $product->id }}" 
-                                    data-name="{{ $product->nama_produk }}"
-                                    data-type="direct">
+                                {{-- PAS DI KLIK MASUK KE DETAIL PRODUK --}}
+                                <a href="{{ route('customer.products.show', $product->id) }}" class="btn-buy-now text-center">
                                     Beli
-                                </button>
+                                </a>
 
-                                <button type="button" class="btn-cart-outline handle-cart"
+                                {{-- PAS DI KLIK LANGSUNG MASUK KERANJANG VIA AJAX --}}
+                                <button type="button" class="btn-cart-outline add-to-cart-ajax"
                                     data-id="{{ $product->id }}"
-                                    data-name="{{ $product->nama_produk }}"
-                                    data-type="cart">
+                                    data-name="{{ $product->nama_produk }}">
                                     <i class="bi bi-cart-plus"></i>
                                 </button>
                             @else
@@ -302,14 +298,13 @@
 </div>
 
 <script>
-    document.querySelectorAll('.handle-cart').forEach(button => {
+    document.querySelectorAll('.add-to-cart-ajax').forEach(button => {
         button.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
             const productName = this.getAttribute('data-name');
-            const type = this.getAttribute('data-type');
             const originalContent = this.innerHTML;
 
-            // Loading state
+            // Loading state saat diklik
             this.disabled = true;
             this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
@@ -330,34 +325,31 @@
                 this.disabled = false;
                 this.innerHTML = originalContent;
 
-                if (type === 'direct') {
-                    // Jika klik Beli, langsung ke halaman keranjang
-                    window.location.href = "{{ route('cart.index') }}";
+                // Memunculkan Toast sukses (jika pakai SweetAlert)
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: productName + ' masuk keranjang!',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 } else {
-                    // Jika klik icon keranjang, cuma kasih notifikasi
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: productName + ' masuk keranjang!',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                    }
-                    
-                    // Update angka di badge keranjang navbar
-                    const cartBadge = document.getElementById('cart-badge');
-                    if (cartBadge) {
-                        cartBadge.innerText = data.cartCount;
-                        cartBadge.classList.remove('d-none');
-                    }
+                    alert(productName + ' berhasil dimasukkan ke keranjang!');
+                }
+                
+                // Update otomatis angka di badge icon keranjang navbar
+                const cartBadge = document.getElementById('cart-badge');
+                if (cartBadge) {
+                    cartBadge.innerText = data.cartCount;
+                    cartBadge.classList.remove('d-none');
                 }
             })
             .catch(error => {
                 this.disabled = false;
                 this.innerHTML = originalContent;
-                alert('Silakan login terlebih dahulu!');
+                alert('Silakan login terlebih dahulu untuk menambah keranjang!');
                 window.location.href = "{{ route('login') }}";
             });
         });
