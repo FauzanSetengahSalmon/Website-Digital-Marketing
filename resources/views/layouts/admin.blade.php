@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        /* PINDAHKAN KE SINI (DI DALAM STYLE) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         body {
@@ -20,7 +19,7 @@
             overflow-x: hidden;
         }
 
-        /* SIDEBAR */
+        /* SIDEBAR: Diubah jadi kontainer Flexbox setinggi layar */
         .sidebar {
             width: 260px;
             height: 100vh;
@@ -28,10 +27,25 @@
             top: 0;
             left: 0;
             background: #064e3b;
-            /* Hijau Gelap Khas KWT */
             z-index: 1000;
             transition: all 0.3s;
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Memisahkan area menu atas dengan tombol bawah */
+        }
+
+        /* AREA MENU ATAS: Tempat scroll murni (Tombol Keluar GA DI SINI lagi) */
+        .sidebar-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            scrollbar-width: none; /* Sembunyikan bar di Firefox */
+        }
+
+        /* Sembunyikan bar putih di Chrome, Safari, Edge */
+        .sidebar-wrapper::-webkit-scrollbar {
+            display: none;
         }
 
         .sidebar-header {
@@ -85,11 +99,9 @@
             letter-spacing: 0.5px;
         }
 
-        /* NAVIGATION */
+        /* NAV LIST */
         .nav-list {
             padding: 20px 0;
-            height: calc(100vh - 280px);
-            overflow-y: auto;
         }
 
         .nav-label {
@@ -140,13 +152,13 @@
             min-height: 100vh;
         }
 
-        /* LOGOUT SECTION */
+        /* LOGOUT SECTION: DIKUNCI MATI! Tidak akan pernah ikut ter-scroll */
         .logout-section {
-            position: absolute;
-            bottom: 0;
             width: 100%;
             padding: 20px;
             background: #054131;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0; /* Menolak ciut atau kegeser */
         }
 
         .btn-logout {
@@ -171,6 +183,8 @@
         @media (max-width: 768px) {
             .sidebar {
                 left: -260px;
+                position: fixed;
+                height: 100vh;
             }
 
             .sidebar.show {
@@ -206,54 +220,56 @@
     {{-- SIDEBAR --}}
     <aside class="sidebar" id="sidebar">
 
-        <div class="sidebar-header">
-            <div class="profile-box">
-                <div class="avatar-circle">
-                    @if(Auth::user()->profile_photo)
-                    <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Admin">
-                    @else
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                    @endif
-                </div>
-                <div class="profile-info">
-                    <h6>{{ Auth::user()->name }}</h6>
-                    <small>Super Admin</small>
+        <div class="sidebar-wrapper">
+            <div class="sidebar-header">
+                <div class="profile-box">
+                    <div class="avatar-circle">
+                        @if(Auth::user()->profile_photo)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Admin">
+                        @else
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div class="profile-info">
+                        <h6>{{ Auth::user()->name }}</h6>
+                        <small>Super Admin</small>
+                    </div>
                 </div>
             </div>
+
+            <nav class="nav-list">
+                <div class="nav-label">Menu Utama</div>
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                </a>
+
+                <div class="nav-label">Manajemen Data</div>
+
+                {{-- Data Semua User --}}
+                <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i> Data Semua User
+                </a>
+
+                {{-- Kelola KWT --}}
+                <a href="{{ route('admin.kwt') }}" class="nav-link {{ request()->routeIs('admin.kwt*') ? 'active' : '' }}">
+                    <i class="bi bi-shop-window"></i> Kelola Akun KWT
+                </a>
+
+                <div class="nav-label">Laporan Global</div>
+
+                {{-- Data Penjualan Semua --}}
+                <a href="{{ route('admin.sales') }}" class="nav-link {{ request()->routeIs('admin.sales*') ? 'active' : '' }}">
+                    <i class="bi bi-cart-check-fill"></i> Penjualan Semua
+                </a>
+
+                <div class="nav-label">Sistem</div>
+                <a href="{{ route('admin.profile') }}"
+                    class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                    <i class="bi bi-person-circle"></i>
+                    Profile Admin
+                </a>
+            </nav>
         </div>
-
-        <nav class="nav-list">
-            <div class="nav-label">Menu Utama</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-grid-1x2-fill"></i> Dashboard
-            </a>
-
-            <div class="nav-label">Manajemen Data</div>
-
-            {{-- Data Semua User --}}
-            <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
-                <i class="bi bi-people-fill"></i> Data Semua User
-            </a>
-
-            {{-- Kelola KWT --}}
-            <a href="{{ route('admin.kwt') }}" class="nav-link {{ request()->routeIs('admin.kwt*') ? 'active' : '' }}">
-                <i class="bi bi-shop-window"></i> Kelola Akun KWT
-            </a>
-
-            <div class="nav-label">Laporan Global</div>
-
-            {{-- Data Penjualan Semua --}}
-            <a href="{{ route('admin.sales') }}" class="nav-link {{ request()->routeIs('admin.sales*') ? 'active' : '' }}">
-                <i class="bi bi-cart-check-fill"></i> Penjualan Semua
-            </a>
-
-            <div class="nav-label">Sistem</div>
-            <a href="{{ route('admin.profile') }}"
-                class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
-                <i class="bi bi-person-circle"></i>
-                Profile Admin
-            </a>
-        </nav>
 
         <div class="logout-section">
             <form method="POST" action="{{ route('logout') }}">
