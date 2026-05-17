@@ -58,6 +58,8 @@ class ProfileController extends Controller
             'rw'             => $request->input('rw'),
             'address_detail' => $request->input('address_detail'),
             'district'       => $request->input('district'), // Memastikan district ikut terisi
+            'latitude'       => $request->input('latitude'),
+            'longitude'      => $request->input('longitude'),
         ]));
 
         // Jika email berubah
