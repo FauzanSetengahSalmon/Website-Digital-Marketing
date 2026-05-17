@@ -5,110 +5,170 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    /**
-     * Dashboard Admin: Menampilkan Ringkasan Statistik
-     */
     public function dashboard()
     {
-        // 1. Ambil data statistik utama
         $totalKwt = User::where('role', 'kwt')->count();
-        $totalProduk = Product::count();
-        $totalPesanan = Order::count();
-        $totalPendapatan = Order::where('status', 'selesai')->sum('total_harga');
 
-        // 2. Statistik tambahan untuk ringkasan di dashboard
+        $totalProduk = Product::count();
+
+        $totalPesanan = Order::count();
+
+        $totalPendapatan = Order::where('status', 'selesai')
+            ->sum('total_harga');
+
         $stats = [
             'total_customer' => User::where('role', 'customer')->count(),
-            'order_aktif'    => Order::whereIn('status', ['menunggu', 'diproses'])->count(),
+
+            'order_aktif' => Order::whereIn('status', [
+                'menunggu',
+                'diproses'
+            ])->count(),
         ];
 
-        // 3. Ambil data KWT untuk tabel (dengan relasi produk)
-        $kwts = User::where('role', 'kwt')->with('products')->latest()->get();
+        $kwts = User::where('role', 'kwt')
+            ->withCount('products')
+            ->latest()
+            ->get();
 
-        // 4. Hitung Omzet per KWT untuk tabel peringkat
         $penjualanPerKwt = User::where('role', 'kwt')
             ->get()
-            ->map(function($kwt) {
-                $omzet = OrderDetail::whereHas('product', function($q) use ($kwt) {
-                        $q->where('user_id', $kwt->id);
-                    })
-                    ->whereHas('order', function($q) {
-                        $q->where('status', 'selesai');
-                    })
-                    ->sum(DB::raw('harga_saat_ini * jumlah'));
+            ->map(function ($kwt) {
+
+                $omzet = DB::table('order_details')
+                    ->join('products', 'order_details.product_id', '=', 'products.id')
+                    ->join('orders', 'order_details.order_id', '=', 'orders.id')
+                    ->where('products.user_id', $kwt->id)
+                    ->where('orders.status', 'selesai')
+                    ->select(DB::raw('SUM(order_details.harga_saat_ini * order_details.jumlah) as total'))
+                    ->value('total') ?? 0;
 
                 return [
                     'nama' => $kwt->name,
+
                     'omzet' => $omzet,
-                    'produk_count' => $kwt->products()->count()
+
+                    'produk_count' => Product::where('user_id', $kwt->id)->count()
                 ];
-            })->sortByDesc('omzet');
+            })
+            ->sortByDesc('omzet');
+
+        $sales = Order::with([
+            'user',
+            'details.product'
+        ])->latest()->get();
 
         return view('admin.dashboard', compact(
-            'totalKwt', 
-            'totalProduk', 
-            'totalPesanan', 
-            'totalPendapatan', 
-            'kwts', 
-            'penjualanPerKwt', 
-            'stats'
+            'totalKwt',
+            'totalProduk',
+            'totalPesanan',
+            'totalPendapatan',
+            'kwts',
+            'penjualanPerKwt',
+            'stats',
+            'sales'
         ));
     }
 
-    /**
-     * Menampilkan daftar Customer
-     */
     public function usersIndex()
     {
-        $users = User::where('role', 'customer')->latest()->get();
+        $users = User::where('role', 'customer')
+            ->latest()
+            ->get();
+
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Menampilkan riwayat transaksi global
-     */
     public function allSales()
     {
-        $sales = Order::with(['user', 'details.product.user'])
-            ->latest()
-            ->get();
+        $sales = Order::with([
+            'user',
+            'details.product'
+        ])->latest()->get();
+
         return view('admin.sales.index', compact('sales'));
     }
 
-    /**
-     * Menampilkan daftar akun KWT
-     */
     public function kwtIndex()
     {
-        $kwt = User::where('role', 'kwt')->latest()->get();
+        $kwt = User::where('role', 'kwt')
+            ->latest()
+            ->get();
+
         return view('admin.kwt.index', compact('kwt'));
     }
 
-    /**
-     * Menyimpan akun KWT baru
-     */
     public function storeKwt(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+
             'email' => 'required|string|email|max:255|unique:users',
+
             'password' => 'required|string|min:8',
         ]);
 
         User::create([
             'name' => $request->name,
+
             'email' => $request->email,
+
             'password' => Hash::make($request->password),
+
             'role' => 'kwt',
+
+            'phone_number' => '-',
         ]);
 
-        return back()->with('success', 'Akun KWT berhasil dibuat!');
+        return back()->with(
+            'success',
+            'Akun KWT berhasil dibuat!'
+        );
+    }
+
+    public function updateKwt(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        $user->name = $request->name;
+
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with(
+            'success',
+            'Akun KWT berhasil diperbarui!'
+        );
+    }
+
+    public function destroyKwt($id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->delete();
+
+        return back()->with(
+            'success',
+            'Akun KWT berhasil dihapus!'
+        );
     }
 }

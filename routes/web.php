@@ -38,8 +38,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile');
         Route::get('/users', [AdminController::class, 'usersIndex'])->name('users');
+        
+        // Manajemen Akun KWT
         Route::get('/kwt', [AdminController::class, 'kwtIndex'])->name('kwt');
         Route::post('/kwt/store', [AdminController::class, 'storeKwt'])->name('kwt.store');
+        Route::put('/kwt/update/{id}', [AdminController::class, 'updateKwt'])->name('kwt.update');
+        Route::delete('/kwt/delete/{id}', [AdminController::class, 'destroyKwt'])->name('kwt.destroy');
+        
         Route::get('/sales', [AdminController::class, 'allSales'])->name('sales');
     });
 
@@ -58,7 +63,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/list-pesanan', [OrderController::class, 'kwtOrders'])->name('orders');
         Route::get('/proses-pesanan/{id}', [OrderController::class, 'kwtOrderProcess'])->name('orders.process');
         Route::get('/detail-pesanan/{id}', [OrderController::class, 'kwtOrderDetail'])->name('orders.detail');
-        Route::put('/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.status'); // Diubah ke PUT
+        Route::put('/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.status');
 
         // Laporan & Keuangan
         Route::get('/laporan', [OrderController::class, 'kwtLaporan'])->name('laporan');

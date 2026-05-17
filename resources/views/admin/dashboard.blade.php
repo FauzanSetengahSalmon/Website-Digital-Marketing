@@ -204,6 +204,7 @@
                             @forelse($kwts as $kwt)
                             <tr>
                                 <td class="fw-semibold">{{ $kwt->name }}</td>
+                                {{-- KODE YANG SUDAH DIPERBAIKI DENGAN MENGGUNAKAN FUNGSI COUNT KANONIKAL --}}
                                 <td><span class="badge bg-light text-success border">{{ $kwt->products->count() }} Item</span></td>
                                 <td>
                                     <a href="{{ route('admin.kwt') }}" class="btn btn-sm btn-light text-success fw-bold">Detail</a>
