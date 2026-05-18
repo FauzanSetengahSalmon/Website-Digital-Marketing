@@ -5,131 +5,191 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     body {
-        background-color: #fafbfc;
+        background-color: #f8faf9;
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    .detail-card {
-        background: #ffffff;
-        border-radius: 24px;
-        border: 1px solid #f1f3f5;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+    /* Breadcrumb Smooth styling */
+    .breadcrumb-item+.breadcrumb-item::before {
+        content: "•";
+        color: #ccd1d6;
     }
 
+    /* Premium Detail Card */
+    .detail-card {
+        background: #ffffff;
+        border-radius: 28px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Image Wrapper with Hover Effect */
     .img-detail-wrapper {
-        background: #f8f9fa;
+        background: #fdfdfd;
         border-radius: 20px;
         overflow: hidden;
-        height: 400px;
+        height: 420px;
+        border: 1px solid #f1f3f5;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.01);
+        position: relative;
     }
 
     .img-detail-wrapper img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    .img-detail-wrapper:hover img {
+        transform: scale(1.04);
+    }
+
+    /* Badge & Info Styling */
     .kwt-badge {
-        font-size: 11px;
-        color: #388e3c;
-        background: #f2f8f2;
-        padding: 6px 14px;
-        border-radius: 8px;
+        font-size: 11.5px;
+        color: #1e5217;
+        background: #e8f5e9;
+        padding: 8px 16px;
+        border-radius: 30px;
         font-weight: 700;
         display: inline-flex;
         align-items: center;
+        border: 1px solid rgba(76, 175, 80, 0.15);
+        letter-spacing: 0.3px;
     }
 
     .price-tag {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2d7a22;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1e5217;
+        letter-spacing: -0.5px;
     }
 
+    /* -------------------------------------------------------------------------
+       PERBAIKAN DESAIN QTY INPUT (LEBIH TIPIS, DETAIL & DI TENGAH)
+    ------------------------------------------------------------------------- */
     .qty-input-container {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        background: #f8f9fa;
+        justify-content: space-between;
+        background: #ffffff;
         border-radius: 12px;
         padding: 4px;
-        max-width: 150px;
-        border: 1px solid #e9ecef;
+        border: 1px solid #e2e8f0;
+        /* Outline tipis yang lebih elegan */
+        width: 130px;
+        /* Lebar statis agar konten selalu presisi di tengah */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+    }
+
+    .qty-input-container:focus-within {
+        border-color: #4caf50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
     }
 
     .qty-btn {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        border: none;
-        background: white;
-        color: #2d3436;
-        font-size: 1.2rem;
-        font-weight: 700;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 1.1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        transition: 0.2s;
+        padding: 0;
+        transition: all 0.2s ease;
         cursor: pointer;
     }
 
     .qty-btn:hover {
-        background: #388e3c;
-        color: white;
+        background: #e8f5e9;
+        color: #1e5217;
+        border-color: #c8e6c9;
+    }
+
+    .qty-btn:active {
+        transform: scale(0.95);
     }
 
     .qty-input {
-        width: 55px;
+        width: 40px;
         border: none;
         background: transparent;
         text-align: center;
-        font-weight: 600;
-        font-size: 1.1rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #0f172a;
+        padding: 0;
+        margin: 0;
     }
 
     .qty-input:focus {
         outline: none;
     }
 
+    /* Menyembunyikan icon panah atas/bawah bawaan input type="number" */
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .qty-input[type=number] {
+        -moz-appearance: textfield;
+        /* Firefox */
+    }
+
+    /* ------------------------------------------------------------------------- */
+
+    /* Call To Action Button */
     .btn-add-cart {
-        background: #388e3c;
+        background: #4caf50;
         color: white;
         border: none;
         border-radius: 14px;
-        padding: 14px 28px;
-        font-weight: 600;
-        transition: 0.2s;
+        padding: 13px 24px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         cursor: pointer;
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.25);
     }
 
     .btn-add-cart:hover {
-        background: #2e7d32;
-        transform: translateY(-2px);
+        background: #1e5217;
         color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(30, 82, 23, 0.3);
     }
 
-    /* -------------------------------------------------------------------------
-       DESAIN MODAL KONFIRMASI CUSTOM ULTRA-ESTETIK & MINIMALIS (NO SWEETALERT)
-    ------------------------------------------------------------------------- */
+    .btn-add-cart:active {
+        transform: translateY(-1px);
+    }
+
+    /* Modal Styling */
     .efood-modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(15, 23, 42, 0.2); /* Latar belakang gelap tipis */
-        backdrop-filter: blur(8px); /* Efek blur kaca iOS premium */
-        -webkit-backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 9999;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .efood-modal-overlay.active {
@@ -139,57 +199,56 @@
 
     .efood-modal-card {
         background: #ffffff;
-        border-radius: 24px;
-        width: 90%;
-        max-width: 400px;
-        padding: 32px 28px;
+        border-radius: 28px;
+        width: 92%;
+        max-width: 380px;
+        padding: 35px 30px;
         text-align: center;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-        border: 1px solid rgba(241, 243, 245, 0.8);
-        transform: scale(0.92);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .efood-modal-overlay.active .efood-modal-card {
-        transform: scale(1);
+        transform: translateY(0) scale(1);
     }
 
-    /* Ikon Centang Estetik Bulat Clean */
     .efood-modal-icon-wrapper {
-        width: 60px;
-        height: 60px;
+        width: 65px;
+        height: 65px;
         background: #e8f5e9;
-        color: #388e3c;
+        color: #4caf50;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
-        margin: 0 auto 20px auto;
+        font-size: 2rem;
+        margin: 0 auto 22px auto;
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.15);
     }
 
     .efood-modal-icon-wrapper.warning {
         background: #fff3e0;
         color: #f57c00;
+        box-shadow: 0 8px 20px rgba(245, 124, 0, 0.15);
     }
 
     .efood-modal-title {
-        font-size: 1.3rem;
-        font-weight: 700;
+        font-size: 1.35rem;
+        font-weight: 800;
         color: #1e293b;
-        margin-bottom: 10px;
-        letter-spacing: -0.3px;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
     }
 
     .efood-modal-text {
-        font-size: 0.9rem;
+        font-size: 0.92rem;
         color: #64748b;
-        line-height: 1.5;
-        margin-bottom: 28px;
-        padding: 0 10px;
+        line-height: 1.6;
+        margin-bottom: 30px;
     }
 
-    /* Group Tombol Aksi Minimalis */
     .efood-modal-buttons {
         display: flex;
         flex-direction: column;
@@ -197,33 +256,34 @@
     }
 
     .efood-btn-primary {
-        background: #388e3c;
+        background: #4caf50;
         color: #ffffff;
         border: none;
-        border-radius: 12px;
-        padding: 12px 20px;
-        font-size: 0.9rem;
-        font-weight: 600;
+        border-radius: 14px;
+        padding: 13px 20px;
+        font-size: 0.95rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.2s;
         text-decoration: none;
         display: block;
         width: 100%;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
     }
 
     .efood-btn-primary:hover {
-        background: #2e7d32;
+        background: #1e5217;
         color: #ffffff;
     }
 
     .efood-btn-secondary {
-        background: #f8f9fa;
+        background: #f8fafc;
         color: #64748b;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 20px;
-        font-size: 0.9rem;
-        font-weight: 600;
+        border-radius: 14px;
+        padding: 13px 20px;
+        font-size: 0.95rem;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
     }
@@ -241,8 +301,8 @@
 <div class="container py-5">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('customer.katalog') }}" class="text-success text-decoration-none">Katalog</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Detail Produk</li>
+            <li class="breadcrumb-item"><a href="{{ route('customer.katalog') }}" class="text-success text-decoration-none fw-semibold">Katalog</a></li>
+            <li class="breadcrumb-item active text-muted" aria-current="page">Detail Produk</li>
         </ol>
     </nav>
 
@@ -251,12 +311,12 @@
             <div class="col-12 col-md-5">
                 <div class="img-detail-wrapper">
                     @if($product->foto_produk)
-                        <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
+                    <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
                     @else
-                        <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted">
-                            <i class="bi bi-image" style="font-size: 4rem; opacity: 0.3;"></i>
-                            <span>Gambar Tidak Tersedia</span>
-                        </div>
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted">
+                        <i class="bi bi-image text-success opacity-25" style="font-size: 4.5rem;"></i>
+                        <span class="small fw-semibold mt-2">Gambar Belum Tersedia</span>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -269,53 +329,57 @@
                         </span>
                     </div>
 
-                    <h1 class="fw-bold text-dark mb-2" style="font-size: 2.2rem;">{{ $product->nama_produk }}</h1>
-                    
+                    <h1 class="fw-bold text-dark mb-2" style="font-size: 2.2rem; letter-spacing: -0.5px;">{{ $product->nama_produk }}</h1>
+
                     <div class="d-flex align-items-center mb-4">
-                        <span class="badge {{ $product->stok > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} rounded-pill px-3 py-2 fw-semibold">
+                        <span class="badge {{ $product->stok > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} rounded-pill px-3 py-2 fw-bold" style="font-size: 0.8rem;">
+                            <i class="bi {{ $product->stok > 0 ? 'bi-check-circle-fill' : 'bi-dash-circle-fill' }} me-1"></i>
                             {{ $product->stok > 0 ? 'Stok Tersedia' : 'Stok Habis' }}
                         </span>
-                        <span class="text-muted small ms-3">Tersedia {{ $product->stok }} {{ $product->satuan }}</span>
+                        <span class="text-muted small ms-3 fw-medium">Sisa {{ $product->stok }} {{ $product->satuan }}</span>
                     </div>
 
-                    <div class="mb-4 py-3 border-top border-bottom">
-                        <small class="text-muted d-block mb-1">Harga Spesial</small>
+                    <div class="mb-4 py-3 border-top border-bottom border-light">
+                        <small class="text-muted d-block mb-1 fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Harga Bersih Petani</small>
                         <div class="d-flex align-items-baseline">
                             <span class="price-tag">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
-                            <span class="text-muted ms-1">/ {{ $product->satuan }}</span>
+                            <span class="text-muted ms-2 fw-medium">/ {{ $product->satuan }}</span>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <h6 class="fw-bold text-dark mb-2">Deskripsi Produk</h6>
-                        <p class="text-secondary mb-0" style="line-height: 1.6;">
+                        <h6 class="fw-bold text-dark mb-2" style="font-size: 1rem;">Deskripsi Produk</h6>
+                        <p class="text-secondary mb-0 lh-base" style="font-size: 0.95rem;">
                             {{ $product->deskripsi ?? 'Produk sayur atau buah segar pilihan berkualitas tinggi, diproduksi langsung oleh Kelompok Wanita Tani (KWT) mitra kami dengan metode pertanian yang aman, bersih, dan higienis.' }}
                         </p>
                     </div>
                 </div>
 
-                <div class="mt-4 pt-3 border-top">
+                <div class="mt-4 pt-3 border-top border-light">
                     @if($product->stok > 0)
-                        <div class="row g-3 align-items-center">
-                            <div class="col-auto">
-                                <label class="small fw-semibold text-muted d-block mb-2">Jumlah</label>
-                                <div class="qty-input-container">
-                                    <button type="button" class="qty-btn" id="btn-minus" style="line-height: 1;">&minus;</button>
-                                    <input type="number" id="qty-value" class="qty-input" value="1" min="1" max="{{ $product->stok }}" readonly>
-                                    <button type="button" class="qty-btn" id="btn-plus" style="line-height: 1;">&plus;</button>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <label class="small fw-semibold text-muted d-block mb-2">&nbsp;</label>
-                                <button type="button" id="btn-submit-cart" class="btn-add-cart w-100 d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-cart-plus fs-5 me-2"></i> Masukkan Keranjang
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-sm-auto">
+                            <label class="small fw-bold text-muted d-block mb-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Jumlah</label>
+                            <div class="qty-input-container mx-auto mx-sm-0">
+                                <button type="button" class="qty-btn" id="btn-minus">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number" id="qty-value" class="qty-input" value="1" min="1" max="{{ $product->stok }}" readonly>
+                                <button type="button" class="qty-btn" id="btn-plus">
+                                    <i class="bi bi-plus"></i>
                                 </button>
                             </div>
                         </div>
+                        <div class="col-12 col-sm">
+                            <button type="button" id="btn-submit-cart" class="btn-add-cart w-100 d-flex align-items-center justify-content-center">
+                                <i class="bi bi-bag-plus-fill fs-5 me-2"></i> Masukkan Keranjang
+                            </button>
+                        </div>
+                    </div>
                     @else
-                        <button class="btn btn-secondary w-100 py-3 rounded-4" disabled>
-                            <i class="bi bi-exclamation-triangle me-2"></i> Produk Saat Ini Sedang Habis
-                        </button>
+                    <button class="btn btn-light text-muted w-100 py-3 rounded-4 fw-bold border" disabled>
+                        <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i> Produk Saat Ini Sedang Habis
+                    </button>
                     @endif
                 </div>
 
@@ -339,108 +403,110 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const btnMinus = document.getElementById('btn-minus');
-    const btnPlus = document.getElementById('btn-plus');
-    const qtyInput = document.getElementById('qty-value');
-    const btnSubmit = document.getElementById('btn-submit-cart');
-    
-    // Elemen Custom Modal
-    const efoodModal = document.getElementById('efoodModal');
-    const modalIcon = document.getElementById('modalIcon');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalText = document.getElementById('modalText');
-    const modalActionBtn = document.getElementById('modalActionBtn');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
-    
-    const maxStock = parseInt("{{ $product->stok }}");
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnMinus = document.getElementById('btn-minus');
+        const btnPlus = document.getElementById('btn-plus');
+        const qtyInput = document.getElementById('qty-value');
+        const btnSubmit = document.getElementById('btn-submit-cart');
 
-    // Fungsi Pembuka Modal Custom
-    function showCustomModal(type, title, message, actionText, actionUrl) {
-        if(type === 'success') {
-            modalIcon.className = "efood-modal-icon-wrapper";
-            modalIcon.innerHTML = '<i class="bi bi-check-lg"></i>';
-        } else {
-            modalIcon.className = "efood-modal-icon-wrapper warning";
-            modalIcon.innerHTML = '<i class="bi bi-exclamation-lg"></i>';
+        const efoodModal = document.getElementById('efoodModal');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalActionBtn = document.getElementById('modalActionBtn');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        const maxStock = parseInt("{{ $product->stok }}");
+
+        function showCustomModal(type, title, message, actionText, actionUrl) {
+            if (type === 'success') {
+                modalIcon.className = "efood-modal-icon-wrapper";
+                modalIcon.innerHTML = '<i class="bi bi-check-lg"></i>';
+            } else {
+                modalIcon.className = "efood-modal-icon-wrapper warning";
+                modalIcon.innerHTML = '<i class="bi bi-exclamation-lg"></i>';
+            }
+            modalTitle.innerText = title;
+            modalText.innerText = message;
+            modalActionBtn.innerText = actionText;
+            modalActionBtn.href = actionUrl;
+
+            efoodModal.classList.add('active');
         }
-        modalTitle.innerText = title;
-        modalText.innerText = message;
-        modalActionBtn.innerText = actionText;
-        modalActionBtn.href = actionUrl;
-        
-        efoodModal.classList.add('active');
-    }
 
-    // Fungsi Penutup Modal Custom
-    modalCloseBtn.addEventListener('click', function() {
-        efoodModal.classList.remove('active');
-    });
-
-    if(qtyInput) {
-        btnMinus.addEventListener('click', function() {
-            let val = parseInt(qtyInput.value);
-            if(val > 1) qtyInput.value = val - 1;
+        modalCloseBtn.addEventListener('click', function() {
+            efoodModal.classList.remove('active');
         });
 
-        btnPlus.addEventListener('click', function() {
-            let val = parseInt(qtyInput.value);
-            if(val < maxStock) qtyInput.value = val + 1;
+        efoodModal.addEventListener('click', function(e) {
+            if (e.target === efoodModal) {
+                efoodModal.classList.remove('active');
+            }
         });
 
-        btnSubmit.addEventListener('click', function() {
-            const originalContent = btnSubmit.innerHTML;
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...';
-
-            fetch(`/cart/add/{{ $product->id }}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ quantity: parseInt(qtyInput.value) })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Unauthorized/Error');
-                return response.json();
-            })
-            .then(data => {
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = originalContent;
-
-                // REALTIME BADGE UPDATE
-                const cartBadge = document.getElementById('cart-badge');
-                if (cartBadge) {
-                    cartBadge.innerText = data.cartCount;
-                    cartBadge.classList.remove('d-none');
-                }
-
-                // Panggil Modal Custom Cantik & Estetik
-                showCustomModal(
-                    'success', 
-                    'Masuk Keranjang!', 
-                    'Produk segar pilihanmu sudah tersimpan rapi di dalam keranjang belanja.', 
-                    'Lihat Keranjang', 
-                    "{{ route('cart.index') }}"
-                );
-            })
-            .catch(error => {
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = originalContent;
-                
-                // Panggil Modal Custom untuk Sesi Login Expiry
-                showCustomModal(
-                    'warning', 
-                    'Sesi Belum Tersedia', 
-                    'Silakan login ke akun Anda terlebih dahulu untuk mulai mengisi keranjang belanja.', 
-                    'Login Sekarang', 
-                    "{{ route('login') }}"
-                );
+        if (qtyInput) {
+            btnMinus.addEventListener('click', function() {
+                let val = parseInt(qtyInput.value);
+                if (val > 1) qtyInput.value = val - 1;
             });
-        });
-    }
-});
+
+            btnPlus.addEventListener('click', function() {
+                let val = parseInt(qtyInput.value);
+                if (val < maxStock) qtyInput.value = val + 1;
+            });
+
+            btnSubmit.addEventListener('click', function() {
+                const originalContent = btnSubmit.innerHTML;
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Menyimpan...';
+
+                fetch(`/cart/add/{{ $product->id }}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            quantity: parseInt(qtyInput.value)
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Unauthorized/Error');
+                        return response.json();
+                    })
+                    .then(data => {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = originalContent;
+
+                        const cartBadge = document.getElementById('cart-badge');
+                        if (cartBadge) {
+                            cartBadge.innerText = data.cartCount;
+                            cartBadge.classList.remove('d-none');
+                        }
+
+                        showCustomModal(
+                            'success',
+                            'Masuk Keranjang!',
+                            'Produk segar pilihanmu sudah tersimpan rapi di dalam keranjang belanja.',
+                            'Lihat Keranjang',
+                            "{{ route('cart.index') }}"
+                        );
+                    })
+                    .catch(error => {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = originalContent;
+
+                        showCustomModal(
+                            'warning',
+                            'Sesi Belum Tersedia',
+                            'Silakan login ke akun Anda terlebih dahulu untuk mulai mengisi keranjang belanja.',
+                            'Login Sekarang',
+                            "{{ route('login') }}"
+                        );
+                    });
+            });
+        }
+    });
 </script>
 @endsection
