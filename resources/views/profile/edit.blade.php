@@ -541,9 +541,12 @@
 {{-- JAVASCRIPT LOGIC (LEAFLET & AUTOCOMPLETE) --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let defaultLat = -2.5489;
-    let defaultLng = 118.0149;
-    let zoomLevel = 5;
+    let saveLat = "{{ Auth::user()->latitude }}";
+    let saveLng = "{{ Auth::user()->longitude }}";
+
+    let defaultLat = saveLat ? parseFloat(saveLat) : -2.5489;
+    let defaultLng = saveLng ? parseFloat(saveLng) : 118.0149;
+    let zoomLevel = saveLat? 16 : 5;
 
     const map = L.map('map').setView([defaultLat, defaultLng], zoomLevel);
 

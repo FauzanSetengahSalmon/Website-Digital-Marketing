@@ -112,6 +112,25 @@
         background: linear-gradient(135deg, #15803d, #16a34a);
         color: white;
     }
+    .wa-link {
+        color: #25D366 !important;
+        transition: all 0.25s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background-color: transparent;
+    }
+
+    .wa-link:hover {
+        color: #128C7E !important;
+        transform: scale(1.03); 
+        text-decoration: underline !important;
+        background-color: #f1f5f9;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 </style>
 
 <div class="container py-5">
@@ -227,8 +246,11 @@
                         <div class="fw-semibold text-dark">{{ $order->kurir }}</div>
                         <div class="text-muted small mt-1">
                             Hubungi Kurir: 
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}" target="_blank" class="fw-bold text-success text-decoration-none">
-                                <i class="bi bi-whatsapp"></i> {{ $order->no_hp_kurir ?? '-' }}
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}" 
+                            target="_blank" 
+                            class="fw-bold text-success text-decoration-none wa-link"
+                            title="Klik untuk chat WhatsApp Kurir">
+                                <i class="bi bi-whatsapp"></i> {{ $order->no_hp_kurir }}
                             </a>
                         </div>
                         @endif

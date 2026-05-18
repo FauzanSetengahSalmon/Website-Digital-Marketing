@@ -11,7 +11,10 @@ class KwtSeeder extends Seeder
 {
     public function run(): void
     {
+        $kwtUser = User::where('role', 'kwt')->first();
+
         Product::create([
+            'user_id' => $kwtUser->id,
             'nama_produk' => 'Kangkung',
             'harga' => 15000,
             'stok' => 100,
@@ -19,19 +22,11 @@ class KwtSeeder extends Seeder
         ]);
 
         Product::create([
+            'user_id' => $kwtUser->id,
             'nama_produk' => 'Bayam',
             'harga' => 15000,
             'stok' => 50,
             'foto_produk' => 'bayam.jpg'
-        ]);
-
-        // 2. Buat Pesanan Contoh untuk Statistik
-        Order::create([
-            'user_id' => 1, 
-            'nama_produk' => 'Kangkung',
-            'jumlah' => 2,
-            'total_harga' => 30000,
-            'status' => 'pending'
         ]);
     }
 }
