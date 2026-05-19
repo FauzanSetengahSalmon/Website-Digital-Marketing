@@ -33,8 +33,6 @@ class CheckoutController extends Controller
 
         $alamatCustomer = trim(($user->address ?? '') . ', ' . ($user->district ?? '') . ', ' . ($user->city ?? '') . ', ' . ($user->province ?? ''));
 
-        // 1. TITIK PUSAT PENGIRIMAN (Kantor Desa Cibiru Wetan)
-        // Meskipun ada 5 KWT, ongkir dihitung satu pintu dari lokasi ini
         $latAsal = -6.921186;
         $lonAsal = 107.729420;
 
