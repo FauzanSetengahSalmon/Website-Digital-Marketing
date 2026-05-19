@@ -9,6 +9,7 @@ use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Auth\Events\Registered;
 
 class AdminController extends Controller
 {
@@ -97,18 +98,65 @@ class AdminController extends Controller
     public function storeKwt(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|string|email|max:255|unique:users',
+            'phone_number' => 'required|string|max:20',
+            'password'     => 'required|string|min:8',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'kwt',
+        $user = User::create([
+            'name'         => $request->name,
+            'email'        => $request->email,
+            'phone_number' => $request->phone_number,
+            'password'     => Hash::make($request->password),
+            'role'         => 'kwt',
         ]);
 
-        return back()->with('success', 'Akun KWT berhasil dibuat!');
+        event(new Registered($user));
+
+        return back()->with('success', 'Akun KWT baru berhasil dibuat!');
+    }
+
+    /**
+     * Memperbarui data akun KWT yang sudah ada
+     */
+    public function updateKwt(Request $request, $id)
+    {
+        $kwt = User::findOrFail($id);
+
+        $request->validate([
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|string|email|max:255|unique:users,email,' . $kwt->id,
+            'phone_number' => 'required|string|max:20',
+            'password'     => 'nullable|string|min:8', // Opsional, diisi kalau mau ganti password aja
+        ]);
+
+        $data = [
+            'name'         => $request->name,
+            'email'         => $request->email,
+            'phone_number' => $request->phone_number,
+        ];
+
+        // Jika password diisi di modal edit, lakukan update password baru
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $kwt->update($data);
+
+        return back()->with('success', 'Data akun KWT berhasil diperbarui!');
+    }
+
+    /**
+     * Menghapus akun KWT secara permanen
+     */
+    public function destroyKwt($id)
+    {
+        $kwt = User::findOrFail($id);
+
+        // Eksekusi penghapusan data
+        $kwt->delete();
+
+        return back()->with('success', 'Akun KWT berhasil dihapus dari sistem.');
     }
 }
