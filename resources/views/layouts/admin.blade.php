@@ -30,17 +30,19 @@
             z-index: 1000;
             transition: all 0.3s;
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-            
+
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Memisahkan area menu atas dengan tombol bawah */
+            justify-content: space-between;
+            /* Memisahkan area menu atas dengan tombol bawah */
         }
 
         /* AREA MENU ATAS: Tempat scroll murni (Tombol Keluar GA DI SINI lagi) */
         .sidebar-wrapper {
             flex-grow: 1;
             overflow-y: auto;
-            scrollbar-width: none; /* Sembunyikan bar di Firefox */
+            scrollbar-width: none;
+            /* Sembunyikan bar di Firefox */
         }
 
         /* Sembunyikan bar putih di Chrome, Safari, Edge */
@@ -158,7 +160,8 @@
             padding: 20px;
             background: #054131;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            flex-shrink: 0; /* Menolak ciut atau kegeser */
+            flex-shrink: 0;
+            /* Menolak ciut atau kegeser */
         }
 
         .btn-logout {
@@ -255,10 +258,16 @@
                     <i class="bi bi-shop-window"></i> Kelola Akun KWT
                 </a>
 
+
+                <!-- MENU BARU UNTUK HALAMAN KURIR -->
+                <a href="{{ route('admin.kurir.index') }}" class="nav-link {{ request()->routeIs('kwt.kurir.*') ? 'active' : '' }}">
+                    <i class="bi bi-bicycle"></i> Data Kurir
+                </a>
+
                 <div class="nav-label">Laporan Global</div>
 
                 {{-- Data Penjualan Semua --}}
-                <a href="{{ route('admin.sales') }}" class="nav-link {{ request()->routeIs('admin.sales*') ? 'active' : '' }}">
+                <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales*') ? 'active' : '' }}">
                     <i class="bi bi-cart-check-fill"></i> Penjualan Semua
                 </a>
 

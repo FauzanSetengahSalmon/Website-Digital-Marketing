@@ -215,18 +215,6 @@
                                     value="Administrator"
                                     readonly>
                             </div>
-
-                            <div class="col-12">
-                                <label class="form-label">
-                                    Alamat
-                                </label>
-
-                                <textarea name="address"
-                                    rows="3"
-                                    class="form-control"
-                                    placeholder="Masukkan alamat lengkap...">{{ old('address', $user->address) }}</textarea>
-                            </div>
-
                         </div>
 
                         <div class="mt-4">

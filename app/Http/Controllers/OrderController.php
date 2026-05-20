@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderDetail;
 use App\Models\Kurir;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,22 +16,38 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
+    /**
+     * Menampilkan Dashboard Ringkasan Statistik Internal KWT
+     */
     public function kwtDashboard()
     {
         $userId = Auth::id();
 
-        $total_received = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
-            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
+        $total_received = OrderDetail::whereHas('product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'selesai');
+            })
             ->sum(DB::raw('harga_saat_ini * jumlah'));
 
-        $sold_count = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
-            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
+        $sold_count = OrderDetail::whereHas('product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'selesai');
+            })
             ->sum('jumlah');
 
         $total_products = Product::where('user_id', $userId)->count();
 
-        $pending_orders = Order::whereHas('details.product', fn($q) => $q->where('user_id', $userId))
-            ->where('status', 'menunggu')
+        $pending_orders = OrderDetail::whereHas('product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'menunggu');
+            })
+            ->distinct('order_id')
             ->count();
 
         $total_kurir = Kurir::count();
@@ -40,95 +57,98 @@ class OrderController extends Controller
             'sold_count' => $sold_count,
             'total_products' => $total_products,
             'pending_orders' => $pending_orders,
-            'total_kurir' => $total_kurir, 
+            'total_kurir' => $total_kurir,
         ];
 
         return view('kwt.dashboard', compact('stats'));
     }
 
-    public function kwtKurirIndex()
-    {
-        $kurirs = Kurir::latest()->get();
-        return view('kwt.kurir', compact('kurirs'));
-    }
-
-    public function storeKurir(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:15',
-            'kendaraan' => 'nullable|string|max:255',
-            'status' => 'required|in:aktif,nonaktif',
-        ]);
-
-        Kurir::create([
-            'nama' => $request->nama,
-            'no_hp' => $request->no_hp,
-            'kendaraan' => $request->kendaraan,
-            'status' => $request->status,
-        ]);
-
-        return redirect()->back()->with('success', 'Data kurir berhasil ditambahkan!');
-    }
-
-    public function updateKurir(Request $request, $id)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:15',
-            'kendaraan' => 'nullable|string|max:255',
-            'status' => 'required|in:aktif,nonaktif',
-        ]);
-
-        $kurir = Kurir::findOrFail($id);
-        $kurir->update([
-            'nama' => $request->nama,
-            'no_hp' => $request->no_hp,
-            'kendaraan' => $request->kendaraan,
-            'status' => $request->status,
-        ]);
-
-        return redirect()->back()->with('success', 'Data kurir berhasil diperbarui!');
-    }
-
-    public function destroyKurir($id)
-    {
-        $kurir = Kurir::findOrFail($id);
-        $kurir->delete();
-
-        return redirect()->back()->with('success', 'Data kurir berhasil dihapus!');
-    }
-
+    /**
+     * Menampilkan Laporan Penjualan Internal KWT
+     */
     public function kwtLaporan()
     {
         $userId = Auth::id();
 
-        $orders = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', fn($q) => $q->where('user_id', $userId))
-            ->latest()->get();
+        $orders = Order::with([
+            'user',
+            'details' => function ($q) use ($userId) {
+                $q->whereHas('product', function ($p) use ($userId) {
+                    $p->where('user_id', $userId);
+                })->with('product');
+            }
+        ])
+            ->whereHas('details.product', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->latest()
+            ->get();
 
-        $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
-            ->whereHas('order', fn($q) => $q->where('status', 'selesai'))
+        $totalPendapatan = OrderDetail::whereHas('product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'selesai');
+            })
             ->sum(DB::raw('harga_saat_ini * jumlah'));
 
         return view('kwt.laporan', compact('orders', 'totalPendapatan'));
     }
 
+    /**
+     * Menampilkan Daftar Pesanan Masuk (Sisi KWT)
+     */
     public function kwtOrders()
     {
-        $orders = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
-            ->latest()->get();
+        $userId = Auth::id();
+
+        $orders = Order::with([
+            'user',
+            'details' => function ($q) use ($userId) {
+                $q->whereHas('product', function ($p) use ($userId) {
+                    $p->where('user_id', $userId);
+                })
+                    ->with('product');
+            }
+        ])
+            ->whereHas('details.product', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->latest()
+            ->get();
+
+        // TOTAL KHUSUS KWT
+        foreach ($orders as $order) {
+            $subtotalKwt = $order->details->sum(function ($detail) {
+                return $detail->harga_saat_ini * $detail->jumlah;
+            });
+            $order->total_kwt = $subtotalKwt;
+        }
 
         $list_kurir = Kurir::all();
 
         return view('kwt.orders', compact('orders', 'list_kurir'));
     }
 
+    /**
+     * Memantau Proses Pesanan KWT
+     */
     public function kwtOrderProcess($id)
     {
-        $order = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
+        $userId = Auth::id();
+
+        $order = Order::with([
+            'user',
+            'details' => function ($q) use ($userId) {
+                $q->whereHas('product', function ($p) use ($userId) {
+                    $p->where('user_id', $userId);
+                })
+                    ->with('product');
+            }
+        ])
+            ->whereHas('details.product', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
             ->findOrFail($id);
 
         $list_kurir = Kurir::all();
@@ -136,35 +156,37 @@ class OrderController extends Controller
         return view('kwt.process-orders', compact('order', 'list_kurir'));
     }
 
+    /**
+     * Menampilkan Detail Item Pesanan Kelompok KWT
+     */
     public function kwtOrderDetail($id)
     {
-        $order = Order::with(['user', 'details.product'])
-            ->whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
+        $userId = Auth::id();
+
+        $order = Order::with([
+            'user',
+            'details' => function ($q) use ($userId) {
+                $q->whereHas('product', function ($p) use ($userId) {
+                    $p->where('user_id', $userId);
+                })
+                    ->with('product');
+            }
+        ])
+            ->whereHas('details.product', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
             ->findOrFail($id);
+
+        $order->total_kwt = $order->details->sum(function ($detail) {
+            return $detail->harga_saat_ini * $detail->jumlah;
+        });
 
         return view('kwt.detail-orders', compact('order'));
     }
 
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:menunggu,diterima,ditolak,diproses,selesai,dibatalkan',
-            'kurir' => 'nullable',
-            'no_hp_kurir' => 'nullable'
-        ]);
-
-        $order = Order::whereHas('details.product', fn($q) => $q->where('user_id', Auth::id()))
-            ->findOrFail($id);
-
-        $order->update([
-            'status' => $request->status,
-            'kurir' => $request->kurir,
-            'no_hp_kurir' => $request->no_hp_kurir
-        ]);
-
-        return redirect()->route('kwt.orders')->with('success', 'Pesanan diperbarui!');
-    }
-
+    /**
+     * Export Excel Penjualan KWT
+     */
     public function exportExcel()
     {
         return Excel::download(
@@ -173,15 +195,22 @@ class OrderController extends Controller
         );
     }
 
+    /**
+     * Riwayat Pembelian Sisi Customer / Pengguna Umum
+     */
     public function history()
     {
         $orders = Order::with(['details.product.user'])
             ->where('user_id', Auth::id())
-            ->latest()->get();
+            ->latest()
+            ->get();
 
         return view('customer.riwayat-pesanan', compact('orders'));
     }
 
+    /**
+     * Detail Nota Belanja Customer
+     */
     public function show($id)
     {
         $order = Order::with(['details.product.user'])
@@ -191,42 +220,57 @@ class OrderController extends Controller
         return view('customer.detail-pesanan', compact('order'));
     }
 
-    // 🟢 REVISI TOTAL: FORM WAJIB ATTACH FOTO & ANTI-GAGAL SIMPAN
+    /**
+     * Konfirmasi Pesanan Diterima Selesai oleh Customer
+     */
     public function complete(Request $request, $id)
     {
-        // 1. Validasi Ketat: File wajib ada, wajib gambar, dan maksimal 2MB
         $request->validate([
             'bukti_sampai' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ], [
-            'bukti_sampai.required' => 'Gagal! Kamu wajib melampirkan foto bukti penerimaan terlebih dahulu.',
-            'bukti_sampai.image'    => 'Berkas harus berupa gambar foto (JPG, PNG, JPEG, WEBP).',
-            'bukti_sampai.max'      => 'Ukuran berkas terlalu besar. Maksimal ukuran foto adalah 2 MB.'
         ]);
 
-        // 2. Ambil data order milik customer yang bersangkutan
-        $order = Order::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-        // 3. Kunci eksekusi: Hanya bisa diproses jika status saat ini adalah 'diproses'
         if ($order->status !== 'diproses') {
-            return redirect()->back()->with('error', 'Pesanan gagal diselesaikan karena status transaksi saat ini tidak valid.');
+            return back()->with('error', 'Status pesanan tidak valid.');
         }
 
-        // 4. Pengecekan file secara fisik sebelum database diubah
-        if ($request->hasFile('bukti_sampai') && $request->file('bukti_sampai')->isValid()) {
-            
-            // Simpan gambar fisik ke folder: storage/app/public/bukti_kirim
-            $path = $request->file('bukti_sampai')->store('bukti_kirim', 'public');
-            
-            // JIKA FILE BERHASIL DISIMPAN, BARU UPDATE STATUS DATABASE
+        if ($request->hasFile('bukti_sampai')) {
+            $path = $request->file('bukti_sampai')
+                ->store('bukti_kirim', 'public');
+
             $order->update([
                 'status' => 'selesai',
                 'bukti_sampai' => $path
             ]);
 
-            return redirect()->back()->with('success', 'Pesanan berhasil diselesaikan! Foto bukti Anda telah aman disimpan dalam sistem.');
+            return back()->with('success', 'Pesanan selesai!');
         }
 
-        // Antisipasi jika file corrupt/rusak saat dikirim dari device user
-        return redirect()->back()->with('error', 'Gagal memproses berkas foto. Silakan coba unggah foto bukti lainnya.');
+        return back()->with('error', 'Upload gagal.');
+    }
+    public function storeReport(Request $request, $id)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'tipe_pengaduan' => 'required|string',
+            'pesan' => 'required|string|max:1000',
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+
+        Report::create([
+            'order_id'       => $id,
+            'product_id'     => $request->product_id,
+            'user_id'        => Auth::id(),
+            'kwt_id'         => $product->user_id, // KWT pemilik produk
+            'tipe_pengaduan' => $request->tipe_pengaduan,
+            'pesan'          => $request->pesan,
+            'status'         => 'menunggu'
+        ]);
+
+        return redirect()->back()->with('success', 'Laporan berhasil dikirim! Tim kami akan segera menindaklanjuti.');
     }
 }

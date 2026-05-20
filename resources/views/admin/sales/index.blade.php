@@ -1,160 +1,70 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="container-fluid py-3">
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid py-4 bg-light min-vh-100">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
-            <h3 class="fw-bold text-dark mb-1">Laporan Penjualan Global</h3>
-            <p class="text-muted small mb-0">Pantau seluruh riwayat transaksi dan status pendapatan masuk.</p>
+            <h4 class="fw-bold text-dark mb-1">Daftar Penjualan Global</h4>
+            <p class="text-muted small mb-0">Pantau transaksi masuk dari customer dan distribusikan penugasan armada kurir.</p>
         </div>
         <div>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="window.print()">
-                <i class="bi bi-printer me-1"></i> Cetak Laporan
-            </button>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-xl-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                <div class="d-flex align-items-center">
-                    <div class="bg-success-subtle text-success p-3 rounded-4 me-3">
-                        <i class="bi bi-currency-dollar fs-3"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted small d-block fw-semibold">Total Omzet Bersih</span>
-                        <h4 class="fw-bold text-dark mb-0">
-                            Rp {{ number_format($sales->where('status', 'selesai')->sum('total_harga'), 0, ',', '.') }}
-                        </h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                <div class="d-flex align-items-center">
-                    <div class="bg-primary-subtle text-primary p-3 rounded-4 me-3">
-                        <i class="bi bi-bag-check fs-3"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted small d-block fw-semibold">Transaksi Berhasil</span>
-                        <h4 class="fw-bold text-dark mb-0">
-                            {{ $sales->where('status', 'selesai')->count() }} <span class="fs-6 fw-normal text-muted">Pesanan</span>
-                        </h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                <div class="d-flex align-items-center">
-                    <div class="bg-warning-subtle text-warning p-3 rounded-4 me-3">
-                        <i class="bi bi-clock-history fs-3"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted small d-block fw-semibold">Pesanan Tertunda/Proses</span>
-                        <h4 class="fw-bold text-dark mb-0">
-                            {{ $sales->whereIn('status', ['menunggu', 'diproses'])->count() }} <span class="fs-6 fw-normal text-muted">Pesanan</span>
-                        </h4>
-                    </div>
-                </div>
-            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7">
+                <i class="bi bi-cart-check-fill me-1"></i> {{ $sales->count() }} Total Pesanan
+            </span>
         </div>
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-        <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
-            <h5 class="fw-bold text-dark mb-0">Riwayat Transaksi</h5>
-            <span class="badge bg-light text-dark rounded-pill px-3 py-2 fw-semibold">Total Data: {{ $sales->count() }}</span>
-        </div>
-        
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-hover">
-                <thead class="bg-light text-secondary text-uppercase fs-7 fw-bold border-bottom">
+                <thead class="bg-light border-bottom text-uppercase tracking-wider fs-7 fw-bold text-secondary">
                     <tr>
                         <th class="ps-4 py-3">Order ID</th>
                         <th class="py-3">Customer</th>
-                        <th class="py-3">Total Harga</th>
-                        <th class="py-3">Status</th>
+                        <th class="py-3 text-end">Total Harga</th>
+                        <th class="py-3 text-center">Status</th>
                         <th class="py-3">Tanggal Transaksi</th>
                         <th class="py-3 text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="text-dark">
+                <tbody>
                     @forelse($sales as $sale)
-                    <tr>
-                        <td class="ps-4 py-3">
-                            <span class="fw-bold text-primary">#{{ $sale->id }}</span>
+                    <tr class="align-middle border-bottom border-light">
+                        <td class="ps-4 py-3.5">
+                            <span class="fw-bold text-success font-monospace">#{{ $sale->id }}</span>
                         </td>
-                        
-                        <td class="py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-info me-2 bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-weight: 600; font-size: 0.85rem;">
-                                    {{ strtoupper(substr($sale->user->name, 0, 1)) }}
+                        <td class="py-3.5">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-sm bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold text-uppercase" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                    {{ substr($sale->user->name ?? 'M', 0, 1) }}
                                 </div>
-                                <span class="fw-semibold">{{ $sale->user->name }}</span>
+                                <div>
+                                    <span class="fw-semibold text-dark d-block lh-sm">{{ $sale->user->name ?? 'Masyarakat' }}</span>
+                                    <small class="text-muted fs-8 font-monospace">{{ $sale->nomor_hp ?? $sale->user->phone_number ?? '-' }}</small>
+                                </div>
                             </div>
                         </td>
-                        
-                        <td class="py-3">
-                            <span class="fw-bold {{ $sale->status == 'selesai' ? 'text-success' : 'text-dark' }}">
-                                Rp {{ number_format($sale->total_harga, 0, ',', '.') }}
-                            </span>
+                        <td class="py-3.5 text-end">
+                            <span class="fw-bold text-dark">Rp {{ number_format($sale->total_harga, 0, ',', '.') }}</span>
                         </td>
-                        
-                        <td class="py-3">
-                            @if($sale->status == 'selesai')
-                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-check-circle-fill me-1"></i> SELESAI
-                                </span>
+                        <td class="py-3.5 text-center">
+                            @if($sale->status == 'menunggu')
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">⚡ Menunggu</span>
                             @elseif($sale->status == 'diproses')
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-arrow-repeat me-1"></i> DIPROSES
-                                </span>
-                            @elseif($sale->status == 'menunggu')
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-hourglass-split me-1"></i> MENUNGGU
-                                </span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">📦 Diproses</span>
                             @else
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.75rem;">
-                                    <i class="bi bi-x-circle-fill me-1"></i> {{ strtoupper($sale->status) }}
-                                </span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">✅ {{ $sale->status }}</span>
                             @endif
                         </td>
-                        
-                        <td class="py-3 text-secondary small">
-                            <i class="bi bi-calendar3 me-1"></i> {{ $sale->created_at->format('d M Y') }} 
-                            <span class="text-muted ms-1"><i class="bi bi-clock me-1"></i>{{ $sale->created_at->format('H:i') }}</span>
+                        <td class="py-3.5 text-secondary fs-7">
+                            <i class="bi bi-calendar3 me-1 text-muted"></i> {{ $sale->created_at->format('d M Y, H:i') }} WIB
                         </td>
-
-                        <td class="py-3 text-center pe-4">
-                            @php
-                                // PERBAIKAN UTAMA: Pastikan relasi 'product' di-load paksa di sini 
-                                // jika controller lupa memanggil ->with('details.product')
-                                $detailsWithProduct = $sale->details->loadMissing('product');
-
-                                $customDetails = $detailsWithProduct->map(function($item) {
-                                    return [
-                                        'nama_produk' => $item->product ? $item->product->nama_produk ?? $item->product->name ?? 'Nama Kolom Salah' : 'Produk tidak ditemukan',
-                                        'jumlah' => $item->jumlah,
-                                        'harga_saat_ini' => $item->harga_saat_ini
-                                    ];
-                                });
-                            @endphp
-
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 btn-detail"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalDetailPesanan"
-                                    data-id="{{ $sale->id }}"
-                                    data-customer="{{ $sale->user->name }}"
-                                    data-total="Rp {{ number_format($sale->total_harga, 0, ',', '.') }}"
-                                    data-tanggal="{{ $sale->created_at->format('d M Y H:i') }}"
-                                    data-status="{{ strtoupper($sale->status) }}"
-                                    data-details="{{ json_encode($customDetails) }}">
-                                <i class="bi bi-eye me-1"></i> Detail
+                        <td class="py-3.5 text-center pe-4">
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 fw-medium text-dark transition-all shadow-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalProsesAdmin{{ $sale->id }}">
+                                <i class="bi bi-sliders2 me-1 text-success"></i> Kelola
                             </button>
                         </td>
                     </tr>
@@ -162,8 +72,8 @@
                     <tr>
                         <td colspan="6" class="text-center py-5 text-muted">
                             <div class="py-3">
-                                <i class="bi bi-cart-x fs-1 text-muted mb-2 d-block"></i>
-                                <span>Belum terdapat data transaksi penjualan yang tercatat.</span>
+                                <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50"></i>
+                                <span class="d-block fw-medium">Belum ada pesanan masuk.</span>
                             </div>
                         </td>
                     </tr>
@@ -174,123 +84,191 @@
     </div>
 </div>
 
-{{-- MODAL DETAIL PESANAN --}}
-<div class="modal fade" id="modalDetailPesanan" tabindex="-1" aria-labelledby="modalDetailPesananLabel" aria-hidden="true">
+@foreach($sales as $sale)
+<div class="modal fade" id="modalProsesAdmin{{ $sale->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 py-3 px-4 bg-light">
-                <h5 class="modal-title fw-bold text-dark" id="modalDetailPesananLabel">
-                    <i class="bi bi-receipt me-2 text-primary"></i>Rincian Pesanan <span id="det-id" class="text-primary"></span>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body px-4 py-3">
-                <div class="row g-3 mb-4 p-3 bg-light rounded-4">
-                    <div class="col-6 col-md-3">
-                        <small class="text-muted d-block">Customer</small>
-                        <span id="det-customer" class="fw-bold text-dark"></span>
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <form action="{{ route('admin.order.status', $sale->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="status" value="diproses">
+
+                <div class="modal-header border-0 py-3 px-4 bg-light align-items-center">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Manajemen & Verifikasi Pesanan</h5>
+                        <small class="text-muted fs-7">Order ID: <span class="text-success fw-bold font-monospace">#{{ $sale->id }}</span></small>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <small class="text-muted d-block">Tanggal Transaksi</small>
-                        <span id="det-tanggal" class="fw-semibold text-dark"></span>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <small class="text-muted d-block">Status Pesanan</small>
-                        <span id="det-status" class="badge rounded-pill px-2.5 py-1 fw-bold fs-8"></span>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <small class="text-muted d-block">Total Pembayaran</small>
-                        <span id="det-total" class="fw-bold text-success fs-5"></span>
-                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam me-2"></i>Produk Yang Dibeli</h6>
-                <div class="table-responsive rounded-3 border">
-                    <table class="table align-middle mb-0">
-                        <thead class="table-light text-secondary fs-8 fw-bold">
-                            <tr>
-                                <th class="ps-3 py-2.5">Nama Produk</th>
-                                <th class="py-2.5 text-center">Jumlah</th>
-                                <th class="py-2.5 text-end">Harga Satuan</th>
-                                <th class="py-2.5 text-end pe-3">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="det-items-body">
-                            </tbody>
-                    </table>
+                <div class="modal-body px-4 py-4">
+
+                    <div class="p-3 border rounded-4 bg-light bg-opacity-50 mb-4">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-4">
+                                <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Customer</small>
+                                <span class="fw-bold text-dark">{{ $sale->user->name ?? 'Masyarakat' }}</span>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Kontak</small>
+                                <span class="fw-semibold text-dark font-monospace">{{ $sale->nomor_hp ?? '-' }}</span>
+                            </div>
+                            <div class="col-12 col-md-4 text-md-end">
+                                <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Total Pembayaran</small>
+                                <span class="fw-bold text-success fs-5">Rp {{ number_format($sale->total_harga, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="col-12 border-top pt-2 mt-2">
+                                <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Alamat Pengiriman</small>
+                                <span class="small text-dark fw-medium lh-base">{{ $sale->alamat ?? 'Alamat tidak terisi lengkap' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-2 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-basket3-fill text-success me-2"></i>Komoditas Hasil Panen KWT</h6>
+                        <div class="table-responsive rounded-3 border bg-white">
+                            <table class="table align-middle mb-0 sm-table">
+                                <thead class="table-light text-secondary fs-8 fw-bold text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-2">Nama Produk</th>
+                                        <th class="py-2">Pemilik / Nama KWT</th>
+                                        <th class="py-2 text-center">Kuantitas</th>
+                                        <th class="py-2 text-end pe-3">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if($sale->details)
+                                    @foreach($sale->details as $detail)
+                                    <tr>
+                                        <td class="ps-3 py-2.5 fw-semibold text-dark">
+                                            {{ $detail->product->nama_produk ?? 'Produk Terhapus' }}
+                                        </td>
+                                        <td class="py-2.5">
+                                            <span class="badge bg-success-subtle text-success rounded-1 fw-semibold fs-8 px-2 py-1">
+                                                <i class="bi bi-person-badge me-1"></i>{{ $detail->product->user->name ?? 'KWT Umum' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center py-2.5 text-muted small fw-medium">
+                                            {{ $detail->jumlah }} {{ $detail->product->satuan ?? 'Ikat' }}
+                                        </td>
+                                        <td class="text-end py-2.5 pe-3 fw-bold text-dark">
+                                            Rp {{ number_format($detail->harga_saat_ini * $detail->jumlah, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada Distribusi</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">Pilih Personel Armada</label>
+                                <select name="kurir" class="form-select select-kurir-admin rounded-3 py-2.5 fs-7 border-secondary-subtle" required>
+                                    <option value="">-- Hubungkan Kurir Siap Jalan --</option>
+                                    @foreach($list_kurir as $k)
+                                    <option value="{{ $k->nama }}" data-phone="{{ $k->no_hp }}">
+                                        {{ $k->nama }} {{ $k->kendaraan ? '['.$k->kendaraan.']' : '' }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">Nomor HP Aktif Kurir</label>
+                                <input type="text" name="no_hp_kurir" class="form-control input-phone-admin rounded-3 py-2.5 fs-7 bg-light border-secondary-subtle font-monospace" placeholder="Terisi otomatis..." readonly>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
-            <div class="modal-footer border-0 px-4 pb-4">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
-            </div>
+
+                <div class="modal-header border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
+                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+@endforeach
 
 <style>
-    .fs-7 { font-size: 0.78rem !important; letter-spacing: 0.5px; }
-    .fs-8 { font-size: 0.75rem !important; }
-    .bg-success-subtle { background-color: #e8f5e9 !important; }
-    .bg-primary-subtle { background-color: #e3f2fd !important; }
-    .bg-warning-subtle { background-color: #fff8e1 !important; }
-    .bg-danger-subtle { background-color: #ffebee !important; }
+    .fs-7 {
+        font-size: 0.78rem !important;
+    }
+
+    .fs-8 {
+        font-size: 0.72rem !important;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.06em;
+    }
+
+    .sm-table th,
+    .sm-table td {
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.82rem;
+    }
+
+    .bg-warning-subtle {
+        background-color: #fff3cd !important;
+        color: #856404 !important;
+    }
+
+    .border-warning-subtle {
+        border-color: #ffeeba !important;
+    }
+
+    .bg-primary-subtle {
+        background-color: #cce5ff !important;
+        color: #004085 !important;
+    }
+
+    .border-primary-subtle {
+        border-color: #b8daff !important;
+    }
+
+    .bg-success-subtle {
+        background-color: #d4edda !important;
+        color: #155724 !important;
+    }
+
+    .border-success-subtle {
+        border-color: #c3e6cb !important;
+    }
+
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(25, 135, 84, 0.02) !important;
+    }
 </style>
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const modalDetail = document.getElementById('modalDetailPesanan');
-    if (modalDetail) {
-        modalDetail.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            
-            // Ambil properti data transaksi
-            const id = button.getAttribute('data-id');
-            const customer = button.getAttribute('data-customer');
-            const total = button.getAttribute('data-total');
-            const tanggal = button.getAttribute('data-tanggal');
-            const status = button.getAttribute('data-status');
-            const details = JSON.parse(button.getAttribute('data-details'));
-            
-            // Pasang ke komponen header & info ringkas modal
-            document.getElementById('det-id').textContent = '#' + id;
-            document.getElementById('det-customer').textContent = customer;
-            document.getElementById('det-tanggal').textContent = tanggal;
-            document.getElementById('det-total').textContent = total;
-            
-            // Atur gaya badge status dinamis di dalam modal
-            const statusBadge = document.getElementById('det-status');
-            statusBadge.textContent = status;
-            statusBadge.className = 'badge rounded-pill px-3 py-1.5 fw-bold fs-8 ';
-            if(status === 'SELESAI') statusBadge.classList.add('bg-success-subtle', 'text-success');
-            else if(status === 'DIPROSES') statusBadge.classList.add('bg-primary-subtle', 'text-primary');
-            else if(status === 'MENUNGGU') statusBadge.classList.add('bg-warning-subtle', 'text-warning');
-            else statusBadge.classList.add('bg-danger-subtle', 'text-danger');
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.select-kurir-admin').forEach(selectElement => {
+            selectElement.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const phone = selectedOption.getAttribute('data-phone');
 
-            // Susun tabel item produk yang dibeli
-            const itemsBody = document.getElementById('det-items-body');
-            itemsBody.innerHTML = ''; // Kosongkan data modal sebelumnya
-            
-            if (Array.isArray(details)) {
-                details.forEach(item => {
-                    const namaProduk = item.nama_produk || 'Produk Tidak Diketahui';
-                    const harga = parseFloat(item.harga_saat_ini || 0);
-                    const jumlah = parseInt(item.jumlah || 0);
-                    const subtotal = harga * jumlah;
+                const modalBody = this.closest('.modal-body');
+                const phoneInput = modalBody.querySelector('.input-phone-admin');
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="ps-3 py-2.5 fw-semibold text-dark">${namaProduk}</td>
-                        <td class="text-center py-2.5">${jumlah} Pcs</td>
-                        <td class="text-end py-2.5 text-secondary">Rp ${harga.toLocaleString('id-ID')}</td>
-                        <td class="text-end py-2.5 pe-3 fw-bold text-dark">Rp ${subtotal.toLocaleString('id-ID')}</td>
-                    `;
-                    itemsBody.appendChild(tr);
-                });
-            }
+                if (phoneInput) {
+                    phoneInput.value = phone ? phone : '';
+                }
+            });
         });
-    }
-});
+    });
 </script>
 @endpush
 @endsection

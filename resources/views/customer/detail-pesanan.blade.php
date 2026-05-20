@@ -99,7 +99,7 @@
         font-weight: 800;
         color: #16a34a;
     }
-    
+
     .btn-selesai {
         background: linear-gradient(135deg, #16a34a, #22c55e);
         color: white;
@@ -108,10 +108,12 @@
         border-radius: 12px;
         transition: 0.2s;
     }
+
     .btn-selesai:hover {
         background: linear-gradient(135deg, #15803d, #16a34a);
         color: white;
     }
+
     .wa-link {
         color: #25D366 !important;
         transition: all 0.25s ease-in-out;
@@ -125,11 +127,11 @@
 
     .wa-link:hover {
         color: #128C7E !important;
-        transform: scale(1.03); 
+        transform: scale(1.03);
         text-decoration: underline !important;
         background-color: #f1f5f9;
         transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 </style>
 
@@ -158,10 +160,10 @@
         </div>
 
         @php
-            $statusColor = 'warning';
-            if($order->status == 'diterima' || $order->status == 'diproses') $statusColor = 'info';
-            if($order->status == 'selesai') $statusColor = 'success';
-            if($order->status == 'ditolak' || $order->status == 'dibatalkan') $statusColor = 'danger';
+        $statusColor = 'warning';
+        if($order->status == 'diterima' || $order->status == 'diproses') $statusColor = 'info';
+        if($order->status == 'selesai') $statusColor = 'success';
+        if($order->status == 'ditolak' || $order->status == 'dibatalkan') $statusColor = 'danger';
         @endphp
         <span class="badge bg-{{ $statusColor }} status-pill">
             {{ strtoupper($order->status) }}
@@ -221,7 +223,14 @@
                     <div>
                         <h6 class="fw-bold mb-1">Alamat Pengiriman</h6>
                         <div class="fw-semibold">{{ $order->user->name ?? 'Pelanggan' }}</div>
-                        <div class="text-muted small mt-1" style="line-height: 1.4;">{{ $order->alamat }}</div>
+
+                        {{-- BERSIHKAN ALAMAT: Memotong teks 'Kel/Desa -,' agar alamat rapi --}}
+                        @php
+                        $cleanedAddress = str_replace(['Kel/Desa -,', 'Kel/Desa -'], '', $order->alamat);
+                        $cleanedAddress = trim(preg_replace('/,\s*,/', ',', $cleanedAddress));
+                        @endphp
+                        <div class="text-muted small mt-1" style="line-height: 1.4;">{{ $cleanedAddress }}</div>
+
                         <div class="text-muted small mt-1">No. HP: {{ $order->nomor_hp ?? '-' }}</div>
 
                         @if($order->catatan)
@@ -245,14 +254,16 @@
                         @if($order->kurir)
                         <div class="fw-semibold text-dark">{{ $order->kurir }}</div>
                         <div class="text-muted small mt-1">
-                            Hubungi Kurir: 
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}" 
-                            target="_blank" 
-                            class="fw-bold text-success text-decoration-none wa-link"
-                            title="Klik untuk chat WhatsApp Kurir">
+                            Hubungi Kurir:
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}"
+                                target="_blank"
+                                class="fw-bold text-success text-decoration-none wa-link"
+                                title="Klik untuk chat WhatsApp Kurir">
                                 <i class="bi bi-whatsapp"></i> {{ $order->no_hp_kurir }}
                             </a>
                         </div>
+                        @else
+                        <div class="text-muted small">Kurir belum ditugaskan oleh admin.</div>
                         @endif
                     </div>
                 </div>
@@ -263,14 +274,22 @@
 
             @foreach($order->details as $detail)
             <div class="product-row d-flex gap-3 align-items-center mb-3">
-                @if($detail->product->foto_produk)
-                    <img src="{{ asset('storage/' . $detail->product->foto_produk) }}" class="product-img" alt="Produk">
+                @if($detail->product && $detail->product->foto_produk)
+                <img src="{{ asset('storage/' . $detail->product->foto_produk) }}" class="product-img" alt="Produk">
                 @else
-                    <div class="product-img bg-secondary d-flex align-items-center justify-content-center text-white rounded-3"><i class="bi bi-box"></i></div>
+                <div class="product-img bg-secondary d-flex align-items-center justify-content-center text-white rounded-3"><i class="bi bi-box"></i></div>
                 @endif
 
                 <div class="flex-grow-1">
-                    <div class="fw-bold" style="font-size: 0.95rem;">{{ $detail->product->nama_produk }}</div>
+                    <div class="fw-bold" style="font-size: 0.95rem;">{{ $detail->product->nama_produk ?? 'Produk Terhapus' }}</div>
+
+                    {{-- NAMA KWT PRODUSEN: Ditampilkan tepat di bawah nama produk --}}
+                    <div class="my-1">
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.72rem; font-weight: 600;">
+                            <i class="bi bi-patch-check-fill me-1"></i>{{ $detail->product->user->name ?? 'KWT Mandiri' }}
+                        </span>
+                    </div>
+
                     <small class="text-muted">
                         {{ $detail->jumlah }} {{ $detail->product->satuan ?? 'Pcs' }} × Rp {{ number_format($detail->harga_saat_ini, 0, ',', '.') }}
                     </small>
@@ -282,18 +301,74 @@
             </div>
             @endforeach
 
+            {{-- SECTION PENGADUAN / KOMPLAIN (Pas di Bawah Produk) --}}
+            <div class="card border-0 shadow-sm p-4 bg-white mt-4" style="border-radius: 18px;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="bi bi-shield-exclamation fs-6"></i>
+                    </span>
+                    <h6 class="fw-bold m-0 text-dark" style="font-size: 1.05rem;">Ada Kendala dengan Pesanan Ini?</h6>
+                </div>
+                <p class="text-muted small mb-4 ms-1">
+                    Pesanan belum sampai, kurir bermasalah, atau barang bermasalah? Kirim pengaduan Anda di bawah ini.
+                </p>
+
+                {{-- DITAMBAHKAN enctype="multipart/form-data" AGAR BISA UPLOAD FOTO --}}
+                <form action="{{ route('orders.report.store', $order->id) }}" method="POST" enctype="multipart/form-data" class="ms-1">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Pilih Produk Kendala</label>
+                            <select name="product_id" class="form-select border-light-subtle bg-light bg-opacity-50 py-2" style="border-radius: 10px; font-size: 0.9rem;">
+                                <option value="">Umum / Seluruh Pesanan</option>
+                                @foreach($order->details as $detail)
+                                <option value="{{ $detail->product_id }}">
+                                    {{ Str::limit($detail->product->nama_produk ?? 'Produk Terhapus', 35) }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- INPUT FOTO BUKTI BARU --}}
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Foto Bukti (Opsional)</label>
+                            <input type="file" name="foto_bukti" class="form-control border-light-subtle bg-light bg-opacity-50" accept="image/*" style="border-radius: 10px; font-size: 0.9rem;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Kategori Keluhan</label>
+                            <select name="tipe_pengaduan" class="form-select border-light-subtle bg-light bg-opacity-50 py-2" required style="border-radius: 10px;">
+                                <option value="" disabled selected>Pilih jenis keluhan...</option>
+                                <option value="Produk Rusak">Produk Rusak</option>
+                                <option value="Produk Kurang">Produk Kurang</option>
+                                <option value="Pengiriman Terlambat">Pengiriman Terlambat</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold text-secondary mb-1">Isi Laporan / Keluhan</label>
+                            <textarea name="pesan" class="form-control border-light-subtle bg-light bg-opacity-50" rows="3" placeholder="Ceritakan detail kendala yang dialami secara singkat..." required style="border-radius: 10px; font-size: 0.9rem; resize: none;"></textarea>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-danger px-4 py-2" style="border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: #dc2626;">
+                                Kirim Pengaduan
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
         </div>
 
         {{-- RIGHT SIDE --}}
         <div class="col-lg-5">
             <div class="summary-card">
-                
+
                 {{-- TOMBOL SELESAI & FORM UPLOAD BUKTI (Hanya muncul jika status 'diproses') --}}
                 @if($order->status == 'diproses')
                 <div class="card-modern mb-4 border border-success bg-white shadow-sm">
                     <h5 class="fw-bold text-success mb-2"><i class="bi bi-box-seam-fill me-1"></i> Pesanan Sudah Sampai?</h5>
                     <p class="text-muted small mb-3">Silakan upload foto bukti paket telah kamu terima untuk menyelesaikan pesanan ini.</p>
-                    
+
                     <form action="{{ route('orders.complete', $order->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PATCH')
@@ -313,12 +388,12 @@
                 <div class="card-modern mb-4 bg-light">
                     <h6 class="fw-bold mb-2 text-success"><i class="bi bi-patch-check-fill me-1"></i> Pesanan Selesai</h6>
                     @if($order->bukti_sampai)
-                        <small class="text-muted d-block mb-2">Foto bukti penerimaan paket:</small>
-                        <img src="{{ asset('storage/' . $order->bukti_sampai) }}" class="img-fluid rounded-4 w-100 border shadow-sm" style="max-height: 250px; object-fit: contain; background: #fff;">
+                    <small class="text-muted d-block mb-2">Foto bukti penerimaan paket:</small>
+                    <img src="{{ asset('storage/' . $order->bukti_sampai) }}" class="img-fluid rounded-4 w-100 border shadow-sm" style="max-height: 250px; object-fit: contain; background: #fff;">
                     @else
-                        <div class="alert alert-warning small rounded-3 p-2 mb-0">
-                            <i class="bi bi-exclamation-circle-fill"></i> Selesai tanpa berkas lampiran foto.
-                        </div>
+                    <div class="alert alert-warning small rounded-3 p-2 mb-0">
+                        <i class="bi bi-exclamation-circle-fill"></i> Selesai tanpa berkas lampiran foto.
+                    </div>
                     @endif
                 </div>
                 @endif
@@ -353,7 +428,6 @@
 
             </div>
         </div>
-
     </div>
 </div>
 @endsection

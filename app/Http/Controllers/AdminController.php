@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Kurir;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -73,14 +74,41 @@ class AdminController extends Controller
     }
 
     /**
-     * Menampilkan riwayat transaksi global
+     * Menampilkan riwayat transaksi global (Halaman Sales Admin)
      */
     public function allSales()
     {
-        $sales = Order::with(['user', 'details.product.user'])
+        // PERBAIKAN: Mengambil data order serta memuat list kurir aktif untuk kebutuhan modal terima pesanan
+        $sales = Order::with(['user', 'details.product.user.kwt'])
             ->latest()
             ->get();
-        return view('admin.sales.index', compact('sales'));
+
+        $list_kurir = Kurir::where('status', 'aktif')->get();
+
+        return view('admin.sales.index', compact('sales', 'list_kurir'));
+    }
+
+    /**
+     * MENYAMBUNGKAN METHOD: Update status pesanan dan penugasan armada kurir oleh Admin secara global
+     */
+    public function updateOrderStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:menunggu,diterima,ditolak,diproses,selesai,dibatalkan',
+            'kurir' => 'required|string|max:255',
+            'no_hp_kurir' => 'required|string|max:20'
+        ]);
+
+        // Mengambil pesanan secara global bebas dari batasan user_id manapun
+        $order = Order::findOrFail($id);
+
+        $order->update([
+            'status' => $request->status,
+            'kurir' => $request->kurir,
+            'no_hp_kurir' => $request->no_hp_kurir
+        ]);
+
+        return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dikonfirmasi dan diserahkan ke kurir!');
     }
 
     /**
@@ -128,16 +156,15 @@ class AdminController extends Controller
             'name'         => 'required|string|max:255',
             'email'        => 'required|string|email|max:255|unique:users,email,' . $kwt->id,
             'phone_number' => 'required|string|max:20',
-            'password'     => 'nullable|string|min:8', // Opsional, diisi kalau mau ganti password aja
+            'password'     => 'nullable|string|min:8',
         ]);
 
         $data = [
             'name'         => $request->name,
-            'email'         => $request->email,
+            'email'        => $request->email,
             'phone_number' => $request->phone_number,
         ];
 
-        // Jika password diisi di modal edit, lakukan update password baru
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -153,10 +180,73 @@ class AdminController extends Controller
     public function destroyKwt($id)
     {
         $kwt = User::findOrFail($id);
-
-        // Eksekusi penghapusan data
         $kwt->delete();
 
         return back()->with('success', 'Akun KWT berhasil dihapus dari sistem.');
+    }
+
+    /**
+     * Menampilkan halaman manajemen Kurir
+     */
+    public function adminKurirIndex()
+    {
+        $kurirs = Kurir::latest()->get();
+        return view('admin.kurir', compact('kurirs'));
+    }
+
+    /**
+     * Menyimpan data kurir baru
+     */
+    public function storeKurir(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:15',
+            'kendaraan' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
+
+        Kurir::create([
+            'nama' => $request->nama,
+            'no_hp' => $request->no_hp,
+            'kendaraan' => $request->kendaraan,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Data kurir berhasil ditambahkan!');
+    }
+
+    /**
+     * Memperbarui data kurir
+     */
+    public function updateKurir(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:15',
+            'kendaraan' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
+
+        $kurir = Kurir::findOrFail($id);
+        $kurir->update([
+            'nama' => $request->nama,
+            'no_hp' => $request->no_hp,
+            'kendaraan' => $request->kendaraan,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Data kurir berhasil diperbarui!');
+    }
+
+    /**
+     * Menghapus data kurir
+     */
+    public function destroyKurir($id)
+    {
+        $kurir = Kurir::findOrFail($id);
+        $kurir->delete();
+
+        return redirect()->back()->with('success', 'Data kurir berhasil dihapus!');
     }
 }

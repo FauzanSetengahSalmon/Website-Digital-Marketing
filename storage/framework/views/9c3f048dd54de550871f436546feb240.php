@@ -21,7 +21,7 @@
             width: 240px;
             height: 100vh;
             position: fixed;
-            background: #064e3b; 
+            background: #064e3b;
             transition: all 0.3s;
             z-index: 1000;
         }
@@ -50,7 +50,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
@@ -98,7 +98,7 @@
 
         .nav-link.active {
             background: #ffffff !important;
-            color: #064e3b !important; 
+            color: #064e3b !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             font-weight: 700;
         }
@@ -138,9 +138,17 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar { margin-left: -240px; }
-            .main-content { margin-left: 0; }
-            .sidebar.show { margin-left: 0; }
+            .sidebar {
+                margin-left: -240px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.show {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
@@ -152,13 +160,13 @@
             <div class="profile-box">
                 <div class="avatar-circle">
                     <?php if(Auth::user()->profile_photo): ?>
-                        <img src="<?php echo e(asset('storage/' . Auth::user()->profile_photo)); ?>" alt="Profile">
+                    <img src="<?php echo e(asset('storage/' . Auth::user()->profile_photo)); ?>" alt="Profile">
                     <?php else: ?>
-                        <?php echo e(substr(Auth::user()->name, 0, 1)); ?>
+                    <?php echo e(substr(Auth::user()->name, 0, 1)); ?>
 
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="profile-info">
                     <h6><?php echo e(Auth::user()->name); ?></h6>
                     <small style="color: #4ade80; font-size: 0.7rem;">Admin KWT</small>
@@ -177,17 +185,16 @@
                 <i class="bi bi-box-seam"></i> Produk Kita
             </a>
 
-            <a href="<?php echo e(route('kwt.orders')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.orders') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('kwt.orders')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.orders') || request()->routeIs('kwt.orders.process') || request()->routeIs('kwt.orders.detail') ? 'active' : ''); ?>">
                 <i class="bi bi-cart3"></i> Pesanan
+            </a>
+
+            <a href="<?php echo e(route('kwt.reports.index')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.reports.index') ? 'active' : ''); ?>">
+                <i class="bi bi-shield-exclamation"></i> Komplain Pelanggan
             </a>
 
             <a href="<?php echo e(route('kwt.laporan')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.laporan') ? 'active' : ''); ?>">
                 <i class="bi bi-receipt"></i> Laporan Transaksi
-            </a>
-
-            <!-- MENU BARU UNTUK HALAMAN KURIR -->
-            <a href="<?php echo e(route('kwt.kurir.index')); ?>" class="nav-link <?php echo e(request()->routeIs('kwt.kurir.*') ? 'active' : ''); ?>">
-                <i class="bi bi-bicycle"></i> Data Kurir
             </a>
 
             <div class="nav-label">Akun</div>

@@ -21,7 +21,7 @@
             width: 240px;
             height: 100vh;
             position: fixed;
-            background: #064e3b; 
+            background: #064e3b;
             transition: all 0.3s;
             z-index: 1000;
         }
@@ -50,7 +50,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
@@ -98,7 +98,7 @@
 
         .nav-link.active {
             background: #ffffff !important;
-            color: #064e3b !important; 
+            color: #064e3b !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             font-weight: 700;
         }
@@ -138,9 +138,17 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar { margin-left: -240px; }
-            .main-content { margin-left: 0; }
-            .sidebar.show { margin-left: 0; }
+            .sidebar {
+                margin-left: -240px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.show {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
@@ -152,12 +160,12 @@
             <div class="profile-box">
                 <div class="avatar-circle">
                     @if(Auth::user()->profile_photo)
-                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile">
+                    <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile">
                     @else
-                        {{ substr(Auth::user()->name, 0, 1) }}
+                    {{ substr(Auth::user()->name, 0, 1) }}
                     @endif
                 </div>
-                
+
                 <div class="profile-info">
                     <h6>{{ Auth::user()->name }}</h6>
                     <small style="color: #4ade80; font-size: 0.7rem;">Admin KWT</small>
@@ -176,17 +184,16 @@
                 <i class="bi bi-box-seam"></i> Produk Kita
             </a>
 
-            <a href="{{ route('kwt.orders') }}" class="nav-link {{ request()->routeIs('kwt.orders') ? 'active' : '' }}">
+            <a href="{{ route('kwt.orders') }}" class="nav-link {{ request()->routeIs('kwt.orders') || request()->routeIs('kwt.orders.process') || request()->routeIs('kwt.orders.detail') ? 'active' : '' }}">
                 <i class="bi bi-cart3"></i> Pesanan
+            </a>
+
+            <a href="{{ route('kwt.reports.index') }}" class="nav-link {{ request()->routeIs('kwt.reports.index') ? 'active' : '' }}">
+                <i class="bi bi-shield-exclamation"></i> Komplain Pelanggan
             </a>
 
             <a href="{{ route('kwt.laporan') }}" class="nav-link {{ request()->routeIs('kwt.laporan') ? 'active' : '' }}">
                 <i class="bi bi-receipt"></i> Laporan Transaksi
-            </a>
-
-            <!-- MENU BARU UNTUK HALAMAN KURIR -->
-            <a href="{{ route('kwt.kurir.index') }}" class="nav-link {{ request()->routeIs('kwt.kurir.*') ? 'active' : '' }}">
-                <i class="bi bi-bicycle"></i> Data Kurir
             </a>
 
             <div class="nav-label">Akun</div>

@@ -1,4 +1,4 @@
-@extends('layouts.kwt')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -61,7 +61,7 @@
                                     <i class="bi bi-pencil shadow-sm"></i>
                                 </button>
                                 <!-- Aksi Delete Form -->
-                                <form action="{{ route('kwt.kurir.destroy', $kurir->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data kurir ini?')">
+                                <form action="{{ route('admin.kurir.destroy', $kurir->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data kurir ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
@@ -80,7 +80,7 @@
                                     <h5 class="fw-bold text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i> Ubah Data Kurir</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ route('kwt.kurir.update', $kurir->id) }}" method="POST">
+                                <form action="{{ route('admin.kurir.update', $kurir->id) }}" method="POST">
                                     @csrf
                                     @method('PUT')
                                     <div class="modal-body py-3">
@@ -134,7 +134,7 @@
                 <h5 class="fw-bold text-dark"><i class="bi bi-person-plus-fill me-2 text-success"></i> Tambah Kurir Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('kwt.kurir.store') }}" method="POST">
+            <form action="{{ route('admin.kurir.store') }}" method="POST">
                 @csrf
                 <div class="modal-body py-3">
                     <div class="mb-3">
