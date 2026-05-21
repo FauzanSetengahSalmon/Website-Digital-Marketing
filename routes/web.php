@@ -52,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kwt', [AdminController::class, 'kwtIndex'])->name('kwt');
         Route::post('/kwt/store', [AdminController::class, 'storeKwt'])->name('kwt.store');
         Route::put('/kwt/update/{id}', [AdminController::class, 'updateKwt'])->name('kwt.update');
-        Route::delete('/kwt/delete/{id}', [AdminController::class, 'destroyKwt'])->name('destroy');
+        Route::delete('/kwt/delete/{id}', [AdminController::class, 'destroyKwt'])->name('kwt.destroy');
 
         // Transaksi & Penjualan Global (Kelola Pesanan Masuk & Penugasan Kurir)
         Route::get('/sales', [AdminController::class, 'allSales'])->name('sales.index');
