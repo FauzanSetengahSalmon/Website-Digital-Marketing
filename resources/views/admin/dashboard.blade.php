@@ -176,7 +176,7 @@
                     <a href="{{ route('admin.kwt') }}" class="btn btn-success btn-sm rounded-pill px-4">
                         <i class="bi bi-plus-circle me-1"></i> Tambah KWT
                     </a>
-                    <a href="{{ route('admin.sales') }}" class="btn btn-outline-success btn-sm rounded-pill px-4">
+                    <a href="{{ route('admin.sales.index') }}" class="btn btn-outline-success btn-sm rounded-pill px-4">
                         <i class="bi bi-graph-up me-1"></i> Lihat Penjualan
                     </a>
                 </div>
