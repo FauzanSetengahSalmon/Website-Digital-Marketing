@@ -19,22 +19,18 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        // 1. Ambil data statistik utama
         $totalKwt = User::where('role', 'kwt')->count();
         $totalProduk = Product::count();
         $totalPesanan = Order::count();
         $totalPendapatan = Order::where('status', 'selesai')->sum('total_harga');
 
-        // 2. Statistik tambahan untuk ringkasan di dashboard
         $stats = [
             'total_customer' => User::where('role', 'customer')->count(),
             'order_aktif'    => Order::whereIn('status', ['menunggu', 'diproses'])->count(),
         ];
 
-        // 3. Ambil data KWT untuk tabel (dengan relasi produk)
         $kwts = User::where('role', 'kwt')->with('products')->latest()->get();
 
-        // 4. Hitung Omzet per KWT untuk tabel peringkat
         $penjualanPerKwt = User::where('role', 'kwt')
             ->get()
             ->map(function ($kwt) {
@@ -78,8 +74,7 @@ class AdminController extends Controller
      */
     public function allSales()
     {
-        // PERBAIKAN: Mengambil data order serta memuat list kurir aktif untuk kebutuhan modal terima pesanan
-        $sales = Order::with(['user', 'details.product.user.kwt'])
+        $sales = Order::with(['user', 'details.product.user'])
             ->latest()
             ->get();
 
@@ -89,26 +84,34 @@ class AdminController extends Controller
     }
 
     /**
-     * MENYAMBUNGKAN METHOD: Update status pesanan dan penugasan armada kurir oleh Admin secara global
+     * 🌟 FIX SAKTI: Memaksa Data Masuk Nyata ke Database 🌟
      */
     public function updateOrderStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:menunggu,diterima,ditolak,diproses,selesai,dibatalkan',
-            'kurir' => 'required|string|max:255',
-            'no_hp_kurir' => 'required|string|max:20'
-        ]);
-
-        // Mengambil pesanan secara global bebas dari batasan user_id manapun
         $order = Order::findOrFail($id);
 
-        $order->update([
-            'status' => $request->status,
-            'kurir' => $request->kurir,
-            'no_hp_kurir' => $request->no_hp_kurir
+        if ($request->input('status') === 'batal') {
+            $order->update(['status' => 'batal']);
+            return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dibatalkan/ditolak.');
+        }
+
+        // 🌟 PERBAIKAN 1: Gunakan validasi string biasa agar tidak diblokir format browser 🌟
+        $request->validate([
+            'kurir' => 'required|string|max:255',
+            'no_hp_kurir' => 'required|string|max:20',
+            'jadwal_pengiriman' => 'required|date|after_or_equal:today'
         ]);
 
-        return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dikonfirmasi dan diserahkan ke kurir!');
+        // 🌟 PERBAIKAN 2: Gunakan penugasan langsung (Direct Assignment) untuk menembus proteksi fillable 🌟
+        $order->status = 'diproses';
+        $order->kurir = $request->input('kurir');
+        $order->no_hp_kurir = $request->input('no_hp_kurir');
+        $order->jadwal_pengiriman = $request->input('jadwal_pengiriman');
+
+        // Simpan paksa ke database
+        $order->save();
+
+        return redirect()->back()->with('success', 'Pesanan #' . $id . ' sukses diverifikasi dan dijadwalkan pengirimannya!');
     }
 
     /**
@@ -188,9 +191,26 @@ class AdminController extends Controller
     /**
      * Menampilkan halaman manajemen Kurir
      */
+    /**
+     * Menampilkan halaman manajemen Kurir dengan perhitungan pendapatan
+     */
     public function adminKurirIndex()
     {
+        // Mengambil semua kurir
         $kurirs = Kurir::latest()->get();
+
+        foreach ($kurirs as $kurir) {
+            // Menghitung total ongkir dari order yang statusnya 'selesai' dan kurirnya cocok
+            $totalOngkir = Order::where('kurir', $kurir->nama)
+                ->where('status', 'selesai')
+                ->sum('ongkir');
+
+            // Kalkulasi 15% untuk Admin dan sisanya untuk Kurir
+            $kurir->total_ongkir = $totalOngkir;
+            $kurir->potongan_admin = $totalOngkir * 0.15;
+            $kurir->pendapatan_bersih = $totalOngkir * 0.85;
+        }
+
         return view('admin.kurir', compact('kurirs'));
     }
 
@@ -248,5 +268,20 @@ class AdminController extends Controller
         $kurir->delete();
 
         return redirect()->back()->with('success', 'Data kurir berhasil dihapus!');
+    }
+
+    public function detailPesananKwt($id)
+    {
+        $orders = Order::with(['details.product'])
+            ->whereHas('details.product', function ($q) use ($id) {
+                $q->where('user_id', $id);
+            })->get();
+
+        // Hitung total untuk setiap order agar bisa ditampilkan
+        foreach ($orders as $order) {
+            $order->subtotal = $order->details->sum(fn($d) => $d->harga_saat_ini * $d->jumlah);
+        }
+
+        return view('admin.partials.kwt-orders-table', compact('orders'))->render();
     }
 }

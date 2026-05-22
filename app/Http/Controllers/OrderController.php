@@ -66,7 +66,33 @@ class OrderController extends Controller
     /**
      * Menampilkan Laporan Penjualan Internal KWT
      */
-    public function kwtLaporan()
+    public function kwtLaporan(Request $request)
+    {
+        $userId = Auth::id();
+
+        // Ambil filter dari request, default ke bulan & tahun sekarang
+        $month = $request->query('month', date('m'));
+        $year = $request->query('year', date('Y'));
+
+        $orders = Order::with(['user', 'details.product'])
+            ->whereHas('details.product', fn($q) => $q->where('user_id', $userId))
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->latest()
+            ->get();
+
+        $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $userId))
+            ->whereHas('order', fn($q) => $q->where('status', 'selesai')
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year))
+            ->sum(DB::raw('harga_saat_ini * jumlah'));
+
+        return view('kwt.laporan', compact('orders', 'totalPendapatan', 'month', 'year'));
+    }
+    /**
+     * Menampilkan Daftar Pesanan Masuk (Sisi KWT)
+     */
+    public function kwtOrders()
     {
         $userId = Auth::id();
 
@@ -84,45 +110,11 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        $totalPendapatan = OrderDetail::whereHas('product', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->whereHas('order', function ($q) {
-                $q->where('status', 'selesai');
-            })
-            ->sum(DB::raw('harga_saat_ini * jumlah'));
-
-        return view('kwt.laporan', compact('orders', 'totalPendapatan'));
-    }
-
-    /**
-     * Menampilkan Daftar Pesanan Masuk (Sisi KWT)
-     */
-    public function kwtOrders()
-    {
-        $userId = Auth::id();
-
-        $orders = Order::with([
-            'user',
-            'details' => function ($q) use ($userId) {
-                $q->whereHas('product', function ($p) use ($userId) {
-                    $p->where('user_id', $userId);
-                })
-                    ->with('product');
-            }
-        ])
-            ->whereHas('details.product', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->latest()
-            ->get();
-
-        // TOTAL KHUSUS KWT
+        // TOTAL KHUSUS KWT (Hanya menghitung item milik KWT ini)
         foreach ($orders as $order) {
-            $subtotalKwt = $order->details->sum(function ($detail) {
+            $order->total_kwt = $order->details->sum(function ($detail) {
                 return $detail->harga_saat_ini * $detail->jumlah;
             });
-            $order->total_kwt = $subtotalKwt;
         }
 
         $list_kurir = Kurir::all();
@@ -142,8 +134,7 @@ class OrderController extends Controller
             'details' => function ($q) use ($userId) {
                 $q->whereHas('product', function ($p) use ($userId) {
                     $p->where('user_id', $userId);
-                })
-                    ->with('product');
+                })->with('product');
             }
         ])
             ->whereHas('details.product', function ($q) use ($userId) {
@@ -168,8 +159,7 @@ class OrderController extends Controller
             'details' => function ($q) use ($userId) {
                 $q->whereHas('product', function ($p) use ($userId) {
                     $p->where('user_id', $userId);
-                })
-                    ->with('product');
+                })->with('product');
             }
         ])
             ->whereHas('details.product', function ($q) use ($userId) {
@@ -177,11 +167,38 @@ class OrderController extends Controller
             })
             ->findOrFail($id);
 
+        // Menghitung subtotal murni produk milik KWT ini
         $order->total_kwt = $order->details->sum(function ($detail) {
             return $detail->harga_saat_ini * $detail->jumlah;
         });
 
         return view('kwt.detail-orders', compact('order'));
+    }
+
+    /**
+     * SISI KWT / KURIR: Mengunggah Bukti Pengiriman (Barang Mulai Dikirim)
+     */
+    public function kirimPesanan(Request $request, $id)
+    {
+        $request->validate([
+            'bukti_pengiriman' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $order = Order::findOrFail($id);
+
+        if ($request->hasFile('bukti_pengiriman')) {
+            // Simpan gambar bukti pengiriman kurir ke folder storage/public/bukti_kirim
+            $path = $request->file('bukti_pengiriman')->store('bukti_kirim', 'public');
+
+            // 🌟 PROTEKSI: Update bukti pengiriman tanpa merusak / mengubah paksa data alamat yang sudah benar 🌟
+            $order->update([
+                'bukti_pengiriman' => $path
+            ]);
+
+            return back()->with('success', 'Bukti pengiriman berhasil diunggah, kurir siap mengantar hasil panen KWT!');
+        }
+
+        return back()->with('error', 'Gagal mengunggah gambar.');
     }
 
     /**
@@ -221,7 +238,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Konfirmasi Pesanan Diterima Selesai oleh Customer
+     * SISI CUSTOMER: Konfirmasi Pesanan Diterima Selesai oleh Customer
      */
     public function complete(Request $request, $id)
     {
@@ -238,8 +255,7 @@ class OrderController extends Controller
         }
 
         if ($request->hasFile('bukti_sampai')) {
-            $path = $request->file('bukti_sampai')
-                ->store('bukti_kirim', 'public');
+            $path = $request->file('bukti_sampai')->store('bukti_sampai', 'public');
 
             $order->update([
                 'status' => 'selesai',
@@ -251,6 +267,10 @@ class OrderController extends Controller
 
         return back()->with('error', 'Upload gagal.');
     }
+
+    /**
+     * Menyimpan Laporan Komplain Pengaduan Pelanggan
+     */
     public function storeReport(Request $request, $id)
     {
         $request->validate([
@@ -265,7 +285,7 @@ class OrderController extends Controller
             'order_id'       => $id,
             'product_id'     => $request->product_id,
             'user_id'        => Auth::id(),
-            'kwt_id'         => $product->user_id, // KWT pemilik produk
+            'kwt_id'         => $product->user_id,
             'tipe_pengaduan' => $request->tipe_pengaduan,
             'pesan'          => $request->pesan,
             'status'         => 'menunggu'

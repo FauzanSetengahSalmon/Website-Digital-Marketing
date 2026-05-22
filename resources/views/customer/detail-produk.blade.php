@@ -397,7 +397,9 @@
         <p class="efood-modal-text" id="modalText">Produk pilihan Anda telah berhasil dimasukkan ke keranjang belanja.</p>
         <div class="efood-modal-buttons">
             <a href="{{ route('cart.index') }}" class="efood-btn-primary" id="modalActionBtn">Lihat Keranjang</a>
-            <button class="efood-btn-secondary" id="modalCloseBtn">Lanjut Belanja</button>
+            <a href="{{ route('customer.katalog') }}" class="btn efood-btn-secondary text-decoration-none d-inline-flex align-items-center justify-content-center" id="modalCloseBtn">
+                Lanjut Belanja
+            </a>
         </div>
     </div>
 </div>

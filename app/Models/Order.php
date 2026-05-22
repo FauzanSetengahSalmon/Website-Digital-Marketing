@@ -10,15 +10,18 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'total_harga',
-        'ongkir',
-        'status',
-        'catatan',
-        'alamat',
-        'nomor_hp',
-        'kurir',        // Tambahan wajib untuk fitur kurir
-        'no_hp_kurir',  // Tambahan wajib untuk nomor HP kurir
+'user_id',
+    'total_harga',
+    'ongkir',
+    'status',
+    'snap_token',
+    'catatan',
+    'kurir',
+    'no_hp_kurir',
+    'alamat',
+    'nomor_hp',
+    'bukti_sampai',
+    'jadwal_pengiriman',
     ];
 
     /*

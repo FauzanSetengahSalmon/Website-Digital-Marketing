@@ -139,7 +139,7 @@
 
     /* Body Items */
     .order-body {
-        padding: 25px;
+        padding: 25px 25px 15px 25px;
     }
 
     .item-list {
@@ -162,6 +162,86 @@
         margin-bottom: 6px;
         font-weight: 700;
         font-size: 1.05rem;
+    }
+
+    /* Tracking Timeline Layout */
+    .tracking-timeline {
+        background: #fafafa;
+        border-radius: 14px;
+        padding: 20px;
+        margin: 15px 25px 25px 25px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .timeline-wrapper {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .timeline-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 5%;
+        width: 90%;
+        height: 3px;
+        background: #e0e0e0;
+        z-index: 1;
+    }
+
+    .timeline-step {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        flex: 1;
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 3px solid #e0e0e0;
+        color: #9e9e9e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px auto;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-step.active .timeline-icon {
+        background: var(--green-light);
+        border-color: var(--green-primary);
+        color: var(--green-primary);
+        box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
+    }
+
+    .timeline-step.completed .timeline-icon {
+        background: var(--green-primary);
+        border-color: var(--green-primary);
+        color: #ffffff;
+    }
+
+    .timeline-text {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #9e9e9e;
+        margin-bottom: 2px;
+    }
+
+    .timeline-step.active .timeline-text,
+    .timeline-step.completed .timeline-text {
+        color: #212121;
+    }
+
+    .timeline-time {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        display: block;
     }
 
     /* Footer Layout */
@@ -230,7 +310,6 @@
         box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
     }
 
-    /* Sidebar info */
     .info-sidebar {
         border-radius: 22px;
         background: linear-gradient(145deg, #ffffff, #f4fbf4);
@@ -248,12 +327,11 @@
     </div>
 
     <div class="row g-4">
-        <!-- Sidebar Info -->
         <div class="col-lg-3 d-none d-lg-block">
             <div class="info-sidebar shadow-sm p-4 sticky-top" style="top: 30px;">
                 <div class="d-flex align-items-center mb-3">
                     <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px;">
-                        <i class="bi bi-info-circle-fill small" style="font-size: 0.85rem;">i</i>
+                        <i class="bi bi-info-circle-fill small" style="font-size: 0.85rem;"></i>
                     </div>
                     <h6 class="fw-bold text-success mb-0">Informasi Pesanan</h6>
                 </div>
@@ -261,16 +339,13 @@
             </div>
         </div>
 
-        <!-- Orders List -->
         <div class="col-lg-9">
             <ul class="nav nav-status px-1">
                 <li class="nav-item"><a class="nav-link active" href="#">Semua Pesanan</a></li>
-                <!-- Anda bisa menambah tab lain di sini nanti jika diperlukan -->
             </ul>
 
             @forelse($orders as $order)
             <div class="order-card shadow-sm">
-                <!-- Header Kartu -->
                 <div class="order-header">
                     <div class="order-date">
                         <span class="text-muted small me-1">Tanggal Keluar:</span>
@@ -286,11 +361,16 @@
                     </span>
                 </div>
 
-                <!-- Isi Produk -->
                 <div class="order-body">
+                    @php $totalKwt = 0; @endphp
                     @foreach($order->details as $detail)
+                    @php $totalKwt += $detail->jumlah * $detail->harga_saat_ini; @endphp
                     <div class="item-list {{ !$loop->last ? 'mb-4 border-bottom pb-4' : '' }}">
-                        <img src="{{ $detail->product && $detail->product->foto_produk ? asset('storage/' . $detail->product->foto_produk) : asset('image/default_product.jpg') }}" class="item-img" alt="Produk">
+                        <img src="{{ $detail->product && $detail->product->foto_produk ? asset('storage/' . $detail->product->foto_produk) : 'https://placehold.co/150?text=Sayur+Segar' }}"
+                            class="item-img"
+                            alt="Produk"
+                            onerror="this.onerror=null;this.src='https://placehold.co/150?text=Gambar+Pecah';">
+
                         <div class="item-info flex-grow-1">
                             <h6 class="mb-1 text-truncate" style="max-width: 400px;">{{ $detail->product->nama_produk ?? 'Produk Tidak Tersedia' }}</h6>
                             <p class="text-muted mb-2 small">
@@ -305,20 +385,118 @@
                     @endforeach
                 </div>
 
-                <!-- Footer Kartu (Harga & Tombol Aksi) -->
+                <div class="tracking-timeline">
+                    <div class="timeline-wrapper">
+
+                        {{-- STEP 1: Pesanan Dibuat --}}
+                        <div class="timeline-step completed">
+                            <div class="timeline-icon">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="timeline-text">Pesanan Dibuat</div>
+                            <small class="timeline-time">{{ $order->created_at->format('d M Y, H:i') }} WIB</small>
+                        </div>
+
+                        {{-- STEP 2: Pesanan Diterima oleh KWT --}}
+                        <div class="timeline-step {{ in_array($order->status, ['diproses', 'selesai']) ? 'completed' : '' }}">
+                            <div class="timeline-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div class="timeline-text">Diterima oleh KWT</div>
+                            <small class="timeline-time">
+                                @if($order->jadwal_pengiriman)
+                                Sedang dipersiapkan
+                                @else
+                                Menunggu konfirmasi...
+                                @endif
+                            </small>
+                        </div>
+
+                        {{-- STEP 3: Dalam Pengiriman / Kurir Jalan --}}
+                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : ($order->status == 'diproses' && !empty($order->jadwal_pengiriman) ? 'active' : '') }}">
+                            <div class="timeline-icon">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                            <div class="timeline-text">Dalam Pengiriman</div>
+                            <small class="timeline-time">
+                                @if($order->jadwal_pengiriman)
+                                Kirim: {{ \Carbon\Carbon::parse($order->jadwal_pengiriman)->format('d M Y') }}
+                                @else
+                                Menunggu kurir lepas...
+                                @endif
+                            </small>
+                        </div>
+
+                        {{-- STEP 4: Pesanan Selesai --}}
+                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : '' }}">
+                            <div class="timeline-icon">
+                                <i class="bi bi-house-check"></i>
+                            </div>
+                            <div class="timeline-text">Pesanan Selesai</div>
+                            <small class="timeline-time">
+                                @if($order->status == 'selesai')
+                                {{ $order->updated_at->format('d M Y, H:i') }} WIB
+                                @else
+                                Menunggu konfirmasimu
+                                @endif
+                            </small>
+                        </div>
+
+                    </div>
+                </div>
+
                 <div class="order-footer">
                     <div>
-                        <div class="total-label">Total Pembayaran</div>
-                        <div class="total-amount">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</div>
+                        <div class="total-label">Total Pembayaran Toko</div>
+                        <div class="total-amount">Rp {{ number_format($totalKwt, 0, ',', '.') }}</div>
                     </div>
                     <div class="d-flex gap-2">
                         @if($order->status == 'selesai')
                         <a href="{{ route('customer.katalog') }}" class="btn btn-buy-again">Beli Lagi</a>
                         @endif
-                        <a href="{{ route('orders.detail', $order->id) }}" class="btn btn-detail">Lihat Detail</a>
+
+                        @if($order->status == 'diproses')
+                        <button type="button" class="btn btn-buy-again bg-success border-0 px-4" data-bs-toggle="modal" data-bs-target="#modalSelesaiCustomer{{ $order->id }}">
+                            <i class="bi bi-check2-circle me-1"></i> Selesaikan Pesanan
+                        </button>
+                        @endif
+
+                        <a href="{{ route('orders.history.detail', $order->id) }}" class="btn btn-detail">Lihat Detail</a>
                     </div>
                 </div>
             </div>
+
+            {{-- MODAL UPLOAD FOTO SAMPAI UNTUK CUSTOMER --}}
+            @if($order->status == 'diproses')
+            <div class="modal fade" id="modalSelesaiCustomer{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-4">
+                        {{-- 🌟 FIX UTAMA: Method diarahkan ke POST dengan spoofing @method('PATCH') di bawahnya 🌟 --}}
+                        <form action="{{ route('orders.complete', $order->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="modal-header border-0 bg-light py-3">
+                                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-camera text-success me-2"></i>Konfirmasi Barang Sampai</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <p class="small text-muted mb-3">Harap ambil foto komoditas hasil tani KWT yang telah Anda terima sebagai bukti validasi penyelesaian pesanan.</p>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">Unggah Foto Produk Diterima</label>
+                                    <input type="file" name="bukti_sampai" class="form-control rounded-3" accept="image/*" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 bg-light bg-opacity-50">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold">Konfirmasi Selesai</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             @empty
             <div class="text-center py-5 my-4 bg-white rounded-4 shadow-sm border border-light">
                 <div class="mb-4 text-success opacity-75">

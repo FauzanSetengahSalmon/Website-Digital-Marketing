@@ -24,6 +24,7 @@
                         <th class="py-3">Customer</th>
                         <th class="py-3 text-end">Total Harga</th>
                         <th class="py-3 text-center">Status</th>
+                        <th class="py-3">Jadwal Kirim</th>
                         <th class="py-3">Tanggal Transaksi</th>
                         <th class="py-3 text-center pe-4">Aksi</th>
                     </tr>
@@ -53,8 +54,17 @@
                             <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">⚡ Menunggu</span>
                             @elseif($sale->status == 'diproses')
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">📦 Diproses</span>
+                            @elseif($sale->status == 'batal')
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">❌ Batal</span>
                             @else
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">✅ {{ $sale->status }}</span>
+                            @endif
+                        </td>
+                        <td class="py-3.5 fs-7 fw-medium text-dark">
+                            @if($sale->jadwal_pengiriman)
+                            <span class="text-success bg-success bg-opacity-10 px-2.5 py-1 rounded-pill fw-bold"><i class="bi bi-calendar-check me-1"></i>{{ \Carbon\Carbon::parse($sale->jadwal_pengiriman)->format('d M Y') }}</span>
+                            @else
+                            <span class="text-muted small italic"><i class="bi bi-hourglass-split me-1"></i>Belum Dijadwalkan</span>
                             @endif
                         </td>
                         <td class="py-3.5 text-secondary fs-7">
@@ -70,7 +80,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
+                        <td colspan="7" class="text-center py-5 text-muted">
                             <div class="py-3">
                                 <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50"></i>
                                 <span class="d-block fw-medium">Belum ada pesanan masuk.</span>
@@ -91,7 +101,8 @@
             <form action="{{ route('admin.order.status', $sale->id) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="status" value="diproses">
+
+                <input type="hidden" name="status" class="input-status-handler" value="diproses">
 
                 <div class="modal-header border-0 py-3 px-4 bg-light align-items-center">
                     <div>
@@ -101,7 +112,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="modal-body px-4 py-4">
+                <div class="modal-body px-4 py-3">
 
                     <div class="p-3 border rounded-4 bg-light bg-opacity-50 mb-4">
                         <div class="row g-3">
@@ -121,6 +132,15 @@
                                 <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Alamat Pengiriman</small>
                                 <span class="small text-dark fw-medium lh-base">{{ $sale->alamat ?? 'Alamat tidak terisi lengkap' }}</span>
                             </div>
+
+                            @if($sale->jadwal_pengiriman)
+                            <div class="col-12 border-top pt-2 mt-2">
+                                <small class="text-success d-block text-uppercase fs-8 fw-bold mb-0.5"><i class="bi bi-calendar-check-fill me-1"></i>Jadwal Pengiriman Terpilih</small>
+                                <span class="small text-success fw-bold bg-success bg-opacity-10 px-2 py-1.5 rounded d-inline-block">
+                                    <i class="bi bi-clock-history me-1"></i>Armada meluncur pada: {{ \Carbon\Carbon::parse($sale->jadwal_pengiriman)->format('d F Y') }}
+                                </span>
+                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -162,34 +182,55 @@
                         </div>
                     </div>
 
-                    <div class="border-top pt-3">
-                        <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada Distribusi</h6>
+                    {{-- 🌟 FIX KONDISI: Selama kolom tanggal di database kosong, FORM WAJIB TERBUKA (Abaikan Status) 🌟 --}}
+                    @if(empty($sale->jadwal_pengiriman))
+                    <div class="border-top pt-3 section-kurir-wrapper">
+                        <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold text-dark small mb-1">Pilih Personel Armada</label>
-                                <select name="kurir" class="form-select select-kurir-admin rounded-3 py-2.5 fs-7 border-secondary-subtle" required>
-                                    <option value="">-- Hubungkan Kurir Siap Jalan --</option>
+                                <select name="kurir" class="form-select select-kurir-admin rounded-3 py-2 fs-7 border-secondary-subtle" required>
+                                    <option value="">-- Hubungkan Kurir --</option>
                                     @foreach($list_kurir as $k)
-                                    <option value="{{ $k->nama }}" data-phone="{{ $k->no_hp }}">
+                                    <option value="{{ $k->nama }}" data-phone="{{ $k->no_hp }}" {{ $sale->kurir == $k->nama ? 'selected' : '' }}>
                                         {{ $k->nama }} {{ $k->kendaraan ? '['.$k->kendaraan.']' : '' }}
                                     </option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold text-dark small mb-1">Nomor HP Aktif Kurir</label>
-                                <input type="text" name="no_hp_kurir" class="form-control input-phone-admin rounded-3 py-2.5 fs-7 bg-light border-secondary-subtle font-monospace" placeholder="Terisi otomatis..." readonly>
+                                <input type="text" name="no_hp_kurir" class="form-control input-phone-admin rounded-3 py-2 fs-7 bg-light border-secondary-subtle font-monospace" value="{{ $sale->no_hp_kurir ?? '' }}" placeholder="Terisi otomatis..." readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark small mb-1">Jadwal Pengiriman</label>
+                                <input type="date" name="jadwal_pengiriman" class="form-control rounded-3 py-2 fs-7 border-secondary-subtle" min="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
                     </div>
+                    @else
+                    <div class="border-top pt-3 p-3 bg-light rounded-3 border">
+                        <h6 class="fw-bold text-secondary mb-2 fs-7 text-uppercase"><i class="bi bi-shield-check text-success me-2"></i>Status Logistik Terkunci</h6>
+                        <div class="row small g-2">
+                            <div class="col-md-6"><strong>Kurir Pengantar:</strong> {{ $sale->kurir ?? '-' }}</div>
+                            <div class="col-md-6"><strong>Kontak Kurir:</strong> {{ $sale->no_hp_kurir ?? '-' }}</div>
+                        </div>
+                    </div>
+                    @endif
 
                 </div>
 
-                <div class="modal-header border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
+                <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
+
+                    {{-- 🌟 FIX TOMBOL: Tombol Verifikasi Tetap Muncul Selama Tanggal Kosong 🌟 --}}
+                    @if(empty($sale->jadwal_pengiriman))
                     <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
                         <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
                     </button>
+                    @else
+                    <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" disabled><i class="bi bi-lock-fill me-1"></i>Sudah Dijadwalkan</button>
+                    @endif
                 </div>
             </form>
         </div>
@@ -243,6 +284,15 @@
         border-color: #c3e6cb !important;
     }
 
+    .bg-danger-subtle {
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
+    }
+
+    .border-danger-subtle {
+        border-color: #f5c6cb !important;
+    }
+
     .transition-all {
         transition: all 0.2s ease-in-out;
     }
@@ -252,7 +302,6 @@
     }
 </style>
 
-@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.select-kurir-admin').forEach(selectElement => {
@@ -260,8 +309,8 @@
                 const selectedOption = this.options[this.selectedIndex];
                 const phone = selectedOption.getAttribute('data-phone');
 
-                const modalBody = this.closest('.modal-body');
-                const phoneInput = modalBody.querySelector('.input-phone-admin');
+                const wrapper = this.closest('.section-kurir-wrapper');
+                const phoneInput = wrapper.querySelector('.input-phone-admin');
 
                 if (phoneInput) {
                     phoneInput.value = phone ? phone : '';
@@ -270,5 +319,4 @@
         });
     });
 </script>
-@endpush
 @endsection

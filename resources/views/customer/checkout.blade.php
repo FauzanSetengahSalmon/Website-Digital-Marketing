@@ -4,6 +4,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+
 <style>
     body {
         font-family: 'Inter', sans-serif;
@@ -23,10 +25,8 @@
         padding: 20px;
         box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
         border-top: 4px solid #10b981;
-        /* Aksen hijau KWT */
     }
 
-    /* Styling ala Shopee Web Grouping */
     .shop-group-card {
         background: #ffffff;
         border-radius: 3px;
@@ -56,7 +56,6 @@
         color: #222;
     }
 
-    /* Tabel Produk ala Shopee */
     .checkout-table-header {
         font-size: 0.85rem;
         color: black;
@@ -76,7 +75,6 @@
         border: 1px solid #e8e8e8;
     }
 
-    /* Sektor Pengiriman per Toko */
     .shipping-section {
         background: #fafdff;
         border-top: 1px dashed #cae2f5;
@@ -91,7 +89,6 @@
         color: #10b981;
     }
 
-    /* Ringkasan Kanan */
     .summary-side {
         background: #ffffff;
         border-radius: 3px;
@@ -101,7 +98,6 @@
         top: 20px;
     }
 
-    /* Style Kolom Catatan Minimalis KWT */
     .input-catatan-kwt {
         border: 1px solid #e2e8f0;
         background-color: #f8fafc;
@@ -121,21 +117,17 @@
     .input-catatan-kwt:focus {
         background-color: #ffffff;
         border-color: #10b981;
-        /* Hijau KWT */
         box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
         outline: none;
     }
 
-    /* Style Tombol KWT - Diperkecil & Warna Serasi */
     .btn-confirm-kwt {
         background: #10b981;
-        /* Hijau Segar KWT */
         color: white;
         padding: 10px 14px;
         border-radius: 6px;
         font-weight: 600;
         font-size: 0.88rem;
-        /* Ukuran teks lebih proposional */
         width: 100%;
         border: none;
         display: flex;
@@ -148,7 +140,6 @@
 
     .btn-confirm-kwt:hover:not(:disabled) {
         background: #059669;
-        /* Hijau agak gelap saat di-hover */
         box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
     }
 
@@ -163,40 +154,11 @@
         cursor: not-allowed;
     }
 
-    .btn-confirm {
-        background: #ee4d2d;
-        /* Orange Shopee style untuk CTA Utama */
-        color: white;
-        padding: 12px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        width: 100%;
-        border: none;
-        transition: all 0.2s;
-    }
-
-    .btn-confirm:hover:not(:disabled) {
-        background: #d73c1f;
-    }
-
-    .btn-confirm:disabled {
-        background: #cbd5e1;
-        color: #94a3b8;
-        cursor: not-allowed;
-    }
-
     .info-label {
         font-size: 0.75rem;
         color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
-    }
-
-    .info-value {
-        font-size: 0.88rem;
-        color: #222;
-        font-weight: 600;
     }
 </style>
 
@@ -209,7 +171,7 @@
                 <h2 class="checkout-title-main m-0"><i class="bi bi-cart-check text-success me-2"></i>Checkout</h2>
             </div>
 
-            {{-- 1. BLOK ALAMAT PENGIRIMAN (ALAMAT SHOPEE STYLE) --}}
+            {{-- 1. BLOK ALAMAT PENGIRIMAN --}}
             <div class="checkout-card mb-3">
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <i class="bi bi-geo-alt-fill text-success fs-5"></i>
@@ -220,13 +182,11 @@
                 $user = Auth::user();
                 $isDataComplete = !empty($user->name) && !empty($user->phone_number) && !empty($user->address);
 
-                // Grouping produk berdasarkan ID Toko Penjual
                 $groupedItems = $cartItems->groupBy(function($item) {
                 return $item->product->user->id;
                 });
                 $jumlahToko = count($groupedItems);
 
-                // Variabel akumulator untuk ringkasan kasir
                 $totalSemuaProduk = 0;
                 $totalSemuaOngkirSetelahDiskon = 0;
                 $totalSemuaPotonganOngkir = 0;
@@ -259,42 +219,32 @@
                 @endif
             </div>
 
-            {{-- 2. DAFTAR ITEM PER TOKO DENGAN DETAIL HARGA & ONGKIR --}}
+            {{-- 2. DAFTAR ITEM PER TOKO --}}
             @foreach($groupedItems as $shopId => $items)
             @php
             $shop = $items->first()->product->user;
             $subtotalShop = $items->sum(fn($i) => $i->jumlah * $i->product->harga);
             $totalSemuaProduk += $subtotalShop;
 
-            /* |--------------------------------------------------------------------------
-            | HITUNGAN ONGKIR PER TOKO (SINKRONISASI LOGIKA SHOPEE)
-            |--------------------------------------------------------------------------
-            */
-            $ongkirAsliPerToko = $ongkir; // Nilai asli dari controller (misal Rp 48.000)
+            $ongkirAsliPerToko = $ongkir;
 
             if($jumlahToko > 1) {
-            // Jika beli di lebih dari 1 toko, ongkir dibagi rata ke setiap toko (Diskon Gabungan)
             $ongkirFinalPerToko = $ongkirAsliPerToko / $jumlahToko;
             } else {
-            // Jika hanya beli di 1 toko, ongkir dibebankan full tanpa pembagian
             $ongkirFinalPerToko = $ongkirAsliPerToko;
             }
 
             $potonganOngkirPerToko = $ongkirAsliPerToko - $ongkirFinalPerToko;
-
-            // Masukkan ke akumulator total ringkasan kanan
             $totalSemuaOngkirSetelahDiskon += $ongkirFinalPerToko;
             $totalSemuaPotonganOngkir += $potonganOngkirPerToko;
             @endphp
 
             <div class="shop-group-card mb-3">
-                {{-- Header Identitas Toko --}}
                 <div class="shop-header">
                     <span class="shop-badge">KWT</span>
                     <span class="shop-name">{{ $shop->name ?? 'Kelompok Wanita Tani' }}</span>
                 </div>
 
-                {{-- Header Kolom ala Tabel Shopee Web --}}
                 <div class="row checkout-table-header d-none d-md-flex">
                     <div class="col-md-6 fw-bold">Produk Dipesan</div>
                     <div class="col-md-2 text-center fw-bold">Harga Satuan</div>
@@ -302,7 +252,6 @@
                     <div class="col-md-2 text-end fw-bold">Subtotal Produk</div>
                 </div>
 
-                {{-- Loop Item di Toko Terkait --}}
                 @foreach($items as $item)
                 <div class="row product-row align-items-center">
                     <div class="col-md-6 col-12 mb-2 mb-md-0">
@@ -326,7 +275,6 @@
                 </div>
                 @endforeach
 
-                {{-- Rincian Ongkos Kirim Spesifik untuk Toko Ini (Shopee Style) --}}
                 <div class="shipping-section rounded">
                     <div class="row align-items-center g-2">
                         <div class="col-md-4 col-12">
@@ -337,9 +285,7 @@
                         <div class="col-md-8 col-12 text-md-end text-start">
                             <div class="small">
                                 <span class="text-secondary">Ongkos Kirim Toko:</span>
-
                                 @if($potonganOngkirPerToko > 0)
-                                {{-- Tampilkan harga asli dicoret jika ada promo potongan multi-toko --}}
                                 <span class="text-decoration-line-through text-muted me-1 small">
                                     Rp {{ number_format($ongkirAsliPerToko, 0, ',', '.') }}
                                 </span>
@@ -350,7 +296,6 @@
                                     <i class="bi bi-tags-fill me-1"></i> Diskon Multi-Toko (Bagi {{ $jumlahToko }}) -Rp {{ number_format($potonganOngkirPerToko, 0, ',', '.') }}
                                 </div>
                                 @else
-                                {{-- Tampilkan normal jika hanya 1 toko --}}
                                 <span class="fw-bold text-dark">
                                     Rp {{ number_format($ongkirFinalPerToko, 0, ',', '.') }}
                                 </span>
@@ -360,7 +305,6 @@
                     </div>
                 </div>
 
-                {{-- Total Akhir per Toko --}}
                 <div class="text-end mt-3">
                     <span class="text-secondary small">Total Pesanan ({{ count($items) }} Produk): </span>
                     <span class="fw-bold text-danger fs-6">Rp {{ number_format(($subtotalShop + $ongkirFinalPerToko), 0, ',', '.') }}</span>
@@ -407,31 +351,20 @@
                     <h5 class="fw-bold text-danger mb-0">Rp {{ number_format(($totalSemuaProduk + $totalSemuaOngkirSetelahDiskon), 0, ',', '.') }}</h5>
                 </div>
 
-                {{-- FORM SUBMIT DATA KE CONTROLLER --}}
-                <form action="{{ route('checkout.process') }}" method="POST">
+                <form id="checkoutForm">
                     @csrf
-                    <input type="hidden" name="item_ids" value="{{ implode(',', $cartItems->pluck('id')->toArray()) }}">
-                    {{-- Ongkir yang dikirim adalah total akhir setelah dikurangi diskon gabungan --}}
-                    <input type="hidden" name="ongkir" value="{{ $totalSemuaOngkirSetelahDiskon }}">
-                    <input type="hidden" name="jarak" value="{{ $jarak ?? 0 }}">
-
-                    <input type="hidden" name="kota_kab" value="{{ Auth::user()->city ?? '-' }}">
-                    <input type="hidden" name="kecamatan" value="{{ Auth::user()->district ?? '-' }}">
-                    <input type="hidden" name="kelurahan" value="-">
-                    <input type="hidden" name="rtrw" value="{{ (Auth::user()->rt ?? '0') . '/' . (Auth::user()->rw ?? '0') }}">
-                    <input type="hidden" name="detail_alamat" value="{{ Auth::user()->address ?? '-' }}">
+                    <input type="hidden" id="item_ids" value="{{ implode(',', $cartItems->pluck('id')->toArray()) }}">
+                    <input type="hidden" id="ongkir" value="{{ $totalSemuaOngkirSetelahDiskon }}">
+                    <input type="hidden" id="jarak" value="{{ $jarak ?? 0 }}">
 
                     <div class="mb-3">
                         <label class="info-label mb-1 text-secondary d-flex align-items-center gap-1" style="font-size: 0.72rem; letter-spacing: 0.3px;">
                             <i class="bi bi-chat-left-text-fill text-success" style="font-size: 0.8rem;"></i> Catatan Pesanan <span class="text-muted fw-normal lowercase">(opsional)</span>
                         </label>
-                        <textarea name="catatan"
-                            class="form-control input-catatan-kwt"
-                            rows="2"
-                            placeholder="Titip di satpam, rumah pagar hitam, dll..."></textarea>
+                        <textarea id="catatan" class="form-control input-catatan-kwt" rows="2" placeholder="Titip di satpam, rumah pagar hitam, dll..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn-confirm-kwt" {{ $isDataComplete ? '' : 'disabled' }}>
+                    <button type="button" id="payButton" class="btn-confirm-kwt" {{ $isDataComplete ? '' : 'disabled' }}>
                         @if($isDataComplete)
                         <i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar
                         @else
@@ -444,4 +377,67 @@
 
     </div>
 </div>
+
+{{-- AJAX ENGINE & POP-UP SNAP HANDLER --}}
+<script>
+    document.getElementById('payButton').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const button = this;
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan...`;
+
+        // Ambil payload data
+        const formData = {
+            _token: "{{ csrf_token() }}",
+            item_ids: document.getElementById('item_ids').value,
+            ongkir: document.getElementById('ongkir').value,
+            jarak: document.getElementById('jarak').value,
+            catatan: document.getElementById('catatan').value
+        };
+
+        // Kirim request checkout ke server via Fetch API
+        fetch("{{ route('checkout.process') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: function(result) {
+                            window.location.href = "{{ url('/riwayat-pesanan') }}/" + data.order_id;
+                        },
+                        onPending: function(result) {
+                            window.location.href = "{{ url('/riwayat-pesanan') }}/" + data.order_id;
+                        },
+                        onError: function(result) {
+                            alert("Pembayaran gagal! Harap coba kembali.");
+                            button.disabled = false;
+                            button.innerHTML = `<i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar`;
+                        },
+                        onClose: function() {
+                            alert('Anda menutup halaman pembayaran sebelum menyelesaikan transaksi.');
+                            // 🌟 FIX: Menyelaraskan rute redirect agar menggunakan helper url Laravel 🌟
+                            window.location.href = "{{ url('/riwayat-pesanan') }}/" + data.order_id;
+                        }
+                    });
+                } else {
+                    alert(data.message || "Gagal memproses pembuatan pesanan.");
+                    button.disabled = false;
+                    button.innerHTML = `<i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar`;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Terjadi kesalahan pada jaringan server.");
+                button.disabled = false;
+                button.innerHTML = `<i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar`;
+            });
+    });
+</script>
 @endsection

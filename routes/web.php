@@ -17,6 +17,9 @@ Route::view('/tentang-kami', 'about')->name('about');
 Route::get('/katalog', [ProductController::class, 'index'])->name('customer.katalog');
 Route::get('/produk/{id}', [ProductController::class, 'show'])->name('customer.products.show');
 
+// Webhook Callback Midtrans (Wajib di luar auth middleware)
+Route::post('/midtrans/callback', [CheckoutController::class, 'callback'])->name('midtrans.callback');
+
 // --- GOOGLE AUTH ---
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
@@ -71,10 +74,13 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/produk/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-        // Pesanan Masuk
+        // Pesanan Masuk & Unggah Bukti Packing/Kirim Internal
         Route::get('/list-pesanan', [OrderController::class, 'kwtOrders'])->name('orders');
         Route::get('/proses-pesanan/{id}', [OrderController::class, 'kwtOrderProcess'])->name('orders.process');
         Route::get('/detail-pesanan/{id}', [OrderController::class, 'kwtOrderDetail'])->name('orders.detail');
+
+        // Menampung kiriman file gambar bukti_pengiriman dari dashboard detail KWT
+        Route::post('/detail-pesanan/{id}/kirim', [OrderController::class, 'kirimPesanan'])->name('orders.kirim');
 
         // Laporan & Keuangan KWT
         Route::get('/laporan', [OrderController::class, 'kwtLaporan'])->name('laporan');
@@ -107,7 +113,8 @@ Route::middleware(['auth'])->group(function () {
     // --- ORDERS HISTORY AREA & CUSTOMER REPORT ---
     Route::controller(OrderController::class)->group(function () {
         Route::get('/riwayat-pesanan', 'history')->name('orders.history');
-        Route::get('/riwayat-pesanan/{id}', 'show')->name('orders.detail');
+        // 🌟 PERBAIKAN: Nama diganti menjadi orders.history.detail agar tidak tabrakan dengan kwt.orders.detail 🌟
+        Route::get('/riwayat-pesanan/{id}', 'show')->name('orders.history.detail');
         Route::patch('/riwayat-pesanan/{id}/complete', 'complete')->name('orders.complete');
     });
 
