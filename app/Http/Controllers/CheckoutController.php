@@ -15,11 +15,11 @@ class CheckoutController extends Controller
 {
     public function __construct()
     {
-        // Set konfigurasi rahasia SDK Midtrans dari file .env
-        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION') === 'true' || env('MIDTRANS_IS_PRODUCTION') === true;
-        Config::$isSanitized = env('MIDTRANS_IS_SANITIZED') === 'true' || env('MIDTRANS_IS_SANITIZED') === true;
-        Config::$is3ds = env('MIDTRANS_IS_3DS') === 'true' || env('MIDTRANS_IS_3DS') === true;
+        Config::$serverKey = trim(env('MIDTRANS_SERVER_KEY'));
+        
+        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION') == 'true' || env('MIDTRANS_IS_PRODUCTION') == true;
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
     }
 
     /**
