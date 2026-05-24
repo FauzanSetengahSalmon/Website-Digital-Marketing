@@ -60,6 +60,14 @@ Route::middleware(['auth'])->group(function () {
         // Transaksi & Penjualan Global (Kelola Pesanan Masuk & Penugasan Kurir)
         Route::get('/sales', [AdminController::class, 'allSales'])->name('sales.index');
         Route::put('/order/{id}/status', [AdminController::class, 'updateOrderStatus'])->name('order.status');
+        // Route untuk Cetak Invoice khusus per KWT
+        Route::get('/order/{id}/invoice-kwt', [AdminController::class, 'printInvoiceKwt'])->name('order.invoice.kwt');
+        // Route untuk Cetak Invoice khusus Kurir
+        Route::get('/order/{id}/invoice-kurir', [AdminController::class, 'printInvoiceKurir'])->name('order.invoice.kurir');
+        // Route untuk Cetak Invoice/Laporan Penghasilan per Kurir
+        Route::get('/kurir/{id}/laporan', [AdminController::class, 'reportKurir'])->name('kurir.laporan');
+        // Route untuk Cetak Invoice/Laporan Penghasilan per KWT
+        Route::get('/kwt/{id}/laporan', [AdminController::class, 'reportKwt'])->name('kwt.laporan');
     });
 
     // --- KWT AREA ---

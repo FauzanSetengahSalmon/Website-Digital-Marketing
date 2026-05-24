@@ -71,11 +71,33 @@
                             <i class="bi bi-calendar3 me-1 text-muted"></i> {{ $sale->created_at->format('d M Y, H:i') }} WIB
                         </td>
                         <td class="py-3.5 text-center pe-4">
-                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 fw-medium text-dark transition-all shadow-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalProsesAdmin{{ $sale->id }}">
-                                <i class="bi bi-sliders2 me-1 text-success"></i> Kelola
-                            </button>
+                            <div class="d-flex gap-2 justify-content-center">
+                                {{-- Tombol Kelola (Bawaan) --}}
+                                <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 fw-medium text-dark transition-all shadow-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalProsesAdmin{{ $sale->id }}">
+                                    <i class="bi bi-sliders2 me-1 text-success"></i> Kelola
+                                </button>
+
+                                {{-- Tombol Cetak Invoice (Terpisah KWT & Kurir) --}}
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 fw-medium text-dark dropdown-toggle transition-all shadow-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-printer me-1 text-primary"></i> Cetak
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow border-0">
+                                        <li>
+                                            <a class="dropdown-item py-2 small" href="{{ route('admin.order.invoice.kwt', $sale->id) }}?print=true" target="_blank">
+                                                <i class="bi bi-shop me-2 text-success"></i> Invoice KWT
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 small" href="{{ route('admin.order.invoice.kurir', $sale->id) }}?print=true" target="_blank">
+                                                <i class="bi bi-truck me-2 text-primary"></i> Surat Jalan Kurir
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     @empty

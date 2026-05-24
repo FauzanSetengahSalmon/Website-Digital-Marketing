@@ -58,6 +58,9 @@
                         </td>
                         <td class="text-center px-3">
                             <div class="d-flex justify-content-center gap-1">
+                                <a href="{{ route('admin.kurir.laporan', $kurir->id) }}" class="btn btn-sm btn-outline-success rounded-3" title="Cetak Laporan Penghasilan">
+                                    <i class="bi bi-printer"></i>
+                                </a>
                                 <button class="btn btn-sm btn-outline-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalEditKurir{{ $kurir->id }}">
                                     <i class="bi bi-pencil"></i>
                                 </button>

@@ -81,6 +81,19 @@
         transform: translateY(-1px);
     }
 
+    .btn-action-print {
+        background-color: #ecfdf5;
+        color: #10b981;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-print:hover {
+        background-color: #10b981;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
     /* Modal Form Premium Styling */
     .modal-premium .modal-content {
         border: none !important;
@@ -217,6 +230,10 @@
                         <td class="text-secondary">{{ $item->created_at->format('d M Y') }}</td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center align-items-center gap-2">
+                                <a href="{{ route('admin.kwt.laporan', $item->id) }}" class="btn btn-sm btn-action-print rounded-pill px-3 fw-medium" title="Cetak Laporan Penghasilan">
+                                    <i class="fa-solid fa-print me-1"></i> Laporan
+                                </a>
+
                                 <button type="button" class="btn btn-sm btn-action-edit rounded-pill px-3 fw-medium"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalEditKwt"
