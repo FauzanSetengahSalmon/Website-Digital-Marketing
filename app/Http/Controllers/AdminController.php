@@ -26,7 +26,7 @@ class AdminController extends Controller
 
         $stats = [
             'total_customer' => User::where('role', 'customer')->count(),
-            'order_aktif'    => Order::whereIn('status', ['menunggu', 'diproses'])->count(),
+            'order_aktif'    => Order::whereIn('status', ['menunggu', 'diproses', 'diantar'])->count(),
         ];
 
         $kwts = User::where('role', 'kwt')->with('products')->latest()->get();
@@ -89,10 +89,16 @@ class AdminController extends Controller
     public function updateOrderStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
+        $status = $request->input('status');
 
-        if ($request->input('status') === 'batal') {
+        if ($status === 'batal') {
             $order->update(['status' => 'batal']);
             return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dibatalkan/ditolak.');
+        }
+
+        if ($status === 'diantar') {
+            $order->update(['status' => 'diantar']);
+            return redirect()->back()->with('success', 'Pesanan #' . $id . ' statusnya diubah menjadi Pesanan Diantar.');
         }
 
         // 🌟 PERBAIKAN 1: Gunakan validasi string biasa agar tidak diblokir format browser 🌟
@@ -311,6 +317,36 @@ class AdminController extends Controller
     }
 
     /**
+     * Cetak Invoice KWT Batch (Multi-select)
+     */
+    public function printInvoiceKwtBatch(Request $request)
+    {
+        $ids = explode(',', $request->query('ids', ''));
+        $sales = Order::with(['user', 'details.product.user'])->whereIn('id', $ids)->get();
+        
+        $allGrouped = [];
+        foreach ($sales as $sale) {
+            $allGrouped[$sale->id] = [
+                'sale' => $sale,
+                'grouped' => $sale->details->groupBy(fn($d) => $d->product->user->name ?? 'KWT Umum')
+            ];
+        }
+        
+        return view('admin.sales.invoice_kwt_batch', compact('allGrouped'));
+    }
+
+    /**
+     * Cetak Invoice Kurir Batch (Multi-select)
+     */
+    public function printInvoiceKurirBatch(Request $request)
+    {
+        $ids = explode(',', $request->query('ids', ''));
+        $sales = Order::with('user')->whereIn('id', $ids)->get();
+        
+        return view('admin.sales.invoice_kurir_batch', compact('sales'));
+    }
+
+    /**
      * Cetak Laporan & Invoice Penghasilan Kurir
      */
     public function reportKurir(Request $request, $id)
@@ -352,47 +388,25 @@ class AdminController extends Controller
         // Ambil filter dari request, default ke bulan & tahun sekarang
         $month = $request->query('month', date('m'));
         $year = $request->query('year', date('Y'));
-        $selectedKurir = $request->query('kurir', '');
 
         // Query orders containing products from this KWT in that month/year
-        $ordersQuery = Order::with(['user', 'details.product'])
+        $orders = Order::with(['user', 'details.product'])
             ->whereHas('details.product', fn($q) => $q->where('user_id', $kwt->id))
             ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year);
-
-        // Filter by kurir jika dipilih
-        if (!empty($selectedKurir)) {
-            $ordersQuery->where('kurir', $selectedKurir);
-        }
-
-        $orders = $ordersQuery->latest()->get();
+            ->whereYear('created_at', $year)
+            ->latest()
+            ->get();
 
         // Calculate KWT's completed earnings for these orders (only status == selesai)
-        $pendapatanQuery = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $kwt->id))
-            ->whereHas('order', function ($q) use ($month, $year, $selectedKurir) {
+        $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $kwt->id))
+            ->whereHas('order', function ($q) use ($month, $year) {
                 $q->where('status', 'selesai')
                     ->whereMonth('created_at', $month)
                     ->whereYear('created_at', $year);
-                if (!empty($selectedKurir)) {
-                    $q->where('kurir', $selectedKurir);
-                }
-            });
+            })
+            ->sum(DB::raw('harga_saat_ini * jumlah'));
 
-        $totalPendapatan = $pendapatanQuery->sum(DB::raw('harga_saat_ini * jumlah'));
-
-        // Ambil daftar kurir unik yang pernah mengantar order KWT ini
-        $list_kurir = Order::whereHas('details.product', fn($q) => $q->where('user_id', $kwt->id))
-            ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
-            ->whereNotNull('kurir')
-            ->where('kurir', '!=', '')
-            ->distinct()
-            ->pluck('kurir')
-            ->sort()
-            ->values();
-
-        return view('admin.kwt.laporan', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year', 'selectedKurir', 'list_kurir'));
+        return view('admin.kwt.laporan', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year'));
     }
-
 }
 

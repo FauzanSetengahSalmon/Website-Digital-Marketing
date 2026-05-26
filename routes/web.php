@@ -64,6 +64,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/order/{id}/invoice-kwt', [AdminController::class, 'printInvoiceKwt'])->name('order.invoice.kwt');
         // Route untuk Cetak Invoice khusus Kurir
         Route::get('/order/{id}/invoice-kurir', [AdminController::class, 'printInvoiceKurir'])->name('order.invoice.kurir');
+        // Route untuk Cetak Invoice KWT Batch
+        Route::get('/invoice-kwt-batch', [AdminController::class, 'printInvoiceKwtBatch'])->name('invoice.kwt.batch');
+        // Route untuk Cetak Invoice Kurir Batch
+        Route::get('/invoice-kurir-batch', [AdminController::class, 'printInvoiceKurirBatch'])->name('invoice.kurir.batch');
         // Route untuk Cetak Invoice/Laporan Penghasilan per Kurir
         Route::get('/kurir/{id}/laporan', [AdminController::class, 'reportKurir'])->name('kurir.laporan');
         // Route untuk Cetak Invoice/Laporan Penghasilan per KWT

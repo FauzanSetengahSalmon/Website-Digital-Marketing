@@ -21,6 +21,7 @@ class Order extends Model
     'alamat',
     'nomor_hp',
     'bukti_sampai',
+    'bukti_pengiriman',
     'jadwal_pengiriman',
     ];
 
@@ -79,6 +80,7 @@ class Order extends Model
             'menunggu'   => 'warning',
             'diterima'   => 'info',
             'diproses'   => 'primary',
+            'diantar'    => 'info',
             'selesai'    => 'success',
             'dibatalkan' => 'danger',
             'ditolak'    => 'dark',

@@ -14,27 +14,14 @@
             </div>
             <p class="text-muted small mb-0">
                 Laporan penjualan hasil panen dan komoditas tani untuk kelompok <strong>{{ $kwt->name }}</strong>.
-                @if(!empty($selectedKurir))
-                    <span class="badge bg-primary-subtle text-primary border rounded-pill ms-2 px-2 py-1 small">
-                        <i class="bi bi-truck me-1"></i>Kurir: {{ $selectedKurir }}
-                    </span>
-                @endif
             </p>
         </div>
 
-        @if(!empty($selectedKurir))
         <button onclick="window.print()"
             class="btn btn-success rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
             <i class="bi bi-printer-fill"></i>
-            Cetak Invoice Keuangan
+            Cetak Laporan Keuangan
         </button>
-        @else
-        <button type="button" disabled
-            class="btn btn-secondary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2" title="Pilih kurir terlebih dahulu untuk mencetak invoice">
-            <i class="bi bi-printer-fill"></i>
-            Pilih Kurir Dulu
-        </button>
-        @endif
     </div>
 
     @php
@@ -130,10 +117,10 @@
                 <div class="row g-3 align-items-end">
                     
                     {{-- BULAN --}}
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <label class="form-label small fw-semibold text-muted mb-2">Bulan</label>
                         <select name="month" class="form-select rounded-3 border-secondary-subtle py-2">
-                            @for($m=1; $m<=12; $m++)
+                            @for($m=5; $m<=12; $m++)
                                 @php $mVal = str_pad($m, 2, '0', STR_PAD_LEFT); @endphp
                                 <option value="{{ $mVal }}" {{ $month == $mVal ? 'selected' : '' }}>
                                     {{ $bulanIndo[$mVal] }}
@@ -143,29 +130,14 @@
                     </div>
 
                     {{-- TAHUN --}}
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Tahun</label>
                         <select name="year" class="form-select rounded-3 border-secondary-subtle py-2">
-                            @for($y=date('Y'); $y>=2024; $y--)
+                            @for($y=2026; $y<=max(2026, date('Y')); $y++)
                                 <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
                                     {{ $y }}
                                 </option>
                             @endfor
-                        </select>
-                    </div>
-
-                    {{-- KURIR (1 Invoice = 1 Kurir) --}}
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold text-muted mb-2">
-                            <i class="bi bi-truck text-primary me-1"></i>Kurir Pengantar
-                        </label>
-                        <select name="kurir" class="form-select rounded-3 border-secondary-subtle py-2">
-                            <option value="">-- Semua Kurir --</option>
-                            @foreach($list_kurir as $namaKurir)
-                                <option value="{{ $namaKurir }}" {{ $selectedKurir == $namaKurir ? 'selected' : '' }}>
-                                    {{ $namaKurir }}
-                                </option>
-                            @endforeach
                         </select>
                     </div>
 
@@ -185,13 +157,18 @@
 
     {{-- CARD TABEL --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
-        <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <h5 class="fw-bold text-dark mb-0">
                 <i class="bi bi-shop text-success me-2"></i>Riwayat Transaksi Hasil Tani KWT ({{ $namaBulan }} {{ $year }})
             </h5>
-            <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
-                {{ $orders->count() }} Data Ditemukan
-            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" id="btn-batch-kwt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
+                    <i class="bi bi-shop me-1"></i> Cetak Invoice Terpilih
+                </button>
+                <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
+                    {{ $orders->count() }} Data Ditemukan
+                </span>
+            </div>
         </div>
         
         <div class="card-body p-0 mt-3">
@@ -199,7 +176,8 @@
                 <table class="table align-middle mb-0 table-hover">
                     <thead class="table-light text-uppercase tracking-wider fs-7">
                         <tr>
-                            <th class="ps-4 py-3">Order ID</th>
+                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
+                            <th class="py-3">Order ID</th>
                             <th class="py-3">Customer</th>
                             <th class="py-3">Detail Hasil Panen KWT</th>
                             <th class="py-3 text-end">Subtotal KWT</th>
@@ -220,6 +198,9 @@
                         @endphp
                         <tr>
                             <td class="ps-4 py-3">
+                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}">
+                            </td>
+                            <td class="py-3">
                                 <span class="fw-bold text-success font-monospace">#ORD-{{ $order->id }}</span>
                             </td>
                             <td class="py-3">
@@ -243,6 +224,8 @@
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Selesai</span>
                                 @elseif($order->status == 'diproses')
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Diproses</span>
+                                @elseif($order->status == 'diantar')
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Diantar</span>
                                 @elseif($order->status == 'batal')
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Batal</span>
                                 @else
@@ -255,7 +238,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
+                            <td colspan="7" class="text-center py-5 text-muted">
                                 <div class="py-3">
                                     <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50 text-success"></i>
                                     <span>Belum ada transaksi hasil panen untuk kelompok tani ini.</span>
@@ -297,9 +280,6 @@
         <div class="col-6 text-end">
             <h6 class="text-muted text-uppercase small fw-bold mb-2">Rincian Invoice Laporan:</h6>
             <p class="mb-1"><strong>Periode Laporan:</strong> {{ $namaBulan }} {{ $year }}</p>
-            @if(!empty($selectedKurir))
-            <p class="mb-1"><strong>Kurir Pengantar:</strong> {{ $selectedKurir }}</p>
-            @endif
             <p class="mb-1"><strong>Tanggal Cetak:</strong> {{ \Carbon\Carbon::now()->format('d F Y, H:i') }} WIB</p>
             <p class="mb-0"><strong>Dicetak Oleh:</strong> Administrator</p>
         </div>
@@ -487,6 +467,52 @@
             border-top: 2px solid #333 !important;
             font-weight: bold;
         }
+    .bg-info-subtle {
+        background-color: #e0f7fa !important;
+        color: #00838f !important;
+    }
+    
+    .border-info-subtle {
+        border-color: #b2ebf2 !important;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkAll = document.getElementById('check-all');
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const btnBatchKwt = document.getElementById('btn-batch-kwt');
+
+        function updateBatchButtons() {
+            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+            if (checkedCount > 0) {
+                btnBatchKwt.removeAttribute('disabled');
+            } else {
+                btnBatchKwt.setAttribute('disabled', 'true');
+            }
+        }
+
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                checkboxes.forEach(cb => {
+                    cb.checked = checkAll.checked;
+                });
+                updateBatchButtons();
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateBatchButtons);
+        });
+
+        if (btnBatchKwt) {
+            btnBatchKwt.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length > 0) {
+                    window.open("{{ route('admin.invoice.kwt.batch') }}?ids=" + selectedIds.join(','), '_blank');
+                }
+            });
+        }
+    });
+</script>
 @endsection

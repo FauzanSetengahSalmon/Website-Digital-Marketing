@@ -8,8 +8,14 @@
             <h4 class="fw-bold text-dark mb-1">Daftar Penjualan Global</h4>
             <p class="text-muted small mb-0">Pantau transaksi masuk dari customer dan distribusikan penugasan armada kurir.</p>
         </div>
-        <div>
-            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7">
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" id="btn-batch-kwt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
+                <i class="bi bi-shop me-1"></i> Cetak Invoice KWT Terpilih
+            </button>
+            <button type="button" id="btn-batch-kurir" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
+                <i class="bi bi-truck me-1"></i> Cetak Surat Jalan Terpilih
+            </button>
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7 d-flex align-items-center">
                 <i class="bi bi-cart-check-fill me-1"></i> {{ $sales->count() }} Total Pesanan
             </span>
         </div>
@@ -20,7 +26,8 @@
             <table class="table align-middle mb-0 table-hover">
                 <thead class="bg-light border-bottom text-uppercase tracking-wider fs-7 fw-bold text-secondary">
                     <tr>
-                        <th class="ps-4 py-3">Order ID</th>
+                        <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
+                        <th class="py-3">Order ID</th>
                         <th class="py-3">Customer</th>
                         <th class="py-3 text-end">Total Harga</th>
                         <th class="py-3 text-center">Status</th>
@@ -33,6 +40,9 @@
                     @forelse($sales as $sale)
                     <tr class="align-middle border-bottom border-light">
                         <td class="ps-4 py-3.5">
+                            <input type="checkbox" class="form-check-input order-checkbox" value="{{ $sale->id }}">
+                        </td>
+                        <td class="py-3.5">
                             <span class="fw-bold text-success font-monospace">#{{ $sale->id }}</span>
                         </td>
                         <td class="py-3.5">
@@ -54,6 +64,8 @@
                             <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">⚡ Menunggu</span>
                             @elseif($sale->status == 'diproses')
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">📦 Diproses</span>
+                            @elseif($sale->status == 'diantar')
+                            <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">🚚 Diantar</span>
                             @elseif($sale->status == 'batal')
                             <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">❌ Batal</span>
                             @else
@@ -78,31 +90,12 @@
                                     data-bs-target="#modalProsesAdmin{{ $sale->id }}">
                                     <i class="bi bi-sliders2 me-1 text-success"></i> Kelola
                                 </button>
-
-                                {{-- Tombol Cetak Invoice (Terpisah KWT & Kurir) --}}
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 fw-medium text-dark dropdown-toggle transition-all shadow-sm" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-printer me-1 text-primary"></i> Cetak
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow border-0">
-                                        <li>
-                                            <a class="dropdown-item py-2 small" href="{{ route('admin.order.invoice.kwt', $sale->id) }}?print=true" target="_blank">
-                                                <i class="bi bi-shop me-2 text-success"></i> Invoice KWT
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item py-2 small" href="{{ route('admin.order.invoice.kurir', $sale->id) }}?print=true" target="_blank">
-                                                <i class="bi bi-truck me-2 text-primary"></i> Surat Jalan Kurir
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
+                        <td colspan="8" class="text-center py-5 text-muted">
                             <div class="py-3">
                                 <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50"></i>
                                 <span class="d-block fw-medium">Belum ada pesanan masuk.</span>
@@ -245,6 +238,12 @@
                 <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
 
+                    @if($sale->status === 'diproses')
+                    <button type="submit" onclick="this.form.querySelector('.input-status-handler').value='diantar';" class="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="bi bi-truck me-1"></i> Tandai Pesanan Diantar
+                    </button>
+                    @endif
+
                     {{-- 🌟 FIX TOMBOL: Tombol Verifikasi Tetap Muncul Selama Tanggal Kosong 🌟 --}}
                     @if(empty($sale->jadwal_pengiriman))
                     <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
@@ -306,6 +305,15 @@
         border-color: #c3e6cb !important;
     }
 
+    .bg-info-subtle {
+        background-color: #e0f7fa !important;
+        color: #00838f !important;
+    }
+
+    .border-info-subtle {
+        border-color: #b2ebf2 !important;
+    }
+
     .bg-danger-subtle {
         background-color: #f8d7da !important;
         color: #721c24 !important;
@@ -339,6 +347,56 @@
                 }
             });
         });
+
+        // Batch Action handler
+        const checkAll = document.getElementById('check-all');
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const btnBatchKwt = document.getElementById('btn-batch-kwt');
+        const btnBatchKurir = document.getElementById('btn-batch-kurir');
+
+        function updateBatchButtons() {
+            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+            if (checkedCount > 0) {
+                btnBatchKwt.removeAttribute('disabled');
+                btnBatchKurir.removeAttribute('disabled');
+            } else {
+                btnBatchKwt.setAttribute('disabled', 'true');
+                btnBatchKurir.setAttribute('disabled', 'true');
+            }
+        }
+
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                checkboxes.forEach(cb => {
+                    cb.checked = checkAll.checked;
+                });
+                updateBatchButtons();
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateBatchButtons);
+        });
+
+        // Print batch KWT
+        if (btnBatchKwt) {
+            btnBatchKwt.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length > 0) {
+                    window.open("{{ route('admin.invoice.kwt.batch') }}?ids=" + selectedIds.join(','), '_blank');
+                }
+            });
+        }
+
+        // Print batch Kurir
+        if (btnBatchKurir) {
+            btnBatchKurir.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length > 0) {
+                    window.open("{{ route('admin.invoice.kurir.batch') }}?ids=" + selectedIds.join(','), '_blank');
+                }
+            });
+        }
     });
 </script>
 @endsection

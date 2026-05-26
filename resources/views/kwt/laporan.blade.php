@@ -129,7 +129,7 @@
                                 <select name="month"
                                     class="form-select border-0 shadow-none">
 
-                                    @for($m=1; $m<=12; $m++)
+                                    @for($m=5; $m<=12; $m++)
                                         <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}"
                                         {{ request('month', date('m')) == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                         {{ date('F', mktime(0, 0, 0, $m, 1)) }}
@@ -156,7 +156,7 @@
                                 <select name="year"
                                     class="form-select border-0 shadow-none">
 
-                                    @for($y=date('Y'); $y>=2024; $y--)
+                                    @for($y=2026; $y<=max(2026, date('Y')); $y++)
                                     <option value="{{ $y }}"
                                         {{ request('year', date('Y')) == $y ? 'selected' : '' }}>
                                         {{ $y }}

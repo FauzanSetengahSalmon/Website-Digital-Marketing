@@ -16,7 +16,7 @@
     </div>
     @else
     <div class="row justify-content-center g-4">
-        @foreach($reports as $report)
+        @forelse($reports as $report)
         <div class="col-12 col-md-9 mb-3">
             <div class="card card-report border-0 shadow-sm rounded-4">
                 <div class="card-body p-4">
@@ -106,5 +106,6 @@
         </div>
         @endforelse
     </div>
+    @endif
 </div>
 @endsection

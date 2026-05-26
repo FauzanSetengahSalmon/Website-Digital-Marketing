@@ -132,7 +132,7 @@
                     <div class="col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Bulan</label>
                         <select name="month" class="form-select rounded-3 border-secondary-subtle py-2">
-                            @for($m=1; $m<=12; $m++)
+                            @for($m=5; $m<=12; $m++)
                                 @php $mVal = str_pad($m, 2, '0', STR_PAD_LEFT); @endphp
                                 <option value="{{ $mVal }}" {{ $month == $mVal ? 'selected' : '' }}>
                                     {{ $bulanIndo[$mVal] }}
@@ -145,7 +145,7 @@
                     <div class="col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Tahun</label>
                         <select name="year" class="form-select rounded-3 border-secondary-subtle py-2">
-                            @for($y=date('Y'); $y>=2024; $y--)
+                            @for($y=2026; $y<=max(2026, date('Y')); $y++)
                                 <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
                                     {{ $y }}
                                 </option>
@@ -169,13 +169,18 @@
 
     {{-- CARD TABEL INTERAKTIF --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
-        <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <h5 class="fw-bold text-dark mb-0">
                 <i class="bi bi-clock-history text-success me-2"></i>Riwayat Pengiriman Bulan {{ $namaBulan }} {{ $year }}
             </h5>
-            <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
-                {{ $orders->count() }} Data Ditemukan
-            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" id="btn-batch-kurir" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
+                    <i class="bi bi-truck me-1"></i> Cetak Surat Jalan Terpilih
+                </button>
+                <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
+                    {{ $orders->count() }} Data Ditemukan
+                </span>
+            </div>
         </div>
         
         <div class="card-body p-0 mt-3">
@@ -183,7 +188,8 @@
                 <table class="table align-middle mb-0 table-hover">
                     <thead class="table-light text-uppercase tracking-wider fs-7">
                         <tr>
-                            <th class="ps-4 py-3">Order ID</th>
+                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
+                            <th class="py-3">Order ID</th>
                             <th class="py-3">Customer</th>
                             <th class="py-3">Alamat Tujuan</th>
                             <th class="py-3">Tanggal Transaksi</th>
@@ -196,6 +202,9 @@
                         @forelse($orders as $order)
                         <tr>
                             <td class="ps-4 py-3">
+                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}">
+                            </td>
+                            <td class="py-3">
                                 <span class="fw-bold text-success font-monospace">#{{ $order->id }}</span>
                             </td>
                             <td class="py-3">
@@ -221,6 +230,8 @@
                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Selesai</span>
                                 @elseif($order->status == 'diproses')
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Diproses</span>
+                                @elseif($order->status == 'diantar')
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Diantar</span>
                                 @elseif($order->status == 'batal')
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Batal</span>
                                 @else
@@ -230,7 +241,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
+                            <td colspan="8" class="text-center py-5 text-muted">
                                 <div class="py-3">
                                     <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50 text-success"></i>
                                     <span>Tidak ada data pengiriman untuk bulan ini.</span>
@@ -448,6 +459,52 @@
             border-top: 2px solid #333 !important;
             font-weight: bold;
         }
+    .bg-info-subtle {
+        background-color: #e0f7fa !important;
+        color: #00838f !important;
+    }
+    
+    .border-info-subtle {
+        border-color: #b2ebf2 !important;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkAll = document.getElementById('check-all');
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const btnBatchKurir = document.getElementById('btn-batch-kurir');
+
+        function updateBatchButtons() {
+            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+            if (checkedCount > 0) {
+                btnBatchKurir.removeAttribute('disabled');
+            } else {
+                btnBatchKurir.setAttribute('disabled', 'true');
+            }
+        }
+
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                checkboxes.forEach(cb => {
+                    cb.checked = checkAll.checked;
+                });
+                updateBatchButtons();
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateBatchButtons);
+        });
+
+        if (btnBatchKurir) {
+            btnBatchKurir.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length > 0) {
+                    window.open("{{ route('admin.invoice.kurir.batch') }}?ids=" + selectedIds.join(','), '_blank');
+                }
+            });
+        }
+    });
+</script>
 @endsection

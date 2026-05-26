@@ -132,6 +132,11 @@
         color: #1b5e20;
     }
 
+    .status-diantar {
+        background: #e0f7fa;
+        color: #00838f;
+    }
+
     .status-batal {
         background: #ffebee;
         color: #b71c1c;
@@ -356,6 +361,7 @@
                     <span class="order-status status-{{ $order->status }}">
                         @if($order->status == 'menunggu') Menunggu Konfirmasi
                         @elseif($order->status == 'diproses') Sedang Diproses
+                        @elseif($order->status == 'diantar') Pesanan Diantar
                         @else {{ ucfirst($order->status) }}
                         @endif
                     </span>
@@ -397,30 +403,32 @@
                             <small class="timeline-time">{{ $order->created_at->format('d M Y, H:i') }} WIB</small>
                         </div>
 
-                        {{-- STEP 2: Pesanan Diterima oleh KWT --}}
-                        <div class="timeline-step {{ in_array($order->status, ['diproses', 'selesai']) ? 'completed' : '' }}">
+                        {{-- STEP 2: Diverifikasi & Diproses --}}
+                        <div class="timeline-step {{ in_array($order->status, ['diproses', 'diantar', 'selesai']) ? 'completed' : ($order->status == 'menunggu' ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-box-seam"></i>
                             </div>
-                            <div class="timeline-text">Diterima oleh KWT</div>
+                            <div class="timeline-text">Diverifikasi & Diproses</div>
                             <small class="timeline-time">
-                                @if($order->jadwal_pengiriman)
-                                Sedang dipersiapkan
+                                @if(in_array($order->status, ['diproses', 'diantar', 'selesai']))
+                                Pesanan siap dikirim
                                 @else
                                 Menunggu konfirmasi...
                                 @endif
                             </small>
                         </div>
 
-                        {{-- STEP 3: Dalam Pengiriman / Kurir Jalan --}}
-                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : ($order->status == 'diproses' && !empty($order->jadwal_pengiriman) ? 'active' : '') }}">
+                        {{-- STEP 3: Sedang Diantar --}}
+                        <div class="timeline-step {{ in_array($order->status, ['diantar', 'selesai']) ? 'completed' : ($order->status == 'diproses' ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-truck"></i>
                             </div>
-                            <div class="timeline-text">Dalam Pengiriman</div>
+                            <div class="timeline-text">Sedang Diantar</div>
                             <small class="timeline-time">
-                                @if($order->jadwal_pengiriman)
-                                Kirim: {{ \Carbon\Carbon::parse($order->jadwal_pengiriman)->format('d M Y') }}
+                                @if($order->status == 'diantar')
+                                Kurir dalam perjalanan
+                                @elseif($order->status == 'selesai')
+                                Telah sampai tujuan
                                 @else
                                 Menunggu kurir lepas...
                                 @endif
@@ -428,7 +436,7 @@
                         </div>
 
                         {{-- STEP 4: Pesanan Selesai --}}
-                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : '' }}">
+                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : ($order->status == 'diantar' ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-house-check"></i>
                             </div>
@@ -455,7 +463,7 @@
                         <a href="{{ route('customer.katalog') }}" class="btn btn-buy-again">Beli Lagi</a>
                         @endif
 
-                        @if($order->status == 'diproses')
+                        @if($order->status == 'diantar')
                         <button type="button" class="btn btn-buy-again bg-success border-0 px-4" data-bs-toggle="modal" data-bs-target="#modalSelesaiCustomer{{ $order->id }}">
                             <i class="bi bi-check2-circle me-1"></i> Selesaikan Pesanan
                         </button>
@@ -467,7 +475,7 @@
             </div>
 
             {{-- MODAL UPLOAD FOTO SAMPAI UNTUK CUSTOMER --}}
-            @if($order->status == 'diproses')
+            @if($order->status == 'diantar')
             <div class="modal fade" id="modalSelesaiCustomer{{ $order->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg rounded-4">

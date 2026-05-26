@@ -45,7 +45,7 @@ class OrderController extends Controller
             $q->where('user_id', $userId);
         })
             ->whereHas('order', function ($q) {
-                $q->where('status', 'menunggu');
+                $q->whereIn('status', ['menunggu', 'diproses', 'diantar']);
             })
             ->distinct('order_id')
             ->count();
@@ -250,7 +250,7 @@ class OrderController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if ($order->status !== 'diproses') {
+        if ($order->status !== 'diantar') {
             return back()->with('error', 'Status pesanan tidak valid.');
         }
 
