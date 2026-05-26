@@ -217,7 +217,7 @@ class OrderController extends Controller
      */
     public function history()
     {
-        $orders = Order::with(['details.product.user'])
+        $orders = Order::with(['details.product.user', 'reports'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
@@ -230,7 +230,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::with(['details.product.user'])
+        $order = Order::with(['details.product.user', 'reports'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 

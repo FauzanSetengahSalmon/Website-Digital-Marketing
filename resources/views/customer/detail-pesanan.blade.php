@@ -383,6 +383,33 @@
             </div>
             @endforeach
 
+            {{-- DAFTAR KELUHAN YANG PERNAH DIKIRIM --}}
+            @if($order->reports && $order->reports->isNotEmpty())
+            <div class="card border-0 shadow-sm p-4 bg-white mt-4" style="border-radius: 18px;">
+                <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-chat-left-text-fill text-success me-2"></i>Riwayat Pengaduan & Tanggapan KWT</h6>
+                @foreach($order->reports as $rep)
+                <div class="p-3 bg-light rounded-4 mb-3 border">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-danger bg-opacity-10 text-danger px-2.5 py-1 rounded-pill fw-bold text-uppercase fs-8" style="font-size: 0.72rem;">{{ $rep->tipe_pengaduan }}</span>
+                        <small class="text-muted fs-8 font-monospace">{{ $rep->created_at->format('d M Y, H:i') }} WIB</small>
+                    </div>
+                    <div class="small text-dark mb-2"><strong>Keluhan Anda:</strong> "{{ $rep->pesan }}"</div>
+                    
+                    @if($rep->tanggapan_kwt)
+                    <div class="p-3 bg-success bg-opacity-10 rounded-3 border-start border-4 border-success mt-2">
+                        <strong class="text-success small d-block mb-1"><i class="bi bi-chat-right-quote-fill me-1"></i> Tanggapan dari KWT:</strong>
+                        <p class="small text-dark mb-0 lh-base">"{!! nl2br(e($rep->tanggapan_kwt)) !!}"</p>
+                    </div>
+                    @else
+                    <div class="p-3 bg-warning bg-opacity-10 rounded-3 border-start border-4 border-warning mt-2 small text-warning">
+                        <i class="bi bi-clock-history me-1"></i> Menunggu tanggapan dari Kelompok Wanita Tani (KWT)...
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @endif
+
             {{-- SECTION PENGADUAN --}}
             <div class="card border-0 shadow-sm p-4 bg-white mt-4" style="border-radius: 18px;">
                 <div class="d-flex align-items-center gap-2 mb-2">

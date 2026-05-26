@@ -453,6 +453,35 @@
                     </div>
                 </div>
 
+                {{-- DAFTAR KOMPLAIN DI RIWAYAT PESANAN --}}
+                @if($order->reports && $order->reports->isNotEmpty())
+                <div class="mx-4 mb-4 p-4 bg-light rounded-4 border border-light-subtle">
+                    <h6 class="fw-bold mb-3 text-success text-start" style="font-size: 0.95rem; letter-spacing: -0.2px;"><i class="bi bi-chat-left-text-fill me-2"></i>Komplain & Tanggapan KWT</h6>
+                    @foreach($order->reports as $rep)
+                        <div class="p-3.5 bg-white rounded-4 mb-3 border border-light-subtle border-start border-4 border-danger shadow-sm small text-start">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill fw-bold text-uppercase fs-8" style="font-size: 0.68rem; letter-spacing: 0.2px;">{{ $rep->tipe_pengaduan }}</span>
+                                <small class="text-muted fs-8 font-monospace">{{ $rep->created_at->format('d M Y') }}</small>
+                            </div>
+                            <div class="text-dark mb-3 lh-base" style="font-size: 0.88rem;">
+                                <strong>Keluhan Anda:</strong> 
+                                <span class="text-secondary">"{{ $rep->pesan }}"</span>
+                            </div>
+                            @if($rep->tanggapan_kwt)
+                            <div class="p-3 bg-success bg-opacity-10 rounded-3 border-start border-3 border-success small lh-base">
+                                <strong class="text-success small d-block mb-1.5"><i class="bi bi-chat-right-quote-fill me-1"></i> Tanggapan KWT:</strong>
+                                <span class="text-dark font-medium">"{!! nl2br(e($rep->tanggapan_kwt)) !!}"</span>
+                            </div>
+                            @else
+                            <div class="p-3 bg-warning bg-opacity-10 rounded-3 border-start border-3 border-warning small text-warning lh-base">
+                                <i class="bi bi-clock-history me-1"></i> Menunggu tanggapan dari Kelompok Wanita Tani (KWT)...
+                            </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                @endif
+
                 <div class="order-footer">
                     <div>
                         <div class="total-label">Total Pembayaran Toko</div>

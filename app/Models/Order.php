@@ -87,4 +87,9 @@ class Order extends Model
             default      => 'secondary',
         };
     }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'order_id');
+    }
 }
