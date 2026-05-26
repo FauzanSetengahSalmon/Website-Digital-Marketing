@@ -402,17 +402,6 @@
         <a href="{{ url()->previous() }}" class="back-link">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
-
-        {{-- Validasi tombol cetak berdasarkan status order selesai --}}
-        @if($order->status == 'selesai')
-        <button onclick="window.print()" class="print-btn">
-            <i class="bi bi-printer me-1"></i> Cetak Invoice
-        </button>
-        @else
-        <button class="print-btn" disabled title="Invoice hanya dapat dicetak jika status pesanan SELESAI">
-            <i class="bi bi-printer me-1"></i> Belum Selesai
-        </button>
-        @endif
     </div>
 
     <div class="invoice-card">
@@ -540,14 +529,4 @@
         </div>
     </div>
 </div>
-
-{{-- Trigger print otomatis jika dijalankan melalui fitur cetak masal --}}
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('print') && "{{ $order->status }}" === "selesai") {
-        window.onload = function() {
-            window.print();
-        };
-    }
-</script>
 @endsection
