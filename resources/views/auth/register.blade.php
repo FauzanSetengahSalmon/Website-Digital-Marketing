@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar EFood - Premium Quality</title>
+    <title>Daftar Tani Cibiru - Premium Quality</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -299,7 +299,7 @@
 
             <div class="form-header">
                 <h2>Daftar Akun</h2>
-                <p>Mulai perjalanan sehat Anda bersama EFood.</p>
+                <p>Mulai perjalanan sehat Anda bersama Tani Cibiru.</p>
             </div>
 
             @if ($errors->any())
@@ -417,63 +417,6 @@
                     @error('phone_number')
                     <div class="error-text">{{ $message }}</div>
                     @enderror
-                </div>
-
-                <div class="input-wrapper">
-                    <label class="input-label">Provinsi</label>
-
-                    <div class="input-field">
-                        <i class="fa-solid fa-map"></i>
-
-                        <select name="province" required>
-                            <option value="">Pilih Provinsi</option>
-                            <option value="Jawa Barat">Jawa Barat</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="input-wrapper">
-                    <label class="input-label">Kota/Kabupaten</label>
-
-                    <div class="input-field">
-                        <i class="fa-solid fa-city"></i>
-
-                        <select name="city" required>
-                            <option value="">Pilih Kota/Kabupaten</option>
-                            <option value="Bandung">Kota Bandung</option>
-                            <option value="Kab. Bandung">Kab. Bandung</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="input-wrapper">
-                    <label class="input-label">Kecamatan</label>
-
-                    <div class="input-field">
-                        <i class="fa-solid fa-map-location-dot"></i>
-
-                        <input
-                            type="text"
-                            name="district"
-                            value="{{ old('district') }}"
-                            placeholder="Contoh: Cibiru"
-                            required>
-                    </div>
-                </div>
-
-                <div class="input-wrapper">
-                    <label class="input-label">Alamat Lengkap</label>
-
-                    <div class="input-field">
-                        <i class="fa-solid fa-house-chimney"></i>
-
-                        <input
-                            type="text"
-                            name="address"
-                            value="{{ old('address') }}"
-                            placeholder="Nama Jalan, No Rumah, RT/RW"
-                            required>
-                    </div>
                 </div>
 
                 <button type="submit" class="btn-main" id="submitBtn">

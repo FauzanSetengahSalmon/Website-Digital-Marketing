@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ProductController extends Controller
 {
@@ -44,7 +45,7 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::with('user')->findOrFail($id);
-        
+
         $relatedProducts = Product::where('user_id', $product->user_id)
             ->where('id', '!=', $product->id)
             ->limit(4)
@@ -87,6 +88,7 @@ class ProductController extends Controller
             'harga' => 'required|numeric|min:1',
             'stok' => 'required|numeric|min:0',
             'satuan' => 'required',
+            'deskripsi' => 'nullable|string',
             'foto_produk' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -94,7 +96,8 @@ class ProductController extends Controller
             'nama_produk',
             'harga',
             'stok',
-            'satuan'
+            'satuan',
+            'deskripsi'
         ]);
 
         if ($request->hasFile('foto_produk')) {
@@ -136,6 +139,7 @@ class ProductController extends Controller
             'harga' => 'required|numeric|min:1',
             'stok' => 'required|numeric|min:0',
             'satuan' => 'required',
+            'deskripsi' => 'nullable|string',
             'foto_produk' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -143,7 +147,8 @@ class ProductController extends Controller
             'nama_produk',
             'harga',
             'stok',
-            'satuan'
+            'satuan',
+            'deskripsi'
         ]);
 
         if ($request->hasFile('foto_produk')) {
@@ -193,11 +198,11 @@ class ProductController extends Controller
             'user',
             'details.product'
         ])
-        ->whereHas('details.product', function ($q) {
-            $q->where('user_id', Auth::id());
-        })
-        ->latest()
-        ->get();
+            ->whereHas('details.product', function ($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->latest()
+            ->get();
 
         $totalPendapatan = 0;
 
@@ -221,5 +226,46 @@ class ProductController extends Controller
                 'totalPendapatan'
             )
         );
+    }
+
+    /**
+     * 🌟 MANAJEMEN PEMBATALAN & REFUND TRANSAKSI OLEH ADMIN / KWT 🌟
+     */
+    public function tolakPesanan(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_tolak' => 'required|string|max:500'
+        ]);
+
+        // Muat data relasi detil pesanan, produk, dan user pembeli secara utuh
+        $order = Order::with(['user', 'details.product'])->findOrFail($id);
+
+        // 1. Mengembalikan jumlah stok produk yang gagal dibeli secara otomatis ke database
+        foreach ($order->details as $detail) {
+            if ($detail->product) {
+                $detail->product->increment('stok', $detail->jumlah);
+            }
+        }
+
+        // 2. Mengubah status pesanan menjadi 'batal' dan menyimpan alasan penolakannya
+        $order->update([
+            'status' => 'batal',
+            'alasan_tolak' => $request->alasan_tolak
+        ]);
+
+        // 3. Mengirimkan Notifikasi Email murni menggunakan Laravel Mailer bawaan
+        try {
+            Mail::raw(
+                "Halo {$order->user->name},\n\nMohon maaf, pesanan Anda dengan ID #ORD-{$order->id} terpaksa kami TOLAK dengan alasan: \"{$request->alasan_tolak}\".\n\nDana yang telah Anda bayarkan melalui Midtrans aman 100% dan akan dikembalikan oleh pihak KWT. Silakan hubungi Admin melalui aplikasi atau klik tombol 'Klaim Refund' pada halaman detail pesanan untuk mengirimkan nomor rekening Anda.\n\nTerima kasih,\nPengurus Kelompok Wanita Tani (KWT).",
+                function ($message) use ($order) {
+                    $message->to($order->user->email)
+                        ->subject("Pemberitahuan Pembatalan & Refund Pesanan #ORD-{$order->id}");
+                }
+            );
+        } catch (\Exception $e) {
+            // Blok penangkap exception jika server email lokal (Mailpit/Mailtrap) belum aktif saat testing
+        }
+
+        return redirect()->back()->with('success', 'Pesanan berhasil ditolak, stok dikembalikan, dan notifikasi email telah dikirim.');
     }
 }

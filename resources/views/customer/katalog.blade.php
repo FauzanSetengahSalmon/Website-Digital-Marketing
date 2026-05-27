@@ -127,20 +127,41 @@
     }
 
     .product-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin-bottom: 4px;
-        color: var(--text-main);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.2;
+    }
+
+    /* 🌟 DESAIN BARU: Lebih Clean, Tanpa Tanda Seru, Nyaman Dilihat */
+    .desc-container {
+        background: #fdfdfd;
+        border-radius: 0px;
+        padding: 2px 0px 2px 10px;
+        margin-top: 6px;
+        margin-bottom: 12px;
+        border-left: 2px solid #a7f3d0;
+        /* Aksen garis hijau sangat lembut */
+    }
+
+    .product-description-text {
+        font-size: 0.78rem;
+        color: #64748b;
+        /* Warna teks abu proporsional */
+        margin-bottom: 0;
         display: -webkit-box;
-        -webkit-line-clamp: 1;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        line-height: 1.4;
+        font-style: italic;
+        /* Dibuat miring agar estetik */
     }
 
     .product-info {
         font-size: 0.75rem;
         color: var(--text-muted);
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         line-height: 1.4;
     }
 
@@ -194,8 +215,13 @@
         z-index: 2;
     }
 
-    .stock-available { color: #2ecc71; }
-    .stock-empty { color: #e74c3c; }
+    .stock-available {
+        color: #2ecc71;
+    }
+
+    .stock-empty {
+        color: #e74c3c;
+    }
 </style>
 @endpush
 
@@ -237,12 +263,12 @@
 
                 <div class="img-container">
                     @if($product->foto_produk)
-                        <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
+                    <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
                     @else
-                        <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted" style="opacity: 0.4;">
-                            <i class="bi bi-image" style="font-size: 2rem;"></i>
-                            <small style="font-size: 10px;">No Image</small>
-                        </div>
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light text-muted" style="opacity: 0.4;">
+                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                        <small style="font-size: 10px;">No Image</small>
+                    </div>
                     @endif
                 </div>
 
@@ -252,8 +278,19 @@
                         {{ $product->user->name }}
                     </span>
 
-                    <h3 class="product-name py-1">{{ $product->nama_produk }}</h3>
-                    <p class="product-info">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
+                    {{-- Nama Produk --}}
+                    <div class="d-flex justify-content-between align-items-start mt-1">
+                        <h3 class="product-name m-0">{{ $product->nama_produk }}</h3>
+                    </div>
+
+                    {{-- Blok Deskripsi yang Elegan dan Nyaman Dilihat --}}
+                    <div class="desc-container">
+                        <p class="product-description-text">
+                            {{ $product->deskripsi ?? 'Tidak ada deskripsi produk.' }}
+                        </p>
+                    </div>
+
+                    <p class="product-info m-0">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
 
                     <div class="mt-auto">
                         <div class="d-flex align-items-baseline mb-3">
@@ -263,22 +300,20 @@
 
                         <div class="d-flex gap-2">
                             @if($product->stok > 0)
-                                {{-- PAS DI KLIK MASUK KE DETAIL PRODUK --}}
-                                <a href="{{ route('customer.products.show', $product->id) }}" class="btn-buy-now text-center">
-                                    Beli
-                                </a>
+                            <a href="{{ route('customer.products.show', $product->id) }}" class="btn-buy-now text-center">
+                                Beli
+                            </a>
 
-                                {{-- PAS DI KLIK LANGSUNG MASUK KERANJANG VIA AJAX --}}
-                                <button type="button" class="btn-cart-outline add-to-cart-ajax"
-                                    data-id="{{ $product->id }}"
-                                    data-name="{{ $product->nama_produk }}">
-                                    <i class="bi bi-cart-plus"></i>
-                                </button>
+                            <button type="button" class="btn-cart-outline add-to-cart-ajax"
+                                data-id="{{ $product->id }}"
+                                data-name="{{ $product->nama_produk }}">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
                             @else
-                                <button class="btn-buy-now w-100" disabled>Habis</button>
-                                <button class="btn-cart-outline" disabled>
-                                    <i class="bi bi-cart-x"></i>
-                                </button>
+                            <button class="btn-buy-now w-100" disabled>Habis</button>
+                            <button class="btn-cart-outline" disabled>
+                                <i class="bi bi-cart-x"></i>
+                            </button>
                             @endif
                         </div>
                     </div>
@@ -304,54 +339,53 @@
             const productName = this.getAttribute('data-name');
             const originalContent = this.innerHTML;
 
-            // Loading state saat diklik
             this.disabled = true;
             this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
             fetch(`/cart/add/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ quantity: 1 })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Unauthorized/Error');
-                return response.json();
-            })
-            .then(data => {
-                this.disabled = false;
-                this.innerHTML = originalContent;
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quantity: 1
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Unauthorized/Error');
+                    return response.json();
+                })
+                .then(data => {
+                    this.disabled = false;
+                    this.innerHTML = originalContent;
 
-                // Memunculkan Toast sukses (jika pakai SweetAlert)
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: productName + ' masuk keranjang!',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                } else {
-                    alert(productName + ' berhasil dimasukkan ke keranjang!');
-                }
-                
-                // Update otomatis angka di badge icon keranjang navbar
-                const cartBadge = document.getElementById('cart-badge');
-                if (cartBadge) {
-                    cartBadge.innerText = data.cartCount;
-                    cartBadge.classList.remove('d-none');
-                }
-            })
-            .catch(error => {
-                this.disabled = false;
-                this.innerHTML = originalContent;
-                alert('Silakan login terlebih dahulu untuk menambah keranjang!');
-                window.location.href = "{{ route('login') }}";
-            });
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: productName + ' masuk keranjang!',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        alert(productName + ' berhasil dimasukkan ke keranjang!');
+                    }
+
+                    const cartBadge = document.getElementById('cart-badge');
+                    if (cartBadge) {
+                        cartBadge.innerText = data.cartCount;
+                        cartBadge.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    this.disabled = false;
+                    this.innerHTML = originalContent;
+                    alert('Silakan login terlebih dahulu untuk menambah keranjang!');
+                    window.location.href = "{{ route('login') }}";
+                });
         });
     });
 </script>

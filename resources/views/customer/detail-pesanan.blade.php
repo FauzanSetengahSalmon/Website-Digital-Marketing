@@ -74,7 +74,7 @@
         top: 20px;
     }
 
-    /* 🌟 PREMIUM HORIZONTAL TIMELINE TRACKER STYLING 🌟 */
+    /* PREMIUM HORIZONTAL TIMELINE TRACKER STYLING */
     .tracking-timeline {
         background: #ffffff;
         padding: 10px 5px;
@@ -150,6 +150,7 @@
         color: #64748b;
         display: block;
         font-weight: 500;
+        line-height: 1.3;
     }
 
     .total-price {
@@ -195,7 +196,7 @@
 
 <div class="container py-5">
 
-    {{-- Alert Success Flash Message --}}
+    {{-- Alert Flash Message --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
@@ -234,7 +235,7 @@
         {{-- LEFT SIDE --}}
         <div class="col-lg-7">
 
-            {{-- 🌟 TIMELINE STATUS MAP DENGAN IKON MENAWAN 🌟 --}}
+            {{-- TRACKING TIMELINE STATUS --}}
             <div class="card-modern mb-4">
                 <h6 class="fw-bold mb-4"><i class="bi bi-truck-flatbed text-success me-2"></i>Status Lacak Pesanan</h6>
 
@@ -258,7 +259,11 @@
                             <div class="timeline-text">Diverifikasi & Diproses</div>
                             <small class="timeline-time">
                                 @if(in_array($order->status, ['diproses', 'diantar', 'selesai']))
+                                @if($order->jadwal_pengiriman)
+                                Dijadwalkan: <span class="text-success fw-bold">{{ $order->jadwal_pengiriman }}</span>
+                                @else
                                 Pesanan siap dikirim
+                                @endif
                                 @else
                                 Menunggu konfirmasi...
                                 @endif
@@ -268,12 +273,15 @@
                         {{-- STEP 3: Sedang Diantar --}}
                         <div class="timeline-step {{ in_array($order->status, ['diantar', 'selesai']) ? 'completed' : ($order->status == 'diproses' ? 'active' : '') }}">
                             <div class="timeline-icon">
-                                <i class="bi bi-bicycle"></i>
+                                <i class="bi bi-truck"></i>
                             </div>
                             <div class="timeline-text">Sedang Diantar</div>
                             <small class="timeline-time text-success fw-bold">
                                 @if($order->status == 'diantar')
                                 Kurir dalam perjalanan
+                                @if($order->kurir)
+                                <span class="d-block text-muted fw-normal" style="font-size: 0.7rem;">({{ $order->kurir }})</span>
+                                @endif
                                 @elseif($order->status == 'selesai')
                                 Telah sampai tujuan
                                 @else
@@ -369,7 +377,7 @@
                     <div class="fw-bold" style="font-size: 0.95rem;">{{ $detail->product->nama_produk ?? 'Produk Terhapus' }}</div>
                     <div class="my-1">
                         <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.72rem; font-weight: 600;">
-                            <i class="bi bi-patch-check-fill me-1"></i>{{ $detail->product->user->name ?? 'KWT Mandiri' }}
+                            <i class="bi bi-shop me-1"></i>{{ $detail->product->user->name ?? 'KWT Mandiri' }}
                         </span>
                     </div>
                     <small class="text-muted">
@@ -383,7 +391,7 @@
             </div>
             @endforeach
 
-            {{-- DAFTAR KELUHAN YANG PERNAH DIKIRIM --}}
+            {{-- RIWAYAT PENGADUAN --}}
             @if($order->reports && $order->reports->isNotEmpty())
             <div class="card border-0 shadow-sm p-4 bg-white mt-4" style="border-radius: 18px;">
                 <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-chat-left-text-fill text-success me-2"></i>Riwayat Pengaduan & Tanggapan KWT</h6>
@@ -394,7 +402,7 @@
                         <small class="text-muted fs-8 font-monospace">{{ $rep->created_at->format('d M Y, H:i') }} WIB</small>
                     </div>
                     <div class="small text-dark mb-2"><strong>Keluhan Anda:</strong> "{{ $rep->pesan }}"</div>
-                    
+
                     @if($rep->tanggapan_kwt)
                     <div class="p-3 bg-success bg-opacity-10 rounded-3 border-start border-4 border-success mt-2">
                         <strong class="text-success small d-block mb-1"><i class="bi bi-chat-right-quote-fill me-1"></i> Tanggapan dari KWT:</strong>
@@ -410,7 +418,7 @@
             </div>
             @endif
 
-            {{-- SECTION PENGADUAN --}}
+            {{-- FORM PENGADUAN KENDALA --}}
             <div class="card border-0 shadow-sm p-4 bg-white mt-4" style="border-radius: 18px;">
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <span class="badge bg-danger bg-opacity-10 text-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
@@ -455,7 +463,7 @@
                             <textarea name="pesan" class="form-control border-light-subtle bg-light bg-opacity-50" rows="3" placeholder="Ceritakan detail kendala yang dialami secara singkat..." required style="border-radius: 10px; font-size: 0.9rem; resize: none;"></textarea>
                         </div>
                         <div class="col-12 d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-danger px-4 py-2" style="border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: #dc2626;">
+                            <button type="submit" class="btn btn-danger px-4 py-2" style="border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: #dc2626; border: none;">
                                 Kirim Pengaduan
                             </button>
                         </div>
@@ -469,7 +477,41 @@
         <div class="col-lg-5">
             <div class="summary-card">
 
-                {{-- TOMBOL SELESAI & FORM UPLOAD BUKTI (Hanya muncul jika status 'diantar') --}}
+                {{-- 🌟 INFO DANA MASUK & TOMBOL KLAIM REFUND JIKA STATUSNYA BATAL/DITOLAK 🌟 --}}
+                @if($order->status == 'batal' || $order->status == 'ditolak' || $order->status == 'dibatalkan')
+                <div class="card-modern mb-4 border border-danger bg-white shadow-sm">
+                    <h5 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-octagon-fill me-1"></i> Pesanan Dibatalkan KWT</h5>
+                    <p class="text-muted small mb-2"><strong>Alasan Pembatalan:</strong> <span class="text-dark">"{{ $order->alasan_tolak ?? 'Komoditas sayur/hasil tani tidak memenuhi standar kelayakan pengiriman.' }}"</span></p>
+
+                    <div class="p-3 bg-light rounded-3 border mb-3 small text-dark">
+                        <div class="d-flex justify-content-between mb-1.5 pb-1.5 border-bottom">
+                            <span class="text-muted"><i class="bi bi-arrow-down-left-circle text-success me-1"></i> Nominal Dana</span>
+                            <strong>Rp {{ number_format($order->total_harga, 0, ',', '.') }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1.5 pb-1.5 border-bottom">
+                            <span class="text-muted"><i class="bi bi-shield-check text-success me-1"></i> Status Pembayaran</span>
+                            <span class="text-success fw-bold">Dana Masuk di KWT</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted"><i class="bi bi-arrow-counterclockwise text-danger me-1"></i> Status Pengembalian</span>
+                            <span class="text-danger fw-bold">Diproses Refund</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted small mb-3">Dana transaksi Anda dijamin aman. Harap klik tombol di bawah untuk menyetorkan nomor rekening pribadi tujuan pencairan melalui WhatsApp resmi Pengurus KWT.</p>
+
+                    @php
+                    $noAdminKWT = '0822222222'; // Sesuaikan nomor HP Admin KWT Anda
+                    $pesanWA = rawurlencode("Halo Pengurus KWT, pesanan saya dengan ID #ORD-".$order->id." ditolak dengan alasan '".$order->alasan_tolak."'. Saya ingin mengajukan klaim pengembalian dana (refund) sebesar Rp ".number_format($order->total_harga, 0, ',', '.')." atas nama " . Auth::user()->name . ".");
+                    @endphp
+
+                    <a href="https://wa.me/{{ $noAdminKWT }}?text={{ $pesanWA }}" target="_blank" class="btn btn-danger w-100 py-2.5 fw-bold text-white d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; background: #dc2626; border: none; text-decoration: none;">
+                        <i class="bi bi-whatsapp"></i> Klaim Pengembalian Dana (Refund)
+                    </a>
+                </div>
+                @endif
+
+                {{-- TOMBOL SELESAI & UPLOAD FOTO BUKTI --}}
                 @if($order->status == 'diantar')
                 <div class="card-modern mb-4 border border-success bg-white shadow-sm">
                     <h5 class="fw-bold text-success mb-2"><i class="bi bi-box-seam-fill me-1"></i> Pesanan Sudah Sampai?</h5>
@@ -482,14 +524,20 @@
                             <label class="form-label small fw-bold text-secondary">Foto Bukti Penerimaan:</label>
                             <input type="file" name="bukti_sampai" class="form-control" accept="image/*" required style="border-radius: 10px;">
                         </div>
-                        <button type="submit" class="btn btn-selesai w-100 py-2.5 fw-bold" onclick="return confirm('Apakah kamu yakin barang sudah diterima dengan benar?')">
-                            <i class="bi bi-check2-all me-1"></i> Klik Pesanan Selesai
-                        </button>
+
+                        <div class="d-flex justify-content-end gap-2 mt-2">
+                            <a href="{{ route('orders.history') }}" class="btn btn-light border rounded-pill px-3 fw-bold small py-2">
+                                <i class="bi bi-x-lg me-1"></i> Batal
+                            </a>
+                            <button type="submit" class="btn btn-selesai rounded-pill px-4 fw-bold py-2" onclick="return confirm('Apakah kamu yakin barang sudah diterima dengan benar?')">
+                                <i class="bi bi-check-lg me-1"></i> Selesai
+                            </button>
+                        </div>
                     </form>
                 </div>
                 @endif
 
-                {{-- TAMPILKAN FOTO JIKA PESANAN SUDAH SELESAI --}}
+                {{-- BUKTI FOTO JIKA STATUS SUDAH SELESAI --}}
                 @if($order->status == 'selesai')
                 <div class="card-modern mb-4 border-0 shadow-sm bg-white" style="border-radius: 22px;">
                     <div class="d-flex align-items-center gap-2 mb-3">

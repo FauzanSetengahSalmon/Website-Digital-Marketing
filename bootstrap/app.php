@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // PERBAIKAN: Memercayai semua proxy (termasuk ngrok) agar Signed URL / Link Verifikasi Email valid
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleManager::class,
         ]);

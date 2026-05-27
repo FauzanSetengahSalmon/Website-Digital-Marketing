@@ -60,6 +60,10 @@ Route::middleware(['auth'])->group(function () {
         // Transaksi & Penjualan Global (Kelola Pesanan Masuk & Penugasan Kurir)
         Route::get('/sales', [AdminController::class, 'allSales'])->name('sales.index');
         Route::put('/order/{id}/status', [AdminController::class, 'updateOrderStatus'])->name('order.status');
+
+        // 🌟 JALUR PERBAIKAN UTAMA: Mendaftarkan rute Tolak Pesanan KWT secara sah ke ProductController 🌟
+        Route::post('/orders/{id}/reject', [ProductController::class, 'tolakPesanan'])->name('orders.reject');
+
         // Route untuk Cetak Invoice khusus per KWT
         Route::get('/order/{id}/invoice-kwt', [AdminController::class, 'printInvoiceKwt'])->name('order.invoice.kwt');
         // Route untuk Cetak Invoice khusus Kurir
@@ -125,7 +129,6 @@ Route::middleware(['auth'])->group(function () {
     // --- ORDERS HISTORY AREA & CUSTOMER REPORT ---
     Route::controller(OrderController::class)->group(function () {
         Route::get('/riwayat-pesanan', 'history')->name('orders.history');
-        // 🌟 PERBAIKAN: Nama diganti menjadi orders.history.detail agar tidak tabrakan dengan kwt.orders.detail 🌟
         Route::get('/riwayat-pesanan/{id}', 'show')->name('orders.history.detail');
         Route::patch('/riwayat-pesanan/{id}/complete', 'complete')->name('orders.complete');
     });

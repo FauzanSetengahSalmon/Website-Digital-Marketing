@@ -10,19 +10,35 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-'user_id',
-    'total_harga',
-    'ongkir',
-    'status',
-    'snap_token',
-    'catatan',
-    'kurir',
-    'no_hp_kurir',
-    'alamat',
-    'nomor_hp',
-    'bukti_sampai',
-    'bukti_pengiriman',
-    'jadwal_pengiriman',
+        'user_id',
+        'total_harga',
+        'ongkir',
+        'status',
+        'snap_token',
+        'catatan',
+        'kurir',
+        'no_hp_kurir',
+        'alamat',
+        'nomor_hp',
+        'bukti_sampai',
+        'bukti_pengiriman',
+        'jadwal_pengiriman',
+
+        // 🌟 TAMBAHAN KOLOM AUDIT TRAIL ALIRAN DANA & REFUND
+        'status_pembayaran',
+        'waktu_dana_masuk',
+        'status_refund',
+        'waktu_refund',
+        'alasan_tolak',
+    ];
+
+    /**
+     * 🌟 MUTATOR CASTING DATETIME
+     * Otomatis mengubah string database menjadi Object Carbon Date
+     */
+    protected $casts = [
+        'waktu_dana_masuk' => 'datetime',
+        'waktu_refund' => 'datetime',
     ];
 
     /*
@@ -43,6 +59,16 @@ class Order extends Model
     public function details()
     {
         return $this->hasMany(OrderDetail::class, 'order_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION REPORT / COMPLAINT
+    |--------------------------------------------------------------------------
+    */
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'order_id');
     }
 
     /*
@@ -83,13 +109,9 @@ class Order extends Model
             'diantar'    => 'info',
             'selesai'    => 'success',
             'dibatalkan' => 'danger',
+            'batal'      => 'danger', // Menyinkronkan status pembatalan KWT
             'ditolak'    => 'dark',
             default      => 'secondary',
         };
-    }
-
-    public function reports()
-    {
-        return $this->hasMany(Report::class, 'order_id');
     }
 }

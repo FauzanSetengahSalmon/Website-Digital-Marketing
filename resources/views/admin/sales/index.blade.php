@@ -21,6 +21,13 @@
         </div>
     </div>
 
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-hover">
@@ -84,7 +91,6 @@
                         </td>
                         <td class="py-3.5 text-center pe-4">
                             <div class="d-flex gap-2 justify-content-center">
-                                {{-- Tombol Kelola (Bawaan) --}}
                                 <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 fw-medium text-dark transition-all shadow-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalProsesAdmin{{ $sale->id }}">
@@ -129,7 +135,7 @@
 
                 <div class="modal-body px-4 py-3">
 
-                    <div class="p-3 border rounded-4 bg-light bg-opacity-50 mb-4">
+                    <div class="p-3 border rounded-4 bg-light bg-opacity-50 mb-3">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
                                 <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Customer</small>
@@ -154,6 +160,30 @@
                                 <span class="small text-success fw-bold bg-success bg-opacity-10 px-2 py-1.5 rounded d-inline-block">
                                     <i class="bi bi-clock-history me-1"></i>Armada meluncur pada: {{ \Carbon\Carbon::parse($sale->jadwal_pengiriman)->format('d F Y') }}
                                 </span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- 🌟 AUDIT REKONSILIASI KEUANGAN --}}
+                    <div class="p-3 border rounded-4 bg-white mb-4 shadow-sm text-dark small">
+                        <h6 class="fw-bold text-dark mb-2 fs-7 text-uppercase"><i class="bi bi-cash-stack text-success me-2"></i>Status Rekonsiliasi Keuangan</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <strong>Log Arus Dana:</strong>
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-2 px-2 py-1">Dana Masuk KWT</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status Refund:</strong>
+                                @if($sale->status == 'batal')
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-2 px-2 py-1">Sedang Diproses KWT</span>
+                                @else
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-2 px-2 py-1">Tidak Ada Pembatalan</span>
+                                @endif
+                            </div>
+                            @if($sale->alasan_tolak)
+                            <div class="col-12 border-top pt-2 mt-2 text-danger font-monospace">
+                                <strong>Alasan Tolak KWT:</strong> "{{ $sale->alasan_tolak }}"
                             </div>
                             @endif
                         </div>
@@ -197,8 +227,7 @@
                         </div>
                     </div>
 
-                    {{-- 🌟 FIX KONDISI: Selama kolom tanggal di database kosong, FORM WAJIB TERBUKA (Abaikan Status) 🌟 --}}
-                    @if(empty($sale->jadwal_pengiriman))
+                    @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
                     <div class="border-top pt-3 section-kurir-wrapper">
                         <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
                         <div class="row g-3">
@@ -226,7 +255,7 @@
                     @else
                     <div class="border-top pt-3 p-3 bg-light rounded-3 border">
                         <h6 class="fw-bold text-secondary mb-2 fs-7 text-uppercase"><i class="bi bi-shield-check text-success me-2"></i>Status Logistik Terkunci</h6>
-                        <div class="row small g-2">
+                        <div class="row small g-2 text-dark">
                             <div class="col-md-6"><strong>Kurir Pengantar:</strong> {{ $sale->kurir ?? '-' }}</div>
                             <div class="col-md-6"><strong>Kontak Kurir:</strong> {{ $sale->no_hp_kurir ?? '-' }}</div>
                         </div>
@@ -235,23 +264,63 @@
 
                 </div>
 
-                <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
+                <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 d-flex justify-content-between gap-2">
+                    {{-- 🌟 SISI KIRI MODAL: TOMBOL PEMBATALAN PESANAN KWT (MENGGUNAKAN BOOTSTRAP TOGGLE AMAN) 🌟 --}}
+                    <div>
+                        @if($sale->status == 'menunggu' || $sale->status == 'diproses')
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
+                            data-bs-toggle="modal" data-bs-target="#modalTolakPesanan{{ $sale->id }}">
+                            <i class="bi bi-x-circle me-1"></i> Tolak Pesanan
+                        </button>
+                        @endif
+                    </div>
 
-                    @if($sale->status === 'diproses')
-                    <button type="submit" onclick="this.form.querySelector('.input-status-handler').value='diantar';" class="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="bi bi-truck me-1"></i> Tandai Pesanan Diantar
-                    </button>
-                    @endif
+                    {{-- SISI KANAN MODAL --}}
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
 
-                    {{-- 🌟 FIX TOMBOL: Tombol Verifikasi Tetap Muncul Selama Tanggal Kosong 🌟 --}}
-                    @if(empty($sale->jadwal_pengiriman))
-                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
+                        @if($sale->status === 'diproses')
+                        <button type="submit" onclick="this.form.querySelector('.input-status-handler').value='diantar';" class="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-truck me-1"></i> Tandai Pesanan Diantar
+                        </button>
+                        @endif
+
+                        @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
+                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
+                        </button>
+                        @else
+                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" disabled><i class="bi bi-lock-fill me-1"></i>Sistem Terkunci</button>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL FORM ALASAN PENOLAKAN PESANAN KWT --}}
+<div class="modal fade" id="modalTolakPesanan{{ $sale->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 p-4 pb-0">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Tolak & Batalkan Pesanan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.orders.reject', $sale->id) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4 pt-2">
+                    <p class="text-muted small mb-3">Berikan alasan mengapa transaksi ini ditolak. Catatan audit trail aliran dana refund akan dikirim ke email pembeli.</p>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-secondary mb-1">Alasan Pembatalan</label>
+                        <textarea name="alasan_tolak" class="form-control text-dark p-2.5 small" rows="3" placeholder="Contoh: Maaf, stok bayam ikat dari kelompok tani KWT Mandiri saat ini habis..." required style="border-radius: 10px; resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 p-4 pt-0 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light border rounded-pill px-4 fw-bold small py-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold py-2" style="background: #dc2626; border:none;">
+                        <i class="bi bi-check-lg me-1"></i> Konfirmasi Tolak
                     </button>
-                    @else
-                    <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" disabled><i class="bi bi-lock-fill me-1"></i>Sudah Dijadwalkan</button>
-                    @endif
                 </div>
             </form>
         </div>

@@ -92,11 +92,11 @@
     }
 
     .preview-box {
-        width: 100px;
-        height: 100px;
+        width: 110px;
+        height: 110px;
         border: 2px dashed #cbd5e1;
         border-radius: 12px;
-        margin: 8px auto;
+        margin: 8px 0;
         overflow: hidden;
         display: flex;
         align-items: center;
@@ -182,7 +182,8 @@
 {{-- MODAL EDIT --}}
 @foreach($products as $p)
 <div class="modal fade" id="modalEdit{{ $p->id }}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    {{-- PERBAIKAN: Diperlebar menggunakan max-width: 550px --}}
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
         <form action="{{ route('kwt.products.update', $p->id) }}" method="POST" enctype="multipart/form-data" class="modal-content shadow-lg">
             @csrf @method('PUT')
             <div class="modal-body p-4">
@@ -195,45 +196,59 @@
                     <small class="petunjuk-ibu">*Wajib isi nama produk dengan jelas</small>
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-6">
+                {{-- Susunan kolom dibuat berjajar menyamping memanfaatkan space luas --}}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label-bold">Harga (Rp)</label>
                         <input type="number" name="harga" class="form-control input-clean" value="{{ $p->harga }}" required>
                         <small class="petunjuk-ibu">*Isi harga tanpa titik</small>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-3 col-6 mb-3">
                         <label class="form-label-bold">Stok</label>
                         <input type="number" name="stok" class="form-control input-clean" value="{{ $p->stok }}" required>
-                        <small class="petunjuk-ibu">*Jumlah barang tersedia</small>
+                        <small class="petunjuk-ibu">*Jumlah tersedia</small>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <label class="form-label-bold">Satuan</label>
+                        <select name="satuan" class="form-select input-clean">
+                            <option value="kg" {{ $p->satuan == 'kg' ? 'selected' : '' }}>Kg</option>
+                            <option value="Ikat" {{ $p->satuan == 'Ikat' ? 'selected' : '' }}>Ikat</option>
+                            <option value="Bungkus" {{ $p->satuan == 'Bungkus' ? 'selected' : '' }}>Bungkus</option>
+                            <option value="Buah" {{ $p->satuan == 'Buah' ? 'selected' : '' }}>Buah</option>
+                        </select>
+                        <small class="petunjuk-ibu">*Pilih ukuran</small>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label-bold">Satuan</label>
-                    <select name="satuan" class="form-select input-clean">
-                        <option value="kg" {{ $p->satuan == 'kg' ? 'selected' : '' }}>Kg</option>
-                        <option value="Ikat" {{ $p->satuan == 'Ikat' ? 'selected' : '' }}>Ikat</option>
-                        <option value="Bungkus" {{ $p->satuan == 'Bungkus' ? 'selected' : '' }}>Bungkus</option>
-                        <option value="Buah" {{ $p->satuan == 'Buah' ? 'selected' : '' }}>Buah</option>
-                    </select>
-                    <small class="petunjuk-ibu">*Pilih jenis ukuran barang</small>
+                    <label class="form-label-bold">Deskripsi Produk</label>
+                    <textarea name="deskripsi" class="form-control input-clean" rows="3" placeholder="Keterangan kondisi sayur/buah...">{{ $p->deskripsi }}</textarea>
+                    <small class="petunjuk-ibu">*Jelaskan kondisi kesegaran hasil panen</small>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label-bold">Foto</label>
-                    <div class="preview-box">
-                        <img id="edit-img-{{ $p->id }}" src="{{ $p->foto_produk ? asset('storage/'.$p->foto_produk) : '' }}" class="w-100 h-100 {{ $p->foto_produk ? '' : 'd-none' }}" style="object-fit: cover;">
-                        @if(!$p->foto_produk) <i class="bi bi-image text-muted fs-2"></i> @endif
+                    <label class="form-label-bold">Foto Produk</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="preview-box my-0">
+                            <img id="edit-img-{{ $p->id }}" src="{{ $p->foto_produk ? asset('storage/'.$p->foto_produk) : '' }}" class="w-100 h-100 {{ $p->foto_produk ? '' : 'd-none' }}" style="object-fit: cover;">
+                            @if(!$p->foto_produk) <i class="bi bi-image text-muted fs-2"></i> @endif
+                        </div>
+                        <div class="flex-grow-1">
+                            <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewEdit(this, '{{ $p->id }}')">
+                            <small class="petunjuk-ibu">*Kosongkan jika foto tidak diubah</small>
+                        </div>
                     </div>
-                    <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewEdit(this, '{{ $p->id }}')">
-                    <small class="petunjuk-ibu">*Kosongkan jika foto tidak diubah</small>
                 </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success fw-bold rounded-pill" onclick="this.disabled=true;this.form.submit();">
-                        <i class="bi bi-check-circle me-1"></i> Simpan Perubahan
-                    </button>
-                    <button type="button" class="btn btn-light rounded-pill border small" data-bs-dismiss="modal">Batal</button>
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-light w-100 rounded-pill border fw-bold" data-bs-dismiss="modal">Batal</button>
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill" onclick="this.disabled=true;this.form.submit();">
+                            <i class="bi bi-check-circle me-1"></i> Simpan
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -243,7 +258,8 @@
 
 {{-- MODAL TAMBAH --}}
 <div class="modal fade" id="modalTambah" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    {{-- PERBAIKAN: Diperlebar menggunakan max-width: 550px --}}
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
         <form action="{{ route('kwt.products.store') }}" method="POST" enctype="multipart/form-data" class="modal-content shadow-lg">
             @csrf
             <div class="modal-body p-4">
@@ -256,45 +272,59 @@
                     <small class="petunjuk-ibu">*Wajib isi nama produk dengan jelas</small>
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-6">
+                {{-- Susunan kolom dibuat berjajar menyamping memanfaatkan space luas --}}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label-bold">Harga (Rp)</label>
                         <input type="number" name="harga" class="form-control input-clean" placeholder="0" required>
                         <small class="petunjuk-ibu">*Isi harga tanpa titik</small>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-3 col-6 mb-3">
                         <label class="form-label-bold">Stok</label>
                         <input type="number" name="stok" class="form-control input-clean" placeholder="0" required>
-                        <small class="petunjuk-ibu">*Jumlah barang tersedia</small>
+                        <small class="petunjuk-ibu">*Jumlah barang</small>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <label class="form-label-bold">Satuan</label>
+                        <select name="satuan" class="form-select input-clean">
+                            <option value="kg">Kg</option>
+                            <option value="Ikat">Ikat</option>
+                            <option value="Bungkus">Bungkus</option>
+                            <option value="Buah">Buah</option>
+                        </select>
+                        <small class="petunjuk-ibu">*Pilih ukuran</small>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label-bold">Satuan</label>
-                    <select name="satuan" class="form-select input-clean">
-                        <option value="kg">Kg</option>
-                        <option value="Ikat">Ikat</option>
-                        <option value="Bungkus">Bungkus</option>
-                        <option value="Buah">Buah</option>
-                    </select>
-                    <small class="petunjuk-ibu">*Pilih jenis ukuran barang</small>
+                    <label class="form-label-bold">Deskripsi Produk</label>
+                    <textarea name="deskripsi" class="form-control input-clean" rows="3" placeholder="Contoh: Sayur organik dipetik langsung pas ada pesanan masuk..."></textarea>
+                    <small class="petunjuk-ibu">*Beri deskripsi singkat tentang produk hasil tani</small>
                 </div>
 
                 <div class="mb-4">
                     <label class="form-label-bold">Foto Produk</label>
-                    <div class="preview-box">
-                        <i id="icon-add" class="bi bi-image text-muted fs-2"></i>
-                        <img id="preview-add" src="" class="d-none w-100 h-100" style="object-fit: cover;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="preview-box my-0">
+                            <i id="icon-add" class="bi bi-image text-muted fs-2"></i>
+                            <img id="preview-add" src="" class="d-none w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        <div class="flex-grow-1">
+                            <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewAdd(this)" required>
+                            <small class="petunjuk-ibu">*Wajib pilih foto produk agar menarik</small>
+                        </div>
                     </div>
-                    <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewAdd(this)" required>
-                    <small class="petunjuk-ibu">*Wajib pilih foto produk agar menarik</small>
                 </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-success fw-bold rounded-pill" onclick="this.disabled=true;this.form.submit();">
-                        <i class="bi bi-check-circle-fill me-1"></i> Simpan Barang
-                    </button>
-                    <button type="button" class="btn btn-light rounded-pill border small" data-bs-dismiss="modal">Batal</button>
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-light w-100 rounded-pill border fw-bold" data-bs-dismiss="modal">Batal</button>
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill" onclick="this.disabled=true;this.form.submit();">
+                            <i class="bi bi-check-circle-fill me-1"></i> Simpan Barang
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>

@@ -16,6 +16,7 @@ class Product extends Model
         'harga',
         'stok',
         'satuan',
+        'deskripsi',
         'foto_produk'
     ];
 
