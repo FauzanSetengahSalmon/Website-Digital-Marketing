@@ -11,12 +11,13 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'nama_produk',
-        'harga',
-        'stok',
-        'satuan',
-        'foto_produk'
+        'user_id', 
+        'nama_produk', 
+        'harga', 
+        'stok', 
+        'satuan', 
+        'foto_produk', 
+        'deskripsi' // <--- Tambahkan ini
     ];
 
     /*

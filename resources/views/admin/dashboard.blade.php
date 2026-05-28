@@ -1,255 +1,87 @@
 @extends('layouts.admin')
 
 @section('content')
-
 <style>
-    .admin-card {
-        transition: .2s ease;
-        border: none;
-        overflow: hidden;
-    }
+    /* Modern Dashboard Styling */
+    .admin-card { border: none; border-radius: 20px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .admin-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); }
+    
+    .icon-shape { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
+    
+    .gradient-green { background: linear-gradient(135deg, #166534 0%, #22c55e 100%); color: white; }
+    .gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; }
+    .gradient-orange { background: linear-gradient(135deg, #9a3412 0%, #f97316 100%); color: white; }
+    .gradient-purple { background: linear-gradient(135deg, #6b21a8 0%, #a855f7 100%); color: white; }
 
-    .admin-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .icon-shape {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        background: rgba(255,255,255,.15);
-    }
-
-    .bg-green {
-        background: linear-gradient(135deg,#2d7a22,#43a047);
-        color: white;
-    }
-
-    .bg-blue {
-        background: linear-gradient(135deg,#1976d2,#42a5f5);
-        color: white;
-    }
-
-    .bg-orange {
-        background: linear-gradient(135deg,#ef6c00,#ffa726);
-        color: white;
-    }
-
-    .bg-purple {
-        background: linear-gradient(135deg,#7b1fa2,#ba68c8);
-        color: white;
-    }
-
-    .welcome-box {
-        background: white;
-        border-radius: 24px;
-        padding: 30px;
-        box-shadow: 0 4px 20px rgba(0,0,0,.05);
-        border-top: 5px solid #2d7a22;
-    }
-
-    .kwt-table {
-        background: white;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,.05);
-        margin-bottom: 30px;
-    }
-
-    .table thead {
-        background: #f0f9eb;
-    }
-
-    .table thead th {
-        color: #2d7a22;
-        font-weight: 700;
-        border: none;
-        padding: 15px;
-    }
-
-    .table td {
-        vertical-align: middle;
-        padding: 15px;
-    }
-
-    .badge-status {
-        background: #e8f5e9;
-        color: #2d7a22;
-        padding: 7px 14px;
-        border-radius: 999px;
-        font-size: .8rem;
-        font-weight: 600;
-    }
-
-    .admin-title {
-        font-weight: 800;
-        color: #1e293b;
-    }
-
-    .admin-subtitle {
-        color: #64748b;
-    }
+    .kwt-table { background: white; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .table thead th { background: #f8fafc !important; color: #64748b !important; text-transform: uppercase; font-size: 0.75rem !important; letter-spacing: 0.05em; border-bottom: 1px solid #f1f5f9 !important; }
+    .table td { padding: 18px !important; font-size: 0.9rem; color: #334155; }
+    
+    .badge-status { background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 50px; font-weight: 700; font-size: 0.75rem; border: 1px solid #bbf7d0; }
+    .section-title { font-size: 1.25rem; font-weight: 800; color: #0f172a; }
 </style>
 
-<div class="container-fluid py-2">
-
+<div class="container-fluid py-4">
     {{-- HEADER --}}
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
             <h2 class="admin-title mb-1">Dashboard Admin</h2>
-            <p class="admin-subtitle mb-0">Monitoring seluruh aktivitas KWT Cibiru</p>
+            <p class="admin-subtitle text-muted">Selamat datang kembali, Admin. Berikut ringkasan operasional.</p>
         </div>
-        <div>
-            <span class="badge-status">
-                <i class="bi bi-check-circle-fill me-1"></i> Sistem Aktif
-            </span>
-        </div>
+        <span class="badge-status"><i class="bi bi-shield-check me-1"></i> Sistem Aktif</span>
     </div>
 
-    {{-- CARD STATISTIK --}}
+    {{-- STATISTIK --}}
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card admin-card bg-green rounded-4 shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-uppercase opacity-75 fw-semibold">Total KWT</small>
-                        <h2 class="fw-bold mt-2 mb-0">{{ $totalKwt }}</h2>
-                    </div>
-                    <div class="icon-shape"><i class="bi bi-people-fill"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card admin-card bg-blue rounded-4 shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-uppercase opacity-75 fw-semibold">Total Produk</small>
-                        <h2 class="fw-bold mt-2 mb-0">{{ $totalProduk }}</h2>
-                    </div>
-                    <div class="icon-shape"><i class="bi bi-box-seam"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card admin-card bg-orange rounded-4 shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-uppercase opacity-75 fw-semibold">Total Pesanan</small>
-                        <h2 class="fw-bold mt-2 mb-0">{{ $totalPesanan }}</h2>
-                    </div>
-                    <div class="icon-shape"><i class="bi bi-cart-check-fill"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card admin-card bg-purple rounded-4 shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-uppercase opacity-75 fw-semibold">Total Omzet Global</small>
-                        <h4 class="fw-bold mt-2 mb-0">Rp {{ number_format($totalPendapatan,0,',','.') }}</h4>
-                    </div>
-                    <div class="icon-shape"><i class="bi bi-wallet2"></i></div>
-                </div>
-            </div>
-        </div>
+        <div class="col-md-3"><div class="card admin-card gradient-green p-4"><div class="d-flex justify-content-between align-items-center"><div><small class="opacity-75">Total KWT</small><h2 class="fw-bold mb-0">{{ $totalKwt }}</h2></div><div class="icon-shape"><i class="bi bi-people"></i></div></div></div></div>
+        <div class="col-md-3"><div class="card admin-card gradient-blue p-4"><div class="d-flex justify-content-between align-items-center"><div><small class="opacity-75">Produk</small><h2 class="fw-bold mb-0">{{ $totalProduk }}</h2></div><div class="icon-shape"><i class="bi bi-box-seam"></i></div></div></div></div>
+        <div class="col-md-3"><div class="card admin-card gradient-orange p-4"><div class="d-flex justify-content-between align-items-center"><div><small class="opacity-75">Pesanan</small><h2 class="fw-bold mb-0">{{ $totalPesanan }}</h2></div><div class="icon-shape"><i class="bi bi-cart3"></i></div></div></div></div>
+        <div class="col-md-3"><div class="card admin-card gradient-purple p-4"><div class="d-flex justify-content-between align-items-center"><div><small class="opacity-75">Total Omzet</small><h5 class="fw-bold mb-0">Rp {{ number_format($totalPendapatan,0,',','.') }}</h5></div><div class="icon-shape"><i class="bi bi-wallet2"></i></div></div></div></div>
     </div>
 
-    {{-- WELCOME BOX --}}
-    <div class="welcome-box mb-5">
-        <div class="row align-items-center">
-            <div class="col-md-2 text-center d-none d-md-block">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="120" class="img-fluid">
-            </div>
-            <div class="col-md-10">
-                <h4 class="fw-bold mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h4>
-                <p class="text-muted mb-3">
-                    Anda memiliki akses penuh untuk mengelola data User, Akun KWT, dan memantau seluruh transaksi yang terjadi di sistem.
-                </p>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.kwt') }}" class="btn btn-success btn-sm rounded-pill px-4">
-                        <i class="bi bi-plus-circle me-1"></i> Tambah KWT
-                    </a>
-                    <a href="{{ route('admin.sales.index') }}" class="btn btn-outline-success btn-sm rounded-pill px-4">
-                        <i class="bi bi-graph-up me-1"></i> Lihat Penjualan
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        {{-- TABEL DATA KWT --}}
-        <div class="col-lg-7">
-            <div class="kwt-table">
-                <div class="p-4 border-bottom">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-shop me-2"></i>Daftar KWT Terdaftar</h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Nama KWT</th>
-                                <th>Produk</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($kwts as $kwt)
-                            <tr>
-                                <td class="fw-semibold">{{ $kwt->name }}</td>
-                                {{-- KODE YANG SUDAH DIPERBAIKI DENGAN MENGGUNAKAN FUNGSI COUNT KANONIKAL --}}
-                                <td><span class="badge bg-light text-success border">{{ $kwt->products->count() }} Item</span></td>
-                                <td>
-                                    <a href="{{ route('admin.kwt') }}" class="btn btn-sm btn-light text-success fw-bold">Detail</a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="3" class="text-center py-4 text-muted">Belum ada KWT.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+    {{-- TABEL --}}
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="kwt-table p-3">
+                <h6 class="p-3 section-title"><i class="bi bi-shop me-2 text-green"></i>KWT Terdaftar</h6>
+                <table class="table mb-0">
+                    <thead><tr><th>Nama</th><th class="text-center">Produk</th></tr></thead>
+                    <tbody>
+                        @foreach($kwts as $kwt)
+                        <tr><td class="fw-semibold">{{ $kwt->name }}</td><td class="text-center"><span class="badge bg-green text-white">{{ $kwt->products->count() }}</span></td></tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        {{-- TABEL PERINGKAT OMZET KWT --}}
-        <div class="col-lg-5">
-            <div class="kwt-table border-top border-success border-4">
-                <div class="p-4 border-bottom">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-trophy me-2 text-warning"></i>Omzet per KWT</h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>KWT</th>
-                                <th class="text-end">Omzet Selesai</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($penjualanPerKwt as $item)
-                            <tr>
-                                <td class="fw-bold text-secondary">{{ $item['nama'] }}</td>
-                                <td class="text-end fw-bold text-success">
-                                    Rp {{ number_format($item['omzet'], 0, ',', '.') }}
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+        <div class="col-lg-4">
+            <div class="kwt-table p-3">
+                <h6 class="p-3 section-title"><i class="bi bi-trophy me-2 text-warning"></i>Omzet KWT</h6>
+                <table class="table mb-0">
+                    <thead><tr><th>Nama KWT</th><th class="text-end">Omzet</th></tr></thead>
+                    <tbody>
+                        @foreach($penjualanPerKwt as $item)
+                        <tr><td class="fw-semibold">{{ $item['nama'] }}</td><td class="text-end fw-bold text-success">Rp {{ number_format($item['omzet'], 0, ',', '.') }}</td></tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="kwt-table p-3">
+                <h6 class="p-3 section-title"><i class="bi bi-truck me-2 text-primary"></i>Omzet Kurir</h6>
+                <table class="table mb-0">
+                    <thead><tr><th>Kurir</th><th class="text-end">Ongkir</th></tr></thead>
+                    <tbody>
+                        @foreach($penjualanPerKurir as $item)
+                        <tr><td class="fw-semibold">{{ $item['nama'] }}</td><td class="text-end fw-bold text-primary">Rp {{ number_format($item['total_ongkir'], 0, ',', '.') }}</td></tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
-
 @endsection

@@ -15,6 +15,38 @@
         </div>
     </div>
 
+    {{-- SECTION PILIH KWT (REKAP PEMASUKAN) --}}
+    <div class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="text-uppercase fw-bold text-secondary small tracking-widest mb-0">
+                <i class="bi bi-wallet2 me-2 text-success"></i>Rekap Pemasukan KWT
+            </h6>
+        </div>
+        
+        <div class="row g-3">
+            @forelse(\App\Models\User::where('role', 'kwt')->get() as $k)
+            <div class="col-6 col-md-3">
+                <a href="{{ route('admin.kwt.laporan', $k->id) }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 kwt-card transition-all overflow-hidden">
+                        <div class="card-body p-3 text-center">
+                            <div class="avatar-lg bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 50px; height: 50px;">
+                                {{ substr($k->name, 0, 1) }}
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1 text-truncate">{{ $k->name }}</h6>
+                            <small class="text-success fw-semibold">Lihat Laporan &raquo;</small>
+                        </div>
+                        <div class="kwt-card-footer bg-success py-1 opacity-0 transition-all"></div>
+                    </div>
+                </a>
+            </div>
+            @empty
+            <div class="col-12 text-center py-4 bg-white rounded-4 shadow-sm">
+                <p class="text-muted mb-0">Belum ada mitra KWT terdaftar.</p>
+            </div>
+            @endforelse
+        </div>
+    </div>
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-hover">
@@ -204,7 +236,6 @@
                         </div>
                     </div>
 
-                    {{-- 🌟 FIX KONDISI: Selama kolom tanggal di database kosong, FORM WAJIB TERBUKA (Abaikan Status) 🌟 --}}
                     @if(empty($sale->jadwal_pengiriman))
                     <div class="border-top pt-3 section-kurir-wrapper">
                         <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
@@ -245,7 +276,6 @@
                 <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
 
-                    {{-- 🌟 FIX TOMBOL: Tombol Verifikasi Tetap Muncul Selama Tanggal Kosong 🌟 --}}
                     @if(empty($sale->jadwal_pengiriman))
                     <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
                         <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
@@ -261,67 +291,34 @@
 @endforeach
 
 <style>
-    .fs-7 {
-        font-size: 0.78rem !important;
+    .fs-7 { font-size: 0.85rem !important; }
+    .fs-8 { font-size: 0.75rem !important; }
+    .tracking-widest { letter-spacing: 0.1em; }
+    
+    /* KWT CARDS */
+    .kwt-card {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.03);
+        text-decoration: none !important;
+    }
+    .kwt-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    .kwt-card:hover .kwt-card-footer { opacity: 1 !important; }
+
+    /* BADGE STATUS */
+    .badge-status {
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: inline-block;
     }
 
-    .fs-8 {
-        font-size: 0.72rem !important;
-    }
-
-    .tracking-wider {
-        letter-spacing: 0.06em;
-    }
-
-    .sm-table th,
-    .sm-table td {
-        padding: 0.6rem 0.5rem !important;
-        font-size: 0.82rem;
-    }
-
-    .bg-warning-subtle {
-        background-color: #fff3cd !important;
-        color: #856404 !important;
-    }
-
-    .border-warning-subtle {
-        border-color: #ffeeba !important;
-    }
-
-    .bg-primary-subtle {
-        background-color: #cce5ff !important;
-        color: #004085 !important;
-    }
-
-    .border-primary-subtle {
-        border-color: #b8daff !important;
-    }
-
-    .bg-success-subtle {
-        background-color: #d4edda !important;
-        color: #155724 !important;
-    }
-
-    .border-success-subtle {
-        border-color: #c3e6cb !important;
-    }
-
-    .bg-danger-subtle {
-        background-color: #f8d7da !important;
-        color: #721c24 !important;
-    }
-
-    .border-danger-subtle {
-        border-color: #f5c6cb !important;
-    }
-
-    .transition-all {
-        transition: all 0.2s ease-in-out;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(25, 135, 84, 0.02) !important;
-    }
+    .transition-all { transition: all 0.3s ease; }
+    .table-hover tbody tr:hover { background-color: #fcfdfe !important; }
 </style>
 
 <script>

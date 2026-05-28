@@ -81,19 +81,6 @@
         transform: translateY(-1px);
     }
 
-    .btn-action-print {
-        background-color: #ecfdf5;
-        color: #10b981;
-        border: none;
-        transition: all 0.2s ease;
-    }
-
-    .btn-action-print:hover {
-        background-color: #10b981;
-        color: #ffffff;
-        transform: translateY(-1px);
-    }
-
     /* Modal Form Premium Styling */
     .modal-premium .modal-content {
         border: none !important;
@@ -101,13 +88,11 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
     }
 
-    /* Pembungkus Input Icon */
     .input-field-modal {
         position: relative;
         width: 100%;
     }
 
-    /* Icon Sisi Kiri Input */
     .input-field-modal>i {
         position: absolute;
         left: 16px;
@@ -121,7 +106,6 @@
     .input-field-modal input {
         width: 100%;
         padding: 12px 40px 12px 48px !important;
-        /* Spasi kanan kiri aman untuk ikon */
         background: #f9fafb;
         border: 1.5px solid #e5e7eb;
         border-radius: 14px !important;
@@ -136,7 +120,6 @@
         outline: none;
     }
 
-    /* Tombol Toggle Mata Terkunci Sempurna Di Dalam Input */
     .password-toggle-modal {
         position: absolute;
         right: 16px;
@@ -194,7 +177,7 @@
                         <th>No. Telepon</th>
                         <th>Status Login</th>
                         <th>Tanggal Terdaftar</th>
-                        <th class="text-center" style="width: 200px;">Aksi</th>
+                        <th class="text-center" style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -230,10 +213,7 @@
                         <td class="text-secondary">{{ $item->created_at->format('d M Y') }}</td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center align-items-center gap-2">
-                                <a href="{{ route('admin.kwt.laporan', $item->id) }}" class="btn btn-sm btn-action-print rounded-pill px-3 fw-medium" title="Cetak Laporan Penghasilan">
-                                    <i class="fa-solid fa-print me-1"></i> Laporan
-                                </a>
-
+                                {{-- Tombol Edit --}}
                                 <button type="button" class="btn btn-sm btn-action-edit rounded-pill px-3 fw-medium"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalEditKwt"
@@ -244,6 +224,7 @@
                                     <i class="fa-solid fa-pen-to-square me-1"></i> Edit
                                 </button>
 
+                                {{-- Tombol Hapus --}}
                                 <form action="{{ route('admin.kwt.destroy', $item->id) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun KWT ini?')">
                                     @csrf
                                     @method('DELETE')
@@ -383,12 +364,10 @@
 
 @push('scripts')
 <script>
-    // Inject Data ke Modal Edit secara Otomatis
     const modalEditKwt = document.getElementById('modalEditKwt');
     if (modalEditKwt) {
         modalEditKwt.addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
-
             const id = button.getAttribute('data-id');
             const name = button.getAttribute('data-name');
             const email = button.getAttribute('data-email');
@@ -397,12 +376,10 @@
             document.getElementById('edit-name').value = name ?? '';
             document.getElementById('edit-email').value = email ?? '';
             document.getElementById('edit-phone').value = phone ?? '';
-
             document.getElementById('formEditKwt').action = `/admin/kwt/update/${id}`;
         });
     }
 
-    // Toggle Lihat/Sembunyikan Password Modal
     function togglePasswordModal(id, el) {
         const input = document.getElementById(id);
         if (input.type === 'password') {
@@ -414,7 +391,6 @@
         }
     }
 
-    // Efek Loading Transisi Saat Tambah Data
     document.getElementById('tambahKwtForm').addEventListener('submit', function() {
         const btn = document.getElementById('submitBtnTambah');
         btn.disabled = true;

@@ -10,18 +10,19 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-'user_id',
-    'total_harga',
-    'ongkir',
-    'status',
-    'snap_token',
-    'catatan',
-    'kurir',
-    'no_hp_kurir',
-    'alamat',
-    'nomor_hp',
-    'bukti_sampai',
-    'jadwal_pengiriman',
+        'user_id',
+        'total_harga',
+        'ongkir',
+        'status',
+        'snap_token',
+        'catatan',
+        'kurir',
+        'no_hp_kurir',
+        'alamat',
+        'nomor_hp',
+        'bukti_sampai',
+        'jadwal_pengiriman',
+        'is_paid_out', // <--- Cukup tambahkan ini saja
     ];
 
     /*

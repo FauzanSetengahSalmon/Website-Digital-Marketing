@@ -30,25 +30,18 @@
             z-index: 1000;
             transition: all 0.3s;
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Memisahkan area menu atas dengan tombol bawah */
         }
 
-        /* AREA MENU ATAS: Tempat scroll murni (Tombol Keluar GA DI SINI lagi) */
         .sidebar-wrapper {
             flex-grow: 1;
             overflow-y: auto;
             scrollbar-width: none;
-            /* Sembunyikan bar di Firefox */
         }
 
-        /* Sembunyikan bar putih di Chrome, Safari, Edge */
-        .sidebar-wrapper::-webkit-scrollbar {
-            display: none;
-        }
+        .sidebar-wrapper::-webkit-scrollbar { display: none; }
 
         .sidebar-header {
             padding: 30px 20px;
@@ -154,14 +147,13 @@
             min-height: 100vh;
         }
 
-        /* LOGOUT SECTION: DIKUNCI MATI! Tidak akan pernah ikut ter-scroll */
+        /* LOGOUT SECTION */
         .logout-section {
             width: 100%;
             padding: 20px;
             background: #054131;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             flex-shrink: 0;
-            /* Menolak ciut atau kegeser */
         }
 
         .btn-logout {
@@ -184,24 +176,10 @@
 
         /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
-            .sidebar {
-                left: -260px;
-                position: fixed;
-                height: 100vh;
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .mobile-header {
-                display: flex !important;
-            }
+            .sidebar { left: -260px; position: fixed; height: 100vh; }
+            .sidebar.show { left: 0; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header { display: flex !important; }
         }
 
         .mobile-header {
@@ -247,35 +225,28 @@
                 </a>
 
                 <div class="nav-label">Manajemen Data</div>
-
-                {{-- Data Semua User --}}
                 <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i> Data Semua User
                 </a>
-
-                {{-- Kelola KWT --}}
-                <a href="{{ route('admin.kwt') }}" class="nav-link {{ request()->routeIs('admin.kwt*') ? 'active' : '' }}">
+                <a href="{{ route('admin.kwt') }}" class="nav-link {{ request()->routeIs('admin.kwt') ? 'active' : '' }}">
                     <i class="bi bi-shop-window"></i> Kelola Akun KWT
                 </a>
-
-
-                <!-- MENU BARU UNTUK HALAMAN KURIR -->
                 <a href="{{ route('admin.kurir.index') }}" class="nav-link {{ request()->routeIs('kwt.kurir.*') ? 'active' : '' }}">
                     <i class="bi bi-bicycle"></i> Data Kurir
                 </a>
 
                 <div class="nav-label">Laporan Global</div>
-
-                {{-- Data Penjualan Semua --}}
-                <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales*') ? 'active' : '' }}">
+                <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales*') || request()->routeIs('admin.kwt.laporan') ? 'active' : '' }}">
                     <i class="bi bi-cart-check-fill"></i> Penjualan Semua
+                </a>
+                {{-- MENU BARU PENCAIRAN KURIR --}}
+                <a href="{{ route('admin.kurir.pencairan') }}" class="nav-link {{ request()->routeIs('admin.kurir.pencairan*') ? 'active' : '' }}">
+                    <i class="bi bi-wallet2"></i> Pencairan Kurir
                 </a>
 
                 <div class="nav-label">Sistem</div>
-                <a href="{{ route('admin.profile') }}"
-                    class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
-                    <i class="bi bi-person-circle"></i>
-                    Profile Admin
+                <a href="{{ route('admin.profile') }}" class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                    <i class="bi bi-person-circle"></i> Profile Admin
                 </a>
             </nav>
         </div>

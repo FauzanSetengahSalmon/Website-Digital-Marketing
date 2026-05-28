@@ -16,15 +16,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
-
         if ($request->has('search') && $request->search != '') {
-            $query->where(
-                'nama_produk',
-                'like',
-                '%' . $request->search . '%'
-            );
+            $query->where('nama_produk', 'like', '%' . $request->search . '%');
         }
-
         if ($request->sort == 'cheap') {
             $query->orderBy('harga', 'asc');
         } elseif ($request->sort == 'stock') {
@@ -32,9 +26,7 @@ class ProductController extends Controller
         } else {
             $query->latest();
         }
-
         $products = $query->get();
-
         return view('customer.katalog', compact('products'));
     }
 
@@ -44,12 +36,9 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::with('user')->findOrFail($id);
-        
         $relatedProducts = Product::where('user_id', $product->user_id)
             ->where('id', '!=', $product->id)
-            ->limit(4)
-            ->get();
-
+            ->limit(4)->get();
         return view('customer.detail-produk', compact('product', 'relatedProducts'));
     }
 
@@ -58,10 +47,7 @@ class ProductController extends Controller
      */
     public function home()
     {
-        $products = Product::latest()
-            ->limit(8)
-            ->get();
-
+        $products = Product::latest()->limit(8)->get();
         return view('home', compact('products'));
     }
 
@@ -70,10 +56,7 @@ class ProductController extends Controller
      */
     public function kwtProducts()
     {
-        $products = Product::where('user_id', Auth::id())
-            ->latest()
-            ->get();
-
+        $products = Product::where('user_id', Auth::id())->latest()->get();
         return view('kwt.list-produk', compact('products'));
     }
 
@@ -87,29 +70,20 @@ class ProductController extends Controller
             'harga' => 'required|numeric|min:1',
             'stok' => 'required|numeric|min:0',
             'satuan' => 'required',
+            'deskripsi' => 'required|string',
             'foto_produk' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $data = $request->only([
-            'nama_produk',
-            'harga',
-            'stok',
-            'satuan'
-        ]);
+        $data = $request->only(['nama_produk', 'harga', 'stok', 'satuan', 'deskripsi']);
 
         if ($request->hasFile('foto_produk')) {
-            $data['foto_produk'] = $request
-                ->file('foto_produk')
-                ->store('products', 'public');
+            $data['foto_produk'] = $request->file('foto_produk')->store('products', 'public');
         }
 
         $data['user_id'] = Auth::id();
-
         Product::create($data);
 
-        return redirect()
-            ->route('kwt.products')
-            ->with('success', 'Produk berhasil ditambahkan!');
+        return redirect()->route('kwt.products')->with('success', 'Produk berhasil ditambahkan!');
     }
 
     /**
@@ -117,9 +91,7 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        $product = Product::where('user_id', Auth::id())
-            ->findOrFail($id);
-
+        $product = Product::where('user_id', Auth::id())->findOrFail($id);
         return view('kwt.edit-produk', compact('product'));
     }
 
@@ -128,40 +100,28 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::where('user_id', Auth::id())
-            ->findOrFail($id);
+        $product = Product::where('user_id', Auth::id())->findOrFail($id);
 
         $request->validate([
             'nama_produk' => 'required|string|max:255',
             'harga' => 'required|numeric|min:1',
             'stok' => 'required|numeric|min:0',
             'satuan' => 'required',
+            'deskripsi' => 'required|string',
             'foto_produk' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $data = $request->only([
-            'nama_produk',
-            'harga',
-            'stok',
-            'satuan'
-        ]);
+        $data = $request->only(['nama_produk', 'harga', 'stok', 'satuan', 'deskripsi']);
 
         if ($request->hasFile('foto_produk')) {
             if ($product->foto_produk) {
-                Storage::disk('public')
-                    ->delete($product->foto_produk);
+                Storage::disk('public')->delete($product->foto_produk);
             }
-
-            $data['foto_produk'] = $request
-                ->file('foto_produk')
-                ->store('products', 'public');
+            $data['foto_produk'] = $request->file('foto_produk')->store('products', 'public');
         }
 
         $product->update($data);
-
-        return redirect()
-            ->route('kwt.products')
-            ->with('success', 'Produk berhasil diperbarui!');
+        return redirect()->route('kwt.products')->with('success', 'Produk berhasil diperbarui!');
     }
 
     /**
@@ -169,19 +129,12 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::where('user_id', Auth::id())
-            ->findOrFail($id);
-
+        $product = Product::where('user_id', Auth::id())->findOrFail($id);
         if ($product->foto_produk) {
-            Storage::disk('public')
-                ->delete($product->foto_produk);
+            Storage::disk('public')->delete($product->foto_produk);
         }
-
         $product->delete();
-
-        return redirect()
-            ->route('kwt.products')
-            ->with('success', 'Produk berhasil dihapus!');
+        return redirect()->route('kwt.products')->with('success', 'Produk berhasil dihapus!');
     }
 
     /**
@@ -189,37 +142,19 @@ class ProductController extends Controller
      */
     public function laporanTransaksi()
     {
-        $orders = Order::with([
-            'user',
-            'details.product'
-        ])
-        ->whereHas('details.product', function ($q) {
-            $q->where('user_id', Auth::id());
-        })
-        ->latest()
-        ->get();
+        $orders = Order::with(['user', 'details.product'])
+            ->whereHas('details.product', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->latest()->get();
 
         $totalPendapatan = 0;
-
         foreach ($orders as $order) {
             foreach ($order->details as $detail) {
-                if (
-                    $detail->product &&
-                    $detail->product->user_id == Auth::id()
-                ) {
-                    $totalPendapatan +=
-                        $detail->harga_saat_ini *
-                        $detail->jumlah;
+                if ($detail->product && $detail->product->user_id == Auth::id()) {
+                    $totalPendapatan += $detail->harga_saat_ini * $detail->jumlah;
                 }
             }
         }
-
-        return view(
-            'kwt.laporan',
-            compact(
-                'orders',
-                'totalPendapatan'
-            )
-        );
+        return view('kwt.laporan', compact('orders', 'totalPendapatan'));
     }
 }
