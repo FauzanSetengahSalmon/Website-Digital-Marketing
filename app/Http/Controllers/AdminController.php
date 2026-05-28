@@ -39,10 +39,10 @@ class AdminController extends Controller
                 $omzet = OrderDetail::whereHas('product', function ($q) use ($kwt) {
                     $q->where('user_id', $kwt->id);
                 })
-                ->whereHas('order', function ($q) {
-                    $q->where('status', 'selesai');
-                })
-                ->sum(DB::raw('harga_saat_ini * jumlah'));
+                    ->whereHas('order', function ($q) {
+                        $q->where('status', 'selesai');
+                    })
+                    ->sum(DB::raw('harga_saat_ini * jumlah'));
 
                 return [
                     'nama' => $kwt->name,
@@ -52,7 +52,7 @@ class AdminController extends Controller
             })->sortByDesc('omzet');
 
         $penjualanPerKurir = \App\Models\Kurir::all()->map(function ($kurir) {
-        $totalOngkir = \App\Models\Order::where('kurir', $kurir->nama)
+            $totalOngkir = \App\Models\Order::where('kurir', $kurir->nama)
                 ->where('status', 'selesai')
                 ->sum('ongkir');
             return [
@@ -62,8 +62,14 @@ class AdminController extends Controller
         })->sortByDesc('total_ongkir');
 
         return view('admin.dashboard', compact(
-            'totalKwt', 'totalProduk', 'totalPesanan', 'totalPendapatan', 
-            'kwts', 'penjualanPerKwt', 'penjualanPerKurir', 'stats'
+            'totalKwt',
+            'totalProduk',
+            'totalPesanan',
+            'totalPendapatan',
+            'kwts',
+            'penjualanPerKwt',
+            'penjualanPerKurir',
+            'stats'
         ));
     }
 
@@ -83,26 +89,18 @@ class AdminController extends Controller
     public function updateOrderStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-<<<<<<< HEAD
-        if ($request->input('status') === 'batal') {
-=======
         $status = $request->input('status');
 
         if ($status === 'batal') {
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
             $order->update(['status' => 'batal']);
             return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dibatalkan.');
         }
 
-<<<<<<< HEAD
-=======
         if ($status === 'diantar') {
             $order->update(['status' => 'diantar']);
             return redirect()->back()->with('success', 'Pesanan #' . $id . ' statusnya diubah menjadi Pesanan Diantar.');
         }
 
-        // 🌟 PERBAIKAN 1: Gunakan validasi string biasa agar tidak diblokir format browser 🌟
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
         $request->validate([
             'kurir' => 'required|string|max:255',
             'no_hp_kurir' => 'required|string|max:20',
@@ -212,8 +210,6 @@ class AdminController extends Controller
         return view('admin.sales.invoice_kurir', compact('sale'));
     }
 
-<<<<<<< HEAD
-=======
     /**
      * Cetak Invoice KWT Batch (Multi-select)
      */
@@ -221,7 +217,7 @@ class AdminController extends Controller
     {
         $ids = explode(',', $request->query('ids', ''));
         $sales = Order::with(['user', 'details.product.user'])->whereIn('id', $ids)->get();
-        
+
         $allGrouped = [];
         foreach ($sales as $sale) {
             $allGrouped[$sale->id] = [
@@ -229,7 +225,7 @@ class AdminController extends Controller
                 'grouped' => $sale->details->groupBy(fn($d) => $d->product->user->name ?? 'KWT Umum')
             ];
         }
-        
+
         return view('admin.sales.invoice_kwt_batch', compact('allGrouped'));
     }
 
@@ -240,24 +236,40 @@ class AdminController extends Controller
     {
         $ids = explode(',', $request->query('ids', ''));
         $sales = Order::with('user')->whereIn('id', $ids)->get();
-        
+
         return view('admin.sales.invoice_kurir_batch', compact('sales'));
     }
 
     /**
      * Cetak Laporan & Invoice Penghasilan Kurir
      */
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
     public function reportKurir(Request $request, $id)
     {
         $kurir = Kurir::findOrFail($id);
         $month = $request->query('month', date('m'));
         $year = $request->query('year', date('Y'));
-        
-        $orders = Order::where('kurir', $kurir->nama)->whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
+
+        $orders = Order::where('kurir', $kurir->nama)
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->get();
+
+        // Hitung total ongkir
         $totalOngkir = $orders->where('status', 'selesai')->sum('ongkir');
-        
-        return view('admin.sales.kurir_laporan', compact('kurir', 'orders', 'totalOngkir', 'month', 'year'));
+
+        // Tambahkan perhitungan ini agar view bisa membacanya
+        $potonganAdmin = $totalOngkir * 0.15;
+        $pendapatanBersih = $totalOngkir * 0.85;
+
+        return view('admin.sales.kurir_laporan', compact(
+            'kurir',
+            'orders',
+            'totalOngkir',
+            'potonganAdmin',
+            'pendapatanBersih',
+            'month',
+            'year'
+        ));
     }
 
     public function cairkan(Request $request, $kwt_id)
@@ -266,30 +278,32 @@ class AdminController extends Controller
             'order_ids' => 'required|array',
             'nama_penerima' => 'required|string|max:255'
         ]);
-        
+
         Order::whereIn('id', $request->order_ids)->update([
             'is_paid_out' => true,
             'nama_penerima' => $request->nama_penerima
         ]);
 
         return back()->with('printed_ids', $request->order_ids)
-                    ->with('penerima', $request->nama_penerima)
-                    ->with('success', 'Transaksi berhasil dicairkan.');
+            ->with('penerima', $request->nama_penerima)
+            ->with('success', 'Transaksi berhasil dicairkan.');
     }
-    
-    // --- FITUR BARU: Pencairan Kurir ---
-    public function riwayatPencairanKurir() {
+
+    public function riwayatPencairanKurir()
+    {
         $pencairan = KurirPencairan::latest()->get();
         return view('admin.kurir.pencairan', compact('pencairan'));
     }
 
-    public function storePencairanKurir(Request $request) {
+    public function storePencairanKurir(Request $request)
+    {
         $request->validate(['nama_kurir' => 'required', 'nama_penerima' => 'required', 'total_cair' => 'required']);
         KurirPencairan::create($request->all());
         return back()->with('success', 'Pencairan berhasil dicatat!');
     }
 
-    public function cairkanKurir(Request $request, $id) {
+    public function cairkanKurir(Request $request, $id)
+    {
         $kurir = Kurir::findOrFail($id);
         KurirPencairan::create([
             'nama_kurir' => $kurir->nama,
@@ -306,43 +320,13 @@ class AdminController extends Controller
         $month = $request->query('month', date('m'));
         $year = $request->query('year', date('Y'));
 
-<<<<<<< HEAD
-        $tersediaTahun = Order::whereHas('details.product', fn($q) => $q->where('user_id', $kwt->id))
-            ->selectRaw('strftime("%Y", created_at) as year')
-            ->distinct()
-            ->orderBy('year', 'DESC')
-            ->pluck('year')
-            ->toArray();
-        if (empty($tersediaTahun)) $tersediaTahun = [date('Y')];
-
-=======
-        // Query orders containing products from this KWT in that month/year
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
         $orders = Order::with(['user', 'details.product'])
             ->whereHas('details.product', fn($q) => $q->where('user_id', $kwt->id))
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
-<<<<<<< HEAD
-            ->latest()->get();
-
-        $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $kwt->id))
-            ->whereHas('order', fn($q) => $q->where('status', 'selesai')->whereMonth('created_at', $month)->whereYear('created_at', $year))
-            ->sum(DB::raw('harga_saat_ini * jumlah'));
-
-        $bulanIndo = [
-            '01'=>'Januari', '02'=>'Februari', '03'=>'Maret', '04'=>'April', 
-            '05'=>'Mei', '06'=>'Juni', '07'=>'Juli', '08'=>'Agustus', 
-            '09'=>'September', '10'=>'Oktober', '11'=>'November', '12'=>'Desember'
-        ];
-
-        return view('admin.sales.laporan_kwt', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year', 'tersediaTahun', 'bulanIndo'));
-    }
-}
-=======
             ->latest()
             ->get();
 
-        // Calculate KWT's completed earnings for these orders (only status == selesai)
         $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $kwt->id))
             ->whereHas('order', function ($q) use ($month, $year) {
                 $q->where('status', 'selesai')
@@ -354,5 +338,3 @@ class AdminController extends Controller
         return view('admin.kwt.laporan', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year'));
     }
 }
-
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68

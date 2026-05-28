@@ -21,14 +21,8 @@ class Order extends Model
         'alamat',
         'nomor_hp',
         'bukti_sampai',
-<<<<<<< HEAD
-        'jadwal_pengiriman',
-        'is_paid_out', // <--- Cukup tambahkan ini saja
-=======
         'bukti_pengiriman',
         'jadwal_pengiriman',
-
-        // 🌟 TAMBAHAN KOLOM AUDIT TRAIL ALIRAN DANA & REFUND
         'status_pembayaran',
         'waktu_dana_masuk',
         'status_refund',
@@ -36,14 +30,9 @@ class Order extends Model
         'alasan_tolak',
     ];
 
-    /**
-     * 🌟 MUTATOR CASTING DATETIME
-     * Otomatis mengubah string database menjadi Object Carbon Date
-     */
     protected $casts = [
         'waktu_dana_masuk' => 'datetime',
         'waktu_refund' => 'datetime',
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
     ];
 
     /*

@@ -317,9 +317,56 @@
     }
 
     .info-sidebar {
-        border-radius: 22px;
-        background: linear-gradient(145deg, #ffffff, #f4fbf4);
-        border: 1px solid rgba(76, 175, 80, 0.08);
+        position: sticky;
+        top: 100px;
+        /* Beri jarak dari atas navbar agar tidak menempel rapat */
+        z-index: 100;
+    }
+
+    /* Styling Komplain & Tanggapan - Modern Clean */
+    .complaint-container {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        margin-top: 15px;
+    }
+
+    .complaint-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .msg-box {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        position: relative;
+    }
+
+    /* Bubble Chat User */
+    .msg-user {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    /* Bubble Chat KWT */
+    .msg-kwt {
+        background: #f0fdf4;
+        border-left: 4px solid #22c55e;
+        color: #166534;
+    }
+
+    .msg-header {
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
     }
 </style>
 @endpush
@@ -462,28 +509,35 @@
                     </div>
                 </div>
 
-                {{-- DAFTAR KOMPLAIN DI RIWAYAT PESANAN --}}
+                {{-- DAFTAR KOMPLAIN --}}
                 @if($order->reports && $order->reports->isNotEmpty())
-                <div class="mx-4 mb-4 p-4 bg-light rounded-4 border border-light-subtle">
-                    <h6 class="fw-bold mb-3 text-success text-start" style="font-size: 0.95rem; letter-spacing: -0.2px;"><i class="bi bi-chat-left-text-fill me-2"></i>Komplain & Tanggapan KWT</h6>
+                <div class="complaint-container mx-4 mb-4">
+                    <div class="complaint-title">
+                        <i class="bi bi-shield-exclamation text-danger me-2"></i> Riwayat Pengaduan
+                    </div>
+
                     @foreach($order->reports as $rep)
-                    <div class="p-3.5 bg-white rounded-4 mb-3 border border-light-subtle border-start border-4 border-danger shadow-sm small text-start">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill fw-bold text-uppercase fs-8" style="font-size: 0.68rem; letter-spacing: 0.2px;">{{ $rep->tipe_pengaduan }}</span>
-                            <small class="text-muted fs-8 font-monospace">{{ $rep->created_at->format('d M Y') }}</small>
+                    <div class="mb-4 pb-3 border-bottom">
+                        {{-- Pesan Customer --}}
+                        <div class="msg-box msg-user">
+                            <div class="msg-header">
+                                <span>Anda - {{ $rep->tipe_pengaduan }}</span>
+                                <span>{{ $rep->created_at->format('d M, H:i') }}</span>
+                            </div>
+                            <div style="font-size: 0.8rem; font-weight: 500;">Pesan : {{ $rep->pesan }}</div>
                         </div>
-                        <div class="text-dark mb-3 lh-base" style="font-size: 0.88rem;">
-                            <strong>Keluhan Anda:</strong>
-                            <span class="text-secondary">"{{ $rep->pesan }}"</span>
-                        </div>
+
+                        {{-- Tanggapan KWT --}}
                         @if($rep->tanggapan_kwt)
-                        <div class="p-3 bg-success bg-opacity-10 rounded-3 border-start border-3 border-success small lh-base">
-                            <strong class="text-success small d-block mb-1.5"><i class="bi bi-chat-right-quote-fill me-1"></i> Tanggapan KWT:</strong>
-                            <span class="text-dark font-medium">"{!! nl2br(e($rep->tanggapan_kwt)) !!}"</span>
+                        <div class="msg-box msg-kwt">
+                            <div class="msg-header text-success">
+                                <span>Tanggapan KWT</span>
+                            </div>
+                            <div style="font-size: 0.9rem; line-height: 1.5;">{!! nl2br(e($rep->tanggapan_kwt)) !!}</div>
                         </div>
                         @else
-                        <div class="p-3 bg-warning bg-opacity-10 rounded-3 border-start border-3 border-warning small text-warning lh-base">
-                            <i class="bi bi-clock-history me-1"></i> Menunggu tanggapan dari Kelompok Wanita Tani (KWT)...
+                        <div class="p-3 bg-light rounded-3 border text-center text-muted" style="font-size: 0.8rem;">
+                            <i class="bi bi-hourglass-split me-1"></i> Menunggu balasan dari pihak KWT...
                         </div>
                         @endif
                     </div>
@@ -493,18 +547,15 @@
 
                 <div class="order-footer">
                     <div>
-                        <div class="total-label">Total Pembayaran Toko</div>
-                        <div class="total-amount">Rp {{ number_format($totalKwt, 0, ',', '.') }}</div>
+                        <div class="total-label">Total Pembayaran (Termasuk Ongkir)</div>
+                        {{-- Total sekarang mencakup ongkir --}}
+                        <div class="total-amount">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</div>
                     </div>
                     <div class="d-flex gap-2">
+                        {{-- Tombol "Selesaikan Pesanan" dihapus --}}
+
                         @if($order->status == 'selesai')
                         <a href="{{ route('customer.katalog') }}" class="btn btn-buy-again">Beli Lagi</a>
-                        @endif
-
-                        @if($order->status == 'diantar')
-                        <button type="button" class="btn btn-buy-again bg-success border-0 px-4" data-bs-toggle="modal" data-bs-target="#modalSelesaiCustomer{{ $order->id }}">
-                            <i class="bi bi-check2-circle me-1"></i> Selesaikan Pesanan
-                        </button>
                         @endif
 
                         <a href="{{ route('orders.history.detail', $order->id) }}" class="btn btn-detail">Lihat Detail</a>

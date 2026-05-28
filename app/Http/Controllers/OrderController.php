@@ -176,6 +176,47 @@ class OrderController extends Controller
     }
 
     /**
+     * KWT: Terima Pesanan
+     */
+    public function acceptOrder($id)
+    {
+        $userId = Auth::id();
+
+        $order = Order::whereHas('details.product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->findOrFail($id);
+
+        $order->update([
+            'status' => 'diproses'
+        ]);
+
+        return back()->with('success', 'Pesanan berhasil diterima.');
+    }
+
+    /**
+     * KWT: Tolak / Batalkan Pesanan
+     */
+    public function rejectOrder(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_tolak' => 'required|string|max:1000'
+        ]);
+
+        $userId = Auth::id();
+
+        $order = Order::whereHas('details.product', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->findOrFail($id);
+
+        $order->update([
+            'status' => 'batal',
+            'alasan_tolak' => $request->alasan_tolak
+        ]);
+
+        return back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    /**
      * SISI KWT / KURIR: Mengunggah Bukti Pengiriman (Barang Mulai Dikirim)
      */
     public function kirimPesanan(Request $request, $id)

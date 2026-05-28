@@ -171,12 +171,9 @@
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
         <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <h5 class="fw-bold text-dark mb-0">
-                <i class="bi bi-clock-history text-success me-2"></i>Riwayat Pengiriman Bulan {{ $namaBulan }} {{ $year }}
+                <i class="bi bi-clock-history text-success me-2"></i>Riwayat Pengiriman
             </h5>
             <div class="d-flex align-items-center gap-2">
-                <button type="button" id="btn-batch-kurir" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
-                    <i class="bi bi-truck me-1"></i> Cetak Surat Jalan Terpilih
-                </button>
                 <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
                     {{ $orders->count() }} Data Ditemukan
                 </span>
@@ -467,6 +464,7 @@
     .border-info-subtle {
         border-color: #b2ebf2 !important;
     }
+}
 </style>
 
 <script>

@@ -159,7 +159,7 @@
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
         <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <h5 class="fw-bold text-dark mb-0">
-                <i class="bi bi-shop text-success me-2"></i>Riwayat Transaksi Hasil Tani KWT ({{ $namaBulan }} {{ $year }})
+                <i class="bi bi-shop text-success me-2"></i>Riwayat Transaksi Hasil Tani KWT
             </h5>
             <div class="d-flex align-items-center gap-2">
                 <button type="button" id="btn-batch-kwt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
@@ -475,6 +475,7 @@
     .border-info-subtle {
         border-color: #b2ebf2 !important;
     }
+}
 </style>
 
 <script>

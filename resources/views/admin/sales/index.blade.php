@@ -9,9 +9,6 @@
             <p class="text-muted small mb-0">Pantau transaksi masuk dari customer dan distribusikan penugasan armada kurir.</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <button type="button" id="btn-batch-kwt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
-                <i class="bi bi-shop me-1"></i> Cetak Invoice KWT Terpilih
-            </button>
             <button type="button" id="btn-batch-kurir" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
                 <i class="bi bi-truck me-1"></i> Cetak Surat Jalan Terpilih
             </button>
@@ -21,7 +18,6 @@
         </div>
     </div>
 
-<<<<<<< HEAD
     {{-- SECTION PILIH KWT (REKAP PEMASUKAN) --}}
     <div class="mb-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -29,7 +25,7 @@
                 <i class="bi bi-wallet2 me-2 text-success"></i>Rekap Pemasukan KWT
             </h6>
         </div>
-        
+
         <div class="row g-3">
             @forelse(\App\Models\User::where('role', 'kwt')->get() as $k)
             <div class="col-6 col-md-3">
@@ -53,14 +49,12 @@
             @endforelse
         </div>
     </div>
-=======
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <div class="table-responsive">
@@ -261,11 +255,7 @@
                         </div>
                     </div>
 
-<<<<<<< HEAD
-                    @if(empty($sale->jadwal_pengiriman))
-=======
                     @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                     <div class="border-top pt-3 section-kurir-wrapper">
                         <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
                         <div class="row g-3">
@@ -303,7 +293,7 @@
                 </div>
 
                 <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 d-flex justify-content-between gap-2">
-                    {{-- 🌟 SISI KIRI MODAL: TOMBOL PEMBATALAN PESANAN KWT (MENGGUNAKAN BOOTSTRAP TOGGLE AMAN) 🌟 --}}
+                    {{-- SISI KIRI: TOMBOL TOLAK --}}
                     <div>
                         @if($sale->status == 'menunggu' || $sale->status == 'diproses')
                         <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
@@ -313,27 +303,36 @@
                         @endif
                     </div>
 
-<<<<<<< HEAD
-                    @if(empty($sale->jadwal_pengiriman))
-                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
-=======
-                    {{-- SISI KANAN MODAL --}}
+                    {{-- SISI KANAN: TOMBOL AKSI --}}
                     <div class="d-flex gap-2">
+                        {{-- 🌟 TOMBOL KIRIM LINK WA KE KURIR (MUNCUL JIKA STATUS DIANTAR) 🌟 --}}
+                        @if($sale->status == 'diantar')
+                        @php
+                        if(!$sale->delivery_token) {
+                        $sale->delivery_token = \Illuminate\Support\Str::random(32);
+                        $sale->save();
+                        }
+                        $link = route('kurir.upload', [$sale->id, $sale->delivery_token]);
+                        $pesan = rawurlencode("Halo Kurir, mohon segera foto bukti pesanan #".$sale->id." di sini: " . $link);
+                        @endphp
+                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $sale->no_hp_kurir) }}?text={{ $pesan }}"
+                            target="_blank" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                            <i class="bi bi-whatsapp"></i> Kirim Link Foto
+                        </a>
+                        @endif
+
                         <button type="button" class="btn btn-sm btn-light border rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
 
                         @if($sale->status === 'diproses')
                         <button type="submit" onclick="this.form.querySelector('.input-status-handler').value='diantar';" class="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="bi bi-truck me-1"></i> Tandai Pesanan Diantar
+                            <i class="bi bi-truck me-1"></i> Tandai Diantar
                         </button>
                         @endif
 
                         @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
                         <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
+                            <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas
                         </button>
-                        @else
-                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" disabled><i class="bi bi-lock-fill me-1"></i>Sistem Terkunci</button>
                         @endif
                     </div>
                 </div>
@@ -363,7 +362,6 @@
                     <button type="button" class="btn btn-light border rounded-pill px-4 fw-bold small py-2" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold py-2" style="background: #dc2626; border:none;">
                         <i class="bi bi-check-lg me-1"></i> Konfirmasi Tolak
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                     </button>
                 </div>
             </form>
@@ -373,21 +371,33 @@
 @endforeach
 
 <style>
-    .fs-7 { font-size: 0.85rem !important; }
-    .fs-8 { font-size: 0.75rem !important; }
-    .tracking-widest { letter-spacing: 0.1em; }
-    
+    .fs-7 {
+        font-size: 0.85rem !important;
+    }
+
+    .fs-8 {
+        font-size: 0.75rem !important;
+    }
+
+    .tracking-widest {
+        letter-spacing: 0.1em;
+    }
+
     /* KWT CARDS */
     .kwt-card {
         background: #ffffff;
-        border: 1px solid rgba(0,0,0,0.03);
+        border: 1px solid rgba(0, 0, 0, 0.03);
         text-decoration: none !important;
     }
+
     .kwt-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
     }
-    .kwt-card:hover .kwt-card-footer { opacity: 1 !important; }
+
+    .kwt-card:hover .kwt-card-footer {
+        opacity: 1 !important;
+    }
 
     /* BADGE STATUS */
     .badge-status {
@@ -399,77 +409,13 @@
         display: inline-block;
     }
 
-<<<<<<< HEAD
-    .transition-all { transition: all 0.3s ease; }
-    .table-hover tbody tr:hover { background-color: #fcfdfe !important; }
-=======
-    .fs-8 {
-        font-size: 0.72rem !important;
-    }
-
-    .tracking-wider {
-        letter-spacing: 0.06em;
-    }
-
-    .sm-table th,
-    .sm-table td {
-        padding: 0.6rem 0.5rem !important;
-        font-size: 0.82rem;
-    }
-
-    .bg-warning-subtle {
-        background-color: #fff3cd !important;
-        color: #856404 !important;
-    }
-
-    .border-warning-subtle {
-        border-color: #ffeeba !important;
-    }
-
-    .bg-primary-subtle {
-        background-color: #cce5ff !important;
-        color: #004085 !important;
-    }
-
-    .border-primary-subtle {
-        border-color: #b8daff !important;
-    }
-
-    .bg-success-subtle {
-        background-color: #d4edda !important;
-        color: #155724 !important;
-    }
-
-    .border-success-subtle {
-        border-color: #c3e6cb !important;
-    }
-
-    .bg-info-subtle {
-        background-color: #e0f7fa !important;
-        color: #00838f !important;
-    }
-
-    .border-info-subtle {
-        border-color: #b2ebf2 !important;
-    }
-
-    .bg-danger-subtle {
-        background-color: #f8d7da !important;
-        color: #721c24 !important;
-    }
-
-    .border-danger-subtle {
-        border-color: #f5c6cb !important;
-    }
-
     .transition-all {
-        transition: all 0.2s ease-in-out;
+        transition: all 0.3s ease;
     }
 
     .table-hover tbody tr:hover {
-        background-color: rgba(25, 135, 84, 0.02) !important;
+        background-color: #fcfdfe !important;
     }
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
 </style>
 
 <script>

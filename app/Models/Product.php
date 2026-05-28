@@ -11,15 +11,14 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-<<<<<<< HEAD
         'user_id', 
         'nama_produk', 
         'harga', 
         'stok', 
         'satuan', 
         'foto_produk', 
-        'deskripsi' // <--- Tambahkan ini
-=======
+        'deskripsi',// <--- Tambahkan ini
+
         'user_id',
         'nama_produk',
         'harga',
@@ -27,7 +26,6 @@ class Product extends Model
         'satuan',
         'deskripsi',
         'foto_produk'
->>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
     ];
 
     /*

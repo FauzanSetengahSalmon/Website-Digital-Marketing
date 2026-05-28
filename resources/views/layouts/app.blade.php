@@ -310,19 +310,25 @@
             <div class="navbar-inner">
 
                 {{-- BRAND --}}
-                <a href="{{ url('/') }}" class="brand-logo-wrap">
+                <a href="{{ route('home') }}" class="brand-logo-wrap text-decoration-none d-flex align-items-center" style="gap: 10px;">
 
-                    <div class="brand-icon">
-                        <i class="bi bi-flower1 text-white fs-4"></i>
+                    {{-- Container Logo --}}
+                    <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <img src="{{ asset('image/logo-cibiru.png') }}"
+                            alt="Logo Cibiru"
+                            style="width: 110px; height: 110px; object-fit: contain;">
                     </div>
 
-                    <div>
-                        KWT <span>Cibiru</span>
-                        <div class="brand-subtitle">
+                    {{-- Teks --}}
+                    <div style="line-height: 1.1;">
+                        <div style="color: #1b1b1b; font-weight: 700; font-size: 20px;">
+                            Tani <span style="color: #2d7a22;">Cibiru</span>
+                        </div>
+
+                        <div class="brand-subtitle" style="font-size: 13px; color: #666; font-weight: 600; margin-top: 3px;">
                             Kelompok Wanita Tani
                         </div>
                     </div>
-
                 </a>
 
                 {{-- MENU --}}
@@ -458,31 +464,49 @@
     {{-- ================= FOOTER ================= --}}
 
     <footer>
-
         <div class="footer-top">
-
             <div class="container">
 
                 <div class="row g-5">
 
+                    <!-- 
                     {{-- BRAND --}}
-                    <div class="col-12 col-md-4">
+                    <a href="{{ route('home') }}" class="brand-logo-wrap text-decoration-none d-flex align-items-center" style="gap: 10px;">
 
-                        <div class="footer-brand-wrap">
+                        {{-- Container Logo --}}
+                        <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img src="{{ asset('image/logo-cibiru.png') }}"
+                                alt="Logo Cibiru"
+                                style="width: 110px; height: 110px; object-fit: contain;">
+                        </div>
 
-                            <div class="footer-brand-icon">
-                                <i class="bi bi-flower1 text-white fs-5"></i>
+                        {{-- Teks --}}
+                        <div style="line-height: 1.1;">
+                            <div style="color: #1b1b1b; font-weight: 700; font-size: 20px;">
+                                Tani <span style="color: #2d7a22;">Cibiru</span>
                             </div>
 
+                            <div class="brand-subtitle" style="font-size: 13px; color: #666; font-weight: 600; margin-top: 3px;">
+                                Kelompok Wanita Tani
+                            </div>
+                        </div>
+                    </a> -->
+                    {{-- BRAND --}}
+                    <div class="col-12 col-md-4">
+                        <div class="footer-brand-wrap">
+                            {{-- Container Logo --}}
+                            <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <img src="{{ asset('image/logo-cibiru.png') }}"
+                                    alt="Logo Cibiru"
+                                    style="width: 110px; height: 110px; object-fit: contain;">
+                            </div>
                             <div>
-                                KWT <span>Cibiru</span>
+                                Tani <span>Cibiru</span>
                                 <div class="brand-subtitle">
                                     Kelompok Wanita Tani
                                 </div>
                             </div>
-
                         </div>
-
                         <p class="footer-tagline">
                             Platform digital hasil tani lokal dari
                             Kelompok Wanita Tani Desa Cibiru.
@@ -491,44 +515,41 @@
                         </p>
 
                         <div class="footer-social">
-
-                            <a href="#">
-                                <i class="bi bi-facebook"></i>
-                            </a>
-
-                            <a href="#">
+                            <a href="https://www.instagram.com/tanicibiru?igsh=Zzl5MXViZnd4ZmU=">
                                 <i class="bi bi-instagram"></i>
                             </a>
-
-                            <a href="#">
-                                <i class="bi bi-tiktok"></i>
-                            </a>
-
                         </div>
 
                     </div>
-
                     {{-- BUG --}}
                     <div class="col-12 col-md-4">
+                        <p class="footer-heading">Laporkan Bug</p>
 
-                        <p class="footer-heading">
-                            Laporkan Bug
-                        </p>
+                        <form action="{{ route('bug.report') }}" method="POST">
+                            @csrf
+                            {{-- Input Email --}}
+                            <input type="email"
+                                name="email"
+                                class="footer-subscribe-input"
+                                placeholder="Masukkan email anda"
+                                required>
 
-                        <input type="email"
-                            class="footer-subscribe-input"
-                            placeholder="Masukkan email anda">
+                            {{-- Input Pesan Bug --}}
+                            <textarea name="message"
+                                class="footer-subscribe-input"
+                                placeholder="Jelaskan bug atau kendala yang ditemukan..."
+                                rows="2"
+                                required></textarea>
 
-                        <button class="btn-subscribe">
-                            Kirim Laporan
-                        </button>
+                            <button type="submit" class="btn-subscribe">
+                                <i class="bi bi-send me-1"></i> Kirim Laporan
+                            </button>
+                        </form>
 
                         <p class="footer-spam-note">
                             Kami menjaga privasi data pengguna.
                         </p>
-
                     </div>
-
                     {{-- LINK --}}
                     <div class="col-6 col-md-2">
 
