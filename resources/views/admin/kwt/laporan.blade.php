@@ -56,7 +56,7 @@
                             <i class="bi bi-cash-coin fs-4 text-success"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1">
+                    <h3 class="fw-extrabold mb-1" id="widget-omzet">
                         Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                     </h3>
                     <p class="small mb-0 opacity-75">Pendapatan kotor dari order selesai</p>
@@ -76,7 +76,7 @@
                             <i class="bi bi-box-seam fs-4"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1 text-dark">
+                    <h3 class="fw-extrabold mb-1 text-dark" id="widget-terjual">
                         {{ $totalProdukTerjual }} <span class="fs-6 fw-normal text-muted">Item / Pack</span>
                     </h3>
                     <p class="small mb-0 text-muted">Berdasarkan pesanan berstatus selesai</p>
@@ -96,7 +96,7 @@
                             <i class="bi bi-receipt-cutoff fs-4"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1 text-dark">
+                    <h3 class="fw-extrabold mb-1 text-dark" id="widget-order-count">
                         {{ $orders->count() }} <span class="fs-6 fw-normal text-muted">Pesanan</span>
                     </h3>
                     <p class="small mb-0 text-muted">
@@ -162,9 +162,6 @@
                 <i class="bi bi-shop text-success me-2"></i>Riwayat Transaksi Hasil Tani KWT
             </h5>
             <div class="d-flex align-items-center gap-2">
-                <button type="button" id="btn-batch-kwt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
-                    <i class="bi bi-shop me-1"></i> Cetak Invoice Terpilih
-                </button>
                 <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
                     {{ $orders->count() }} Data Ditemukan
                 </span>
@@ -176,7 +173,7 @@
                 <table class="table align-middle mb-0 table-hover">
                     <thead class="table-light text-uppercase tracking-wider fs-7">
                         <tr>
-                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
+                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input" checked></th>
                             <th class="py-3">Order ID</th>
                             <th class="py-3">Customer</th>
                             <th class="py-3">Detail Hasil Panen KWT</th>
@@ -198,7 +195,7 @@
                         @endphp
                         <tr>
                             <td class="ps-4 py-3">
-                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}">
+                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}" data-subtotal-kwt="{{ $subtotalKwt }}" data-items-count="{{ $kwtDetails->sum('jumlah') }}" {{ $order->status == 'selesai' ? 'checked' : '' }}>
                             </td>
                             <td class="py-3">
                                 <span class="fw-bold text-success font-monospace">#ORD-{{ $order->id }}</span>
@@ -291,15 +288,15 @@
         <div class="row text-center">
             <div class="col-4 border-end" style="border-end-color: #c6f6d5 !important;">
                 <small class="text-muted d-block mb-1">Hasil Panen Terjual</small>
-                <h4 class="fw-bold text-dark">{{ $totalProdukTerjual }} Item / Pack</h4>
+                <h4 class="fw-bold text-dark" id="print-total-terjual">{{ $totalProdukTerjual }} Item / Pack</h4>
             </div>
             <div class="col-4 border-end" style="border-end-color: #c6f6d5 !important;">
                 <small class="text-muted d-block mb-1">Transaksi Sukses</small>
-                <h4 class="fw-bold text-dark">{{ $orders->where('status', 'selesai')->count() }} Order</h4>
+                <h4 class="fw-bold text-dark" id="print-order-count">{{ $orders->where('status', 'selesai')->count() }} Order</h4>
             </div>
             <div class="col-4">
                 <small class="text-muted d-block mb-1 fw-bold text-success">Total Pendapatan Bersih KWT</small>
-                <h3 class="fw-extrabold text-success">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
+                <h3 class="fw-extrabold text-success" id="print-total-omzet">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
             </div>
         </div>
     </div>
@@ -328,7 +325,7 @@
                 return $detail->harga_saat_ini * $detail->jumlah;
             });
             @endphp
-            <tr>
+            <tr data-print-order-id="{{ $order->id }}" class="print-order-row">
                 <td class="font-monospace fw-bold">#ORD-{{ $order->id }}</td>
                 <td>{{ $order->user->name ?? 'Masyarakat' }}</td>
                 <td>
@@ -341,15 +338,20 @@
                 <td class="text-end fw-bold text-success">Rp {{ number_format($subtotalKwt, 0, ',', '.') }}</td>
             </tr>
             @empty
-            <tr>
+            <tr id="print-empty-row">
                 <td colspan="6" class="text-center py-4 text-muted">Belum ada transaksi selesai untuk KWT ini pada periode terpilih.</td>
             </tr>
             @endforelse
+            @if($finishedOrders->isNotEmpty())
+            <tr id="print-empty-row" style="display: none;">
+                <td colspan="6" class="text-center py-4 text-muted">Belum ada transaksi selesai untuk KWT ini pada periode terpilih.</td>
+            </tr>
+            @endif
         </tbody>
         <tfoot>
             <tr class="fw-bold bg-light">
                 <td colspan="5" class="text-end">Total Akumulasi Pendapatan KWT:</td>
-                <td class="text-end text-success">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</td>
+                <td class="text-end text-success" id="print-foot-omzet">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</td>
             </tr>
         </tfoot>
     </table>
@@ -482,38 +484,104 @@
     document.addEventListener('DOMContentLoaded', function() {
         const checkAll = document.getElementById('check-all');
         const checkboxes = document.querySelectorAll('.order-checkbox');
-        const btnBatchKwt = document.getElementById('btn-batch-kwt');
 
-        function updateBatchButtons() {
-            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
-            if (checkedCount > 0) {
-                btnBatchKwt.removeAttribute('disabled');
-            } else {
-                btnBatchKwt.setAttribute('disabled', 'true');
+        // Helper function to format currency as rupiah
+        function formatRupiah(number) {
+            return 'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(Math.round(number));
+        }
+
+        function updateTotals() {
+            let totalOmzet = 0;
+            let totalTerjualCount = 0;
+            let totalTripCount = 0;
+            let totalSelesaiChecked = 0;
+
+            checkboxes.forEach(cb => {
+                const status = cb.getAttribute('data-status');
+                const subtotalKwt = parseFloat(cb.getAttribute('data-subtotal-kwt')) || 0;
+                const itemsCount = parseInt(cb.getAttribute('data-items-count')) || 0;
+                const orderId = cb.value;
+
+                // For the print table, only show rows corresponding to checked boxes
+                const printRow = document.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);
+
+                if (cb.checked) {
+                    totalTripCount++;
+                    if (status === 'selesai') {
+                        totalOmzet += subtotalKwt;
+                        totalTerjualCount += itemsCount;
+                        totalSelesaiChecked++;
+                    }
+                    if (printRow) {
+                        printRow.style.display = 'table-row';
+                    }
+                } else {
+                    if (printRow) {
+                        printRow.style.display = 'none';
+                    }
+                }
+            });
+
+            // Update top widgets on screen
+            const widgetOmzet = document.getElementById('widget-omzet');
+            const widgetTerjual = document.getElementById('widget-terjual');
+            const widgetOrderCount = document.getElementById('widget-order-count');
+
+            if (widgetOmzet) widgetOmzet.innerHTML = formatRupiah(totalOmzet);
+            if (widgetTerjual) {
+                widgetTerjual.innerHTML = `${totalTerjualCount} <span class="fs-6 fw-normal text-muted">Item / Pack</span>`;
+            }
+            if (widgetOrderCount) {
+                widgetOrderCount.innerHTML = `${totalTripCount} <span class="fs-6 fw-normal text-muted">Pesanan</span>`;
+            }
+
+            // Update print-only widgets
+            const printTotalTerjual = document.getElementById('print-total-terjual');
+            const printOrderCount = document.getElementById('print-order-count');
+            const printTotalOmzet = document.getElementById('print-total-omzet');
+            const printFootOmzet = document.getElementById('print-foot-omzet');
+
+            if (printTotalTerjual) printTotalTerjual.innerHTML = `${totalTerjualCount} Item / Pack`;
+            if (printOrderCount) printOrderCount.innerHTML = `${totalSelesaiChecked} Order`;
+            if (printTotalOmzet) printTotalOmzet.innerHTML = formatRupiah(totalOmzet);
+            if (printFootOmzet) printFootOmzet.innerHTML = formatRupiah(totalOmzet);
+
+            // Toggle empty print row if no selesai orders are checked
+            const printEmptyRow = document.getElementById('print-empty-row');
+            if (printEmptyRow) {
+                printEmptyRow.style.display = (totalSelesaiChecked === 0) ? 'table-row' : 'none';
             }
         }
 
+        // Toggle all checkboxes when checkAll is clicked
         if (checkAll) {
+            // Check if all checkboxes with status finished are already checked to set its state
+            const finishedCheckboxes = Array.from(checkboxes).filter(cb => cb.getAttribute('data-status') === 'selesai');
+            const allFinishedChecked = finishedCheckboxes.length > 0 && finishedCheckboxes.every(cb => cb.checked);
+            checkAll.checked = allFinishedChecked;
+
             checkAll.addEventListener('change', function() {
                 checkboxes.forEach(cb => {
                     cb.checked = checkAll.checked;
                 });
-                updateBatchButtons();
+                updateTotals();
             });
         }
 
+        // Listen for individual changes
         checkboxes.forEach(cb => {
-            cb.addEventListener('change', updateBatchButtons);
+            cb.addEventListener('change', function() {
+                // Update checkAll state
+                if (checkAll) {
+                    const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+                    checkAll.checked = (checkedCount === checkboxes.length);
+                }
+                updateTotals();
+            });
         });
 
-        if (btnBatchKwt) {
-            btnBatchKwt.addEventListener('click', function() {
-                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
-                if (selectedIds.length > 0) {
-                    window.open("{{ route('admin.invoice.kwt.batch') }}?ids=" + selectedIds.join(','), '_blank');
-                }
-            });
-        }
+        // Initialize totals on page load
+        updateTotals();
     });
 </script>
 @endsection

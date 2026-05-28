@@ -9,9 +9,6 @@
             <p class="text-muted small mb-0">Pantau transaksi masuk dari customer dan distribusikan penugasan armada kurir.</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <button type="button" id="btn-batch-kurir" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
-                <i class="bi bi-truck me-1"></i> Cetak Surat Jalan Terpilih
-            </button>
             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7 d-flex align-items-center">
                 <i class="bi bi-cart-check-fill me-1"></i> {{ $sales->count() }} Total Pesanan
             </span>
@@ -61,9 +58,9 @@
             <table class="table align-middle mb-0 table-hover">
                 <thead class="bg-light border-bottom text-uppercase tracking-wider fs-7 fw-bold text-secondary">
                     <tr>
-                        <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
-                        <th class="py-3">Order ID</th>
+                        <th class="ps-4 py-3">Order ID</th>
                         <th class="py-3">Customer</th>
+                        <th class="py-3">KWT</th>
                         <th class="py-3 text-end">Total Harga</th>
                         <th class="py-3 text-center">Status</th>
                         <th class="py-3">Jadwal Kirim</th>
@@ -75,9 +72,6 @@
                     @forelse($sales as $sale)
                     <tr class="align-middle border-bottom border-light">
                         <td class="ps-4 py-3.5">
-                            <input type="checkbox" class="form-check-input order-checkbox" value="{{ $sale->id }}">
-                        </td>
-                        <td class="py-3.5">
                             <span class="fw-bold text-success font-monospace">#{{ $sale->id }}</span>
                         </td>
                         <td class="py-3.5">
@@ -90,6 +84,16 @@
                                     <small class="text-muted fs-8 font-monospace">{{ $sale->nomor_hp ?? $sale->user->phone_number ?? '-' }}</small>
                                 </div>
                             </div>
+                        </td>
+                        <td class="py-3.5">
+                            @php
+                                $kwtNames = $sale->details->map(fn($d) => $d->product->user->name ?? 'KWT Umum')->unique()->filter()->implode(', ');
+                            @endphp
+                            @if($kwtNames)
+                                <span class="fw-bold text-dark fs-7">{{ $kwtNames }}</span>
+                            @else
+                                <span class="text-muted small italic">-</span>
+                            @endif
                         </td>
                         <td class="py-3.5 text-end">
                             <span class="fw-bold text-dark">Rp {{ number_format($sale->total_harga, 0, ',', '.') }}</span>
@@ -434,55 +438,7 @@
             });
         });
 
-        // Batch Action handler
-        const checkAll = document.getElementById('check-all');
-        const checkboxes = document.querySelectorAll('.order-checkbox');
-        const btnBatchKwt = document.getElementById('btn-batch-kwt');
-        const btnBatchKurir = document.getElementById('btn-batch-kurir');
-
-        function updateBatchButtons() {
-            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
-            if (checkedCount > 0) {
-                btnBatchKwt.removeAttribute('disabled');
-                btnBatchKurir.removeAttribute('disabled');
-            } else {
-                btnBatchKwt.setAttribute('disabled', 'true');
-                btnBatchKurir.setAttribute('disabled', 'true');
-            }
-        }
-
-        if (checkAll) {
-            checkAll.addEventListener('change', function() {
-                checkboxes.forEach(cb => {
-                    cb.checked = checkAll.checked;
-                });
-                updateBatchButtons();
-            });
-        }
-
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', updateBatchButtons);
-        });
-
-        // Print batch KWT
-        if (btnBatchKwt) {
-            btnBatchKwt.addEventListener('click', function() {
-                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
-                if (selectedIds.length > 0) {
-                    window.open("{{ route('admin.invoice.kwt.batch') }}?ids=" + selectedIds.join(','), '_blank');
-                }
-            });
-        }
-
-        // Print batch Kurir
-        if (btnBatchKurir) {
-            btnBatchKurir.addEventListener('click', function() {
-                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
-                if (selectedIds.length > 0) {
-                    window.open("{{ route('admin.invoice.kurir.batch') }}?ids=" + selectedIds.join(','), '_blank');
-                }
-            });
-        }
+        // No batch print logic needed on this page
     });
 </script>
 @endsection

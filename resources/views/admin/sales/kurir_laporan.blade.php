@@ -48,7 +48,7 @@
                             <i class="bi bi-cash-stack fs-4 text-success"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1">
+                    <h3 class="fw-extrabold mb-1" id="widget-bersih">
                         Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}
                     </h3>
                     <p class="small mb-0 opacity-75">Hak kurir setelah potongan admin</p>
@@ -68,7 +68,7 @@
                             <i class="bi bi-wallet2 fs-4"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1 text-dark">
+                    <h3 class="fw-extrabold mb-1 text-dark" id="widget-ongkir">
                         Rp {{ number_format($totalOngkir, 0, ',', '.') }}
                     </h3>
                     <p class="small mb-0 text-muted">Akumulasi tarif ongkos kirim</p>
@@ -88,7 +88,7 @@
                             <i class="bi bi-percent fs-4"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1 text-danger">
+                    <h3 class="fw-extrabold mb-1 text-danger" id="widget-potongan">
                         Rp {{ number_format($potonganAdmin, 0, ',', '.') }}
                     </h3>
                     <p class="small mb-0 text-muted">Biaya pemeliharaan sistem</p>
@@ -108,7 +108,7 @@
                             <i class="bi bi-truck fs-4"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1 text-dark">
+                    <h3 class="fw-extrabold mb-1 text-dark" id="widget-jumlah-trip">
                         {{ $orders->count() }} <span class="fs-6 fw-normal text-muted">Pesanan</span>
                     </h3>
                     <p class="small mb-0 text-muted">
@@ -185,7 +185,7 @@
                 <table class="table align-middle mb-0 table-hover">
                     <thead class="table-light text-uppercase tracking-wider fs-7">
                         <tr>
-                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
+                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input" checked></th>
                             <th class="py-3">Order ID</th>
                             <th class="py-3">Customer</th>
                             <th class="py-3">Alamat Tujuan</th>
@@ -199,7 +199,7 @@
                         @forelse($orders as $order)
                         <tr>
                             <td class="ps-4 py-3">
-                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}">
+                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}" data-ongkir="{{ $order->ongkir }}" {{ $order->status == 'selesai' ? 'checked' : '' }}>
                             </td>
                             <td class="py-3">
                                 <span class="fw-bold text-success font-monospace">#{{ $order->id }}</span>
@@ -291,15 +291,15 @@
         <div class="row text-center">
             <div class="col-4 border-end">
                 <small class="text-muted d-block mb-1">Total Tarif Ongkir (100%)</small>
-                <h4 class="fw-bold text-dark">Rp {{ number_format($totalOngkir, 0, ',', '.') }}</h4>
+                <h4 class="fw-bold text-dark" id="print-total-ongkir">Rp {{ number_format($totalOngkir, 0, ',', '.') }}</h4>
             </div>
             <div class="col-4 border-end">
                 <small class="text-muted d-block mb-1">Potongan Manajemen (15%)</small>
-                <h4 class="fw-bold text-danger">Rp {{ number_format($potonganAdmin, 0, ',', '.') }}</h4>
+                <h4 class="fw-bold text-danger" id="print-potongan-admin">Rp {{ number_format($potonganAdmin, 0, ',', '.') }}</h4>
             </div>
             <div class="col-4">
                 <small class="text-muted d-block mb-1 fw-bold text-success">Pendapatan Bersih Kurir (85%)</small>
-                <h3 class="fw-extrabold text-success">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</h3>
+                <h3 class="fw-extrabold text-success" id="print-pendapatan-bersih">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</h3>
             </div>
         </div>
     </div>
@@ -320,7 +320,7 @@
         <tbody>
             @php $finishedOrders = $orders->where('status', 'selesai'); @endphp
             @forelse($finishedOrders as $order)
-            <tr>
+            <tr data-print-order-id="{{ $order->id }}" class="print-order-row">
                 <td class="font-monospace fw-bold">#{{ $order->id }}</td>
                 <td>{{ $order->user->name ?? 'Masyarakat' }}</td>
                 <td class="small">{{ $order->alamat }}</td>
@@ -329,16 +329,21 @@
                 <td class="text-end fw-bold">Rp {{ number_format($order->ongkir * 0.85, 0, ',', '.') }}</td>
             </tr>
             @empty
-            <tr>
+            <tr id="print-empty-row">
                 <td colspan="6" class="text-center py-4 text-muted">Belum ada pengiriman selesai untuk periode ini.</td>
             </tr>
             @endforelse
+            @if($finishedOrders->isNotEmpty())
+            <tr id="print-empty-row" style="display: none;">
+                <td colspan="6" class="text-center py-4 text-muted">Belum ada pengiriman selesai untuk periode ini.</td>
+            </tr>
+            @endif
         </tbody>
         <tfoot>
             <tr class="fw-bold bg-light">
                 <td colspan="4" class="text-end">Total Kumulatif:</td>
-                <td class="text-end">Rp {{ number_format($totalOngkir, 0, ',', '.') }}</td>
-                <td class="text-end text-success">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</td>
+                <td class="text-end" id="print-foot-ongkir">Rp {{ number_format($totalOngkir, 0, ',', '.') }}</td>
+                <td class="text-end text-success" id="print-foot-bersih">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</td>
             </tr>
         </tfoot>
     </table>
@@ -471,38 +476,107 @@
     document.addEventListener('DOMContentLoaded', function() {
         const checkAll = document.getElementById('check-all');
         const checkboxes = document.querySelectorAll('.order-checkbox');
-        const btnBatchKurir = document.getElementById('btn-batch-kurir');
 
-        function updateBatchButtons() {
-            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
-            if (checkedCount > 0) {
-                btnBatchKurir.removeAttribute('disabled');
-            } else {
-                btnBatchKurir.setAttribute('disabled', 'true');
+        // Helper function to format currency as rupiah
+        function formatRupiah(number) {
+            return 'Rp ' + new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(Math.round(number));
+        }
+
+        function updateTotals() {
+            let totalOngkir = 0;
+            let totalTripCount = 0;
+            let totalSelesaiChecked = 0;
+
+            checkboxes.forEach(cb => {
+                const status = cb.getAttribute('data-status');
+                const ongkir = parseFloat(cb.getAttribute('data-ongkir')) || 0;
+                const orderId = cb.value;
+
+                // For the print table, only show rows corresponding to checked boxes
+                const printRow = document.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);
+
+                if (cb.checked) {
+                    totalTripCount++;
+                    if (status === 'selesai') {
+                        totalOngkir += ongkir;
+                        totalSelesaiChecked++;
+                    }
+                    if (printRow) {
+                        printRow.style.display = 'table-row';
+                    }
+                } else {
+                    if (printRow) {
+                        printRow.style.display = 'none';
+                    }
+                }
+            });
+
+            // Calculate admin cut and net income
+            const potonganAdmin = totalOngkir * 0.15;
+            const pendapatanBersih = totalOngkir * 0.85;
+
+            // Update top widgets on screen
+            const widgetOngkir = document.getElementById('widget-ongkir');
+            const widgetPotongan = document.getElementById('widget-potongan');
+            const widgetBersih = document.getElementById('widget-bersih');
+            const widgetJumlahTrip = document.getElementById('widget-jumlah-trip');
+
+            if (widgetOngkir) widgetOngkir.innerHTML = formatRupiah(totalOngkir);
+            if (widgetPotongan) widgetPotongan.innerHTML = formatRupiah(potonganAdmin);
+            if (widgetBersih) widgetBersih.innerHTML = formatRupiah(pendapatanBersih);
+            if (widgetJumlahTrip) {
+                widgetJumlahTrip.innerHTML = `${totalTripCount} <span class="fs-6 fw-normal text-muted">Terpilih</span>`;
+            }
+
+            // Update print-only widgets
+            const printTotalOngkir = document.getElementById('print-total-ongkir');
+            const printPotonganAdmin = document.getElementById('print-potongan-admin');
+            const printPendapatanBersih = document.getElementById('print-pendapatan-bersih');
+            const printFootOngkir = document.getElementById('print-foot-ongkir');
+            const printFootBersih = document.getElementById('print-foot-bersih');
+
+            if (printTotalOngkir) printTotalOngkir.innerHTML = formatRupiah(totalOngkir);
+            if (printPotonganAdmin) printPotonganAdmin.innerHTML = formatRupiah(potonganAdmin);
+            if (printPendapatanBersih) printPendapatanBersih.innerHTML = formatRupiah(pendapatanBersih);
+            if (printFootOngkir) printFootOngkir.innerHTML = formatRupiah(totalOngkir);
+            if (printFootBersih) printFootBersih.innerHTML = formatRupiah(pendapatanBersih);
+
+            // Toggle empty print row if no selesai orders are checked
+            const printEmptyRow = document.getElementById('print-empty-row');
+            if (printEmptyRow) {
+                printEmptyRow.style.display = (totalSelesaiChecked === 0) ? 'table-row' : 'none';
             }
         }
 
+        // Toggle all checkboxes when checkAll is clicked
         if (checkAll) {
+            // Check if all checkboxes with status finished are already checked to set its state
+            const finishedCheckboxes = Array.from(checkboxes).filter(cb => cb.getAttribute('data-status') === 'selesai');
+            const allFinishedChecked = finishedCheckboxes.length > 0 && finishedCheckboxes.every(cb => cb.checked);
+            checkAll.checked = allFinishedChecked;
+
             checkAll.addEventListener('change', function() {
                 checkboxes.forEach(cb => {
                     cb.checked = checkAll.checked;
                 });
-                updateBatchButtons();
+                updateTotals();
             });
         }
 
+        // Listen for individual changes
         checkboxes.forEach(cb => {
-            cb.addEventListener('change', updateBatchButtons);
+            cb.addEventListener('change', function() {
+                // Update checkAll state
+                if (checkAll) {
+                    const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+                    checkAll.checked = (checkedCount === checkboxes.length);
+                }
+                updateTotals();
+            });
         });
 
-        if (btnBatchKurir) {
-            btnBatchKurir.addEventListener('click', function() {
-                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
-                if (selectedIds.length > 0) {
-                    window.open("{{ route('admin.invoice.kurir.batch') }}?ids=" + selectedIds.join(','), '_blank');
-                }
-            });
-        }
+        // Initialize totals on page load
+        updateTotals();
     });
 </script>
 @endsection
