@@ -46,10 +46,12 @@ class RegisteredUserController extends Controller
             ],
 
             'phone_number' => ['required'],
-            'province' => ['required'],
-            'city' => ['required'],
-            'district' => ['required'],
-            'address' => ['required'],
+
+            // Perbaikan: Diubah menjadi nullable agar tidak wajib diisi saat pendaftaran awal
+            'province' => ['nullable', 'string'],
+            'city' => ['nullable', 'string'],
+            'district' => ['nullable', 'string'],
+            'address' => ['nullable', 'string'],
         ]);
 
         /*
@@ -66,10 +68,12 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
 
             'phone_number' => $request->phone_number,
-            'province' => $request->province,
-            'city' => $request->city,
-            'district' => $request->district,
-            'address' => $request->address,
+
+            // Perbaikan: Jika data kosong, otomatis diisi NULL agar database tidak error
+            'province' => $request->province ?? null,
+            'city' => $request->city ?? null,
+            'district' => $request->district ?? null,
+            'address' => $request->address ?? null,
 
             'role' => 'customer',
         ]);

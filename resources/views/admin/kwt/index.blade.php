@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
+<<<<<<< HEAD
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -151,85 +152,116 @@
 
 <div class="container-fluid py-4 px-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
+=======
+<div class="container-fluid py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
         <div>
-            <h3 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px;">Manajemen Akun KWT</h3>
-            <p class="text-muted small m-0 mt-1">Kelola hak akses dan verifikasi akun Kelompok Wanita Tani.</p>
+            <h2 class="fw-bold text-dark mb-0">Manajemen Akun KWT</h2>
+            <p class="text-muted mb-0">Kelola hak akses dan verifikasi akun Kelompok Wanita Tani.</p>
         </div>
-        <button class="btn btn-success rounded-pill px-4 py-2 fw-semibold border-0 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahKwt" style="background-color: #10b981;">
-            <i class="fa-solid fa-plus me-2"></i> Tambah KWT Baru
-        </button>
+        <div>
+            <button type="button" class="btn btn-success rounded-3 px-4 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalTambahKwt">
+                <i class="bi bi-plus-lg me-2"></i> Tambah KWT Baru
+            </button>
+        </div>
     </div>
 
     @if(session('success'))
-    <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 p-3 d-flex align-items-center" style="background-color: #dcfce7; color: #15803d;">
-        <i class="fa-solid fa-circle-check me-2 fs-5"></i>
-        <span class="fw-medium">{{ session('success') }}</span>
+    <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
-    <div class="card custom-card overflow-hidden">
+    <div class="card border-0 rounded-4 shadow-sm p-4">
         <div class="table-responsive">
-            <table class="table custom-table align-middle mb-0">
-                <thead>
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
+<<<<<<< HEAD
                         <th class="ps-4">Nama KWT</th>
                         <th>Email</th>
                         <th>No. Telepon</th>
                         <th>Status Login</th>
                         <th>Tanggal Terdaftar</th>
                         <th class="text-center" style="width: 150px;">Aksi</th>
+=======
+                        <th class="border-0 px-3 py-3">Nama KWT</th>
+                        <th class="border-0 py-3">Email</th>
+                        <th class="border-0 py-3">No. Handphone</th>
+                        <th class="border-0 py-3 text-center">Status Login</th>
+                        <th class="border-0 py-3">Tanggal Terdaftar</th>
+                        <th class="border-0 px-3 py-3 text-center" style="width: 200px;">Aksi</th>
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($kwt as $item)
                     <tr>
-                        <td class="ps-4">
+                        <td class="fw-bold text-dark px-3">
                             <div class="d-flex align-items-center">
                                 @if($item->photo && file_exists(public_path('storage/' . $item->photo)))
                                 <img src="{{ asset('storage/' . $item->photo) }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px;">
                                 @elseif($item->photo && (str_contains($item->photo, 'http://') || str_contains($item->photo, 'https://')))
                                 <img src="{{ $item->photo }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px;">
                                 @else
-                                <div class="me-3 bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; background-color: #10b981 !important; font-size: 14px;">
+                                <div class="me-3 bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; background-color: #16a34a !important; font-size: 14px;">
                                     {{ strtoupper(substr($item->name, 0, 1)) }}
                                 </div>
                                 @endif
-                                <span class="fw-semibold text-dark">{{ $item->name }}</span>
+                                <span>{{ $item->name }}</span>
                             </div>
                         </td>
                         <td class="text-secondary">{{ $item->email }}</td>
-                        <td class="text-secondary">{{ $item->phone_number ?? $item->phone ?? '-' }}</td>
                         <td>
-                            @if($item->email_verified_at)
-                            <span class="badge badge-verified rounded-pill">
-                                <i class="fa-solid fa-circle-check me-1"></i> Terverifikasi
-                            </span>
+                            @if($item->phone_number || $item->phone)
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $item->phone_number ?? $item->phone) }}" target="_blank" class="text-decoration-none text-secondary">
+                                <i class="bi bi-whatsapp text-success me-1"></i> {{ $item->phone_number ?? $item->phone }}
+                            </a>
                             @else
-                            <span class="badge badge-unverified rounded-pill">
-                                <i class="fa-solid fa-circle-exclamation me-1"></i> Perlu Verifikasi
-                            </span>
+                            <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($item->email_verified_at)
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill small fw-medium">Terverifikasi</span>
+                            @else
+                            <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill small fw-medium">Perlu Verifikasi</span>
                             @endif
                         </td>
                         <td class="text-secondary">{{ $item->created_at->format('d M Y') }}</td>
+<<<<<<< HEAD
                         <td class="text-center">
                             <div class="d-flex justify-content-center align-items-center gap-2">
                                 {{-- Tombol Edit --}}
                                 <button type="button" class="btn btn-sm btn-action-edit rounded-pill px-3 fw-medium"
                                     data-bs-toggle="modal"
+=======
+                        <td class="text-center px-3">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{{ route('admin.kwt.laporan', $item->id) }}" class="btn btn-sm btn-outline-success rounded-3" title="Cetak Laporan Penghasilan">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-primary rounded-3" 
+                                    data-bs-toggle="modal" 
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                                     data-bs-target="#modalEditKwt"
                                     data-id="{{ $item->id }}"
                                     data-name="{{ $item->name }}"
                                     data-email="{{ $item->email }}"
                                     data-phone="{{ $item->phone_number ?? $item->phone ?? '' }}">
-                                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                                    <i class="bi bi-pencil"></i>
                                 </button>
+<<<<<<< HEAD
 
                                 {{-- Tombol Hapus --}}
+=======
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                                 <form action="{{ route('admin.kwt.destroy', $item->id) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun KWT ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-action-delete rounded-pill px-3 fw-medium">
-                                        <i class="fa-solid fa-trash-can me-1"></i> Hapus
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
@@ -237,10 +269,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-                            <i class="fa-solid fa-folder-open fs-2 mb-3 d-block text-black-50"></i>
-                            Belum ada akun KWT yang terdaftar.
-                        </td>
+                        <td colspan="6" class="text-center text-muted py-5">Belum ada akun KWT yang terdaftar.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -250,56 +279,40 @@
 </div>
 
 {{-- MODAL TAMBAH KWT --}}
-<div class="modal fade modal-premium" id="modalTambahKwt" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalTambahKwt" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex align-items-start justify-content-between">
-                <div>
-                    <h4 class="modal-title fw-bold text-dark" style="letter-spacing: -0.5px;">Buat Akun KWT</h4>
-                    <p class="text-muted small mb-0">Mulai integrasikan kelompok tani baru ke dalam sistem.</p>
-                </div>
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="fw-bold text-dark">Tambah KWT Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('admin.kwt.store') }}" method="POST" id="tambahKwtForm">
                 @csrf
-                <div class="modal-body px-4 pt-3">
+                <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">Nama KWT</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-signature"></i>
-                            <input type="text" name="name" class="form-control" placeholder="Contoh: KWT Melati" required>
-                        </div>
+                        <label class="form-label small fw-semibold">Nama KWT</label>
+                        <input type="text" name="name" class="form-control rounded-3" placeholder="Contoh: KWT Melati" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">Alamat Email KWT</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-envelope"></i>
-                            <input type="email" name="email" class="form-control" placeholder="kwtmelati@email.com" required>
-                        </div>
+                        <label class="form-label small fw-semibold">Alamat Email KWT</label>
+                        <input type="email" name="email" class="form-control rounded-3" placeholder="kwtmelati@email.com" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">No. Telepon Pengurus</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-phone"></i>
-                            <input type="text" name="phone_number" class="form-control" placeholder="0812xxxxxxx" required>
-                        </div>
+                        <label class="form-label small fw-semibold">No. Telepon Pengurus</label>
+                        <input type="text" name="phone_number" class="form-control rounded-3" placeholder="0812xxxxxxx" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">Password Utama</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-lock"></i>
-                            <input type="password" name="password" id="password_tambah" class="form-control" placeholder="Min. 8 Karakter" required>
-                            <span class="password-toggle-modal" onclick="togglePasswordModal('password_tambah', this)">
-                                <i class="fa-solid fa-eye"></i>
-                            </span>
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Password Utama</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="password_tambah" class="form-control rounded-3" placeholder="Min. 8 Karakter" required style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordModal('password_tambah', this)" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0 mt-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-medium" data-bs-dismiss="modal" style="border-radius: 12px !important; padding: 10px 20px;">Batal</button>
-                    <button type="submit" class="btn btn-premium-save rounded-pill px-4" id="submitBtnTambah" style="border-radius: 12px !important; padding: 10px 20px;">
-                        Simpan Akun
-                    </button>
+                <div class="modal-footer border-top-0">
+                    <button type="submit" class="btn btn-success rounded-pill px-4" id="submitBtnTambah">Simpan</button>
                 </div>
             </form>
         </div>
@@ -307,55 +320,41 @@
 </div>
 
 {{-- MODAL EDIT KWT --}}
-<div class="modal fade modal-premium" id="modalEditKwt" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalEditKwt" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex align-items-start justify-content-between">
-                <div>
-                    <h4 class="modal-title fw-bold text-dark" style="letter-spacing: -0.5px;">Ubah Akun KWT</h4>
-                    <p class="text-muted small mb-0">Perbarui data informasi profil akun KWT terpilih.</p>
-                </div>
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="fw-bold text-dark">Ubah Akun KWT</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="formEditKwt" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="modal-body px-4 pt-3">
+                <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">Nama KWT</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-signature"></i>
-                            <input type="text" name="name" id="edit-name" class="form-control" required>
-                        </div>
+                        <label class="form-label small fw-semibold">Nama KWT</label>
+                        <input type="text" name="name" id="edit-name" class="form-control rounded-3" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">Alamat Email KWT</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-envelope"></i>
-                            <input type="email" name="email" id="edit-email" class="form-control" required>
-                        </div>
+                        <label class="form-label small fw-semibold">Alamat Email KWT</label>
+                        <input type="email" name="email" id="edit-email" class="form-control rounded-3" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">No. Telepon Pengurus</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-phone"></i>
-                            <input type="text" name="phone_number" id="edit-phone" class="form-control" required>
-                        </div>
+                        <label class="form-label small fw-semibold">No. Telepon Pengurus</label>
+                        <input type="text" name="phone_number" id="edit-phone" class="form-control rounded-3" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small mb-1">Password Baru (Opsional)</label>
-                        <div class="input-field-modal">
-                            <i class="fa-solid fa-lock"></i>
-                            <input type="password" name="password" id="password_edit" class="form-control" placeholder="Kosongkan jika tidak ingin diubah">
-                            <span class="password-toggle-modal" onclick="togglePasswordModal('password_edit', this)">
-                                <i class="fa-solid fa-eye"></i>
-                            </span>
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold">Password Baru (Opsional)</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="password_edit" class="form-control rounded-3" placeholder="Kosongkan jika tidak ingin diubah" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordModal('password_edit', this)" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0 mt-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-medium" data-bs-dismiss="modal" style="border-radius: 12px !important; padding: 10px 20px;">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold" style="border-radius: 12px !important; padding: 10px 20px; background-color: #2563eb; border: none;">Simpan Perubahan</button>
+                <div class="modal-footer border-top-0">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -380,21 +379,27 @@
         });
     }
 
+<<<<<<< HEAD
     function togglePasswordModal(id, el) {
+=======
+    // Toggle Lihat/Sembunyikan Password Modal
+    function togglePasswordModal(id, btn) {
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
         const input = document.getElementById(id);
+        const icon = btn.querySelector('i');
         if (input.type === 'password') {
             input.type = 'text';
-            el.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            icon.className = 'bi bi-eye-slash';
         } else {
             input.type = 'password';
-            el.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            icon.className = 'bi bi-eye';
         }
     }
 
     document.getElementById('tambahKwtForm').addEventListener('submit', function() {
         const btn = document.getElementById('submitBtnTambah');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Memproses...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Memproses...';
     });
 </script>
 @endpush

@@ -45,7 +45,7 @@ class OrderController extends Controller
             $q->where('user_id', $userId);
         })
             ->whereHas('order', function ($q) {
-                $q->where('status', 'menunggu');
+                $q->whereIn('status', ['menunggu', 'diproses', 'diantar']);
             })
             ->distinct('order_id')
             ->count();
@@ -217,7 +217,7 @@ class OrderController extends Controller
      */
     public function history()
     {
-        $orders = Order::with(['details.product.user'])
+        $orders = Order::with(['details.product.user', 'reports'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
@@ -230,7 +230,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::with(['details.product.user'])
+        $order = Order::with(['details.product.user', 'reports'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
@@ -250,7 +250,7 @@ class OrderController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if ($order->status !== 'diproses') {
+        if ($order->status !== 'diantar') {
             return back()->with('error', 'Status pesanan tidak valid.');
         }
 

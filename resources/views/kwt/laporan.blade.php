@@ -11,13 +11,6 @@
                 Riwayat penjualan produk Kelompok Wanita Tani (KWT) Anda.
             </p>
         </div>
-
-        <button onclick="bukaKonfirmasiCetak()"
-            class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm"
-            id="btnCetakMasal">
-            <i class="bi bi-printer me-1"></i>
-            Cetak Semua Invoice Selesai
-        </button>
     </div>
 
     {{-- WIDGET --}}
@@ -129,7 +122,7 @@
                                 <select name="month"
                                     class="form-select border-0 shadow-none">
 
-                                    @for($m=1; $m<=12; $m++)
+                                    @for($m=5; $m<=12; $m++)
                                         <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}"
                                         {{ request('month', date('m')) == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                         {{ date('F', mktime(0, 0, 0, $m, 1)) }}
@@ -156,7 +149,7 @@
                                 <select name="year"
                                     class="form-select border-0 shadow-none">
 
-                                    @for($y=date('Y'); $y>=2024; $y--)
+                                    @for($y=2026; $y<=max(2026, date('Y')); $y++)
                                     <option value="{{ $y }}"
                                         {{ request('year', date('Y')) == $y ? 'selected' : '' }}>
                                         {{ $y }}
@@ -346,89 +339,7 @@
 
 </div>
 
-{{-- MODAL --}}
-<div class="modal fade"
-    id="notifCetakModal"
-    data-bs-backdrop="static"
-    tabindex="-1"
-    aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-
-        <div class="modal-content border-0 shadow rounded-4 text-center p-4">
-
-            <div class="modal-body p-0">
-
-                <div id="modalIcon" class="mb-3">
-                    <i class="bi bi-printer text-primary fs-1"></i>
-                </div>
-
-                <h5 class="fw-bold text-dark mb-2"
-                    id="modalTitle">
-
-                    Konfirmasi Cetak
-
-                </h5>
-
-                <p class="text-muted small mb-4"
-                    id="modalDesc">
-
-                    Apakah Anda ingin mencetak seluruh invoice selesai?
-
-                </p>
-
-                <div class="progress mb-4 d-none"
-                    id="modalProgress"
-                    style="height: 8px;">
-
-                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                        style="width: 0%"></div>
-
-                </div>
-
-                <div class="d-flex gap-2 justify-content-center"
-                    id="modalActionGroup">
-
-                    <button type="button"
-                        class="btn btn-light btn-sm rounded-pill px-3"
-                        data-bs-dismiss="modal">
-
-                        Batal
-
-                    </button>
-
-                    <button type="button"
-                        onclick="mulaiCetakMasal()"
-                        class="btn btn-primary btn-sm rounded-pill px-3">
-
-                        Ya, Cetak
-
-                    </button>
-
-                </div>
-
-                <div class="d-none"
-                    id="modalCloseGroup">
-
-                    <button type="button"
-                        class="btn btn-dark btn-sm rounded-pill px-4"
-                        data-bs-dismiss="modal">
-
-                        Selesai
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<iframe id="printFrame" style="display:none;"></iframe>
 
 <style>
     body {
@@ -575,88 +486,4 @@
     }
 </style>
 
-<script>
-    let rowsToPrint = [];
-    let cetakModal;
-
-    document.addEventListener("DOMContentLoaded", function() {
-
-        cetakModal = new bootstrap.Modal(
-            document.getElementById('notifCetakModal')
-        );
-
-    });
-
-    function bukaKonfirmasiCetak() {
-
-        rowsToPrint = document.querySelectorAll(
-            'tbody tr[data-status="selesai"]'
-        );
-
-        if (rowsToPrint.length === 0) {
-            alert('Tidak ada data selesai.');
-            return;
-        }
-
-        cetakModal.show();
-    }
-
-    async function mulaiCetakMasal() {
-
-        document.getElementById('modalActionGroup')
-            .classList.add('d-none');
-
-        document.getElementById('modalProgress')
-            .classList.remove('d-none');
-
-        const progressBar = document.querySelector(
-            '#modalProgress .progress-bar'
-        );
-
-        const iframe = document.getElementById('printFrame');
-
-        for (let i = 0; i < rowsToPrint.length; i++) {
-
-            let percent = Math.round(
-                ((i + 1) / rowsToPrint.length) * 100
-            );
-
-            progressBar.style.width = percent + '%';
-
-            const linkElement = rowsToPrint[i]
-                .querySelector('.link-invoice-item');
-
-            const url = linkElement.getAttribute('href') +
-                '&print=true';
-
-            await new Promise((resolve) => {
-
-                iframe.src = url;
-
-                iframe.onload = function() {
-
-                    setTimeout(() => {
-
-                        iframe.contentWindow.print();
-
-                        resolve();
-
-                    }, 1000);
-
-                };
-
-            });
-
-        }
-
-        document.getElementById('modalTitle').innerText = 'Selesai';
-
-        document.getElementById('modalProgress')
-            .classList.add('d-none');
-
-        document.getElementById('modalCloseGroup')
-            .classList.remove('d-none');
-
-    }
-</script>
 @endsection

@@ -14,7 +14,8 @@ class Report extends Model
         'tipe_pengaduan',
         'pesan',
         'foto_bukti',
-        'status'
+        'status',
+        'tanggapan_kwt'
     ];
 
     public function product()

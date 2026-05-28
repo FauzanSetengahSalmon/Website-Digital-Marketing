@@ -61,8 +61,24 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/sales', [AdminController::class, 'allSales'])->name('sales.index');
         Route::put('/order/{id}/status', [AdminController::class, 'updateOrderStatus'])->name('order.status');
+<<<<<<< HEAD
+=======
+
+        // 🌟 JALUR PERBAIKAN UTAMA: Mendaftarkan rute Tolak Pesanan KWT secara sah ke ProductController 🌟
+        Route::post('/orders/{id}/reject', [ProductController::class, 'tolakPesanan'])->name('orders.reject');
+
+        // Route untuk Cetak Invoice khusus per KWT
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
         Route::get('/order/{id}/invoice-kwt', [AdminController::class, 'printInvoiceKwt'])->name('order.invoice.kwt');
         Route::get('/order/{id}/invoice-kurir', [AdminController::class, 'printInvoiceKurir'])->name('order.invoice.kurir');
+<<<<<<< HEAD
+=======
+        // Route untuk Cetak Invoice KWT Batch
+        Route::get('/invoice-kwt-batch', [AdminController::class, 'printInvoiceKwtBatch'])->name('invoice.kwt.batch');
+        // Route untuk Cetak Invoice Kurir Batch
+        Route::get('/invoice-kurir-batch', [AdminController::class, 'printInvoiceKurirBatch'])->name('invoice.kurir.batch');
+        // Route untuk Cetak Invoice/Laporan Penghasilan per Kurir
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
         Route::get('/kurir/{id}/laporan', [AdminController::class, 'reportKurir'])->name('kurir.laporan');
     });
 

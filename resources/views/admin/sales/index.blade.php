@@ -8,13 +8,20 @@
             <h4 class="fw-bold text-dark mb-1">Daftar Penjualan Global</h4>
             <p class="text-muted small mb-0">Pantau transaksi masuk dari customer dan distribusikan penugasan armada kurir.</p>
         </div>
-        <div>
-            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7">
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" id="btn-batch-kwt" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
+                <i class="bi bi-shop me-1"></i> Cetak Invoice KWT Terpilih
+            </button>
+            <button type="button" id="btn-batch-kurir" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" disabled>
+                <i class="bi bi-truck me-1"></i> Cetak Surat Jalan Terpilih
+            </button>
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7 d-flex align-items-center">
                 <i class="bi bi-cart-check-fill me-1"></i> {{ $sales->count() }} Total Pesanan
             </span>
         </div>
     </div>
 
+<<<<<<< HEAD
     {{-- SECTION PILIH KWT (REKAP PEMASUKAN) --}}
     <div class="mb-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -46,13 +53,22 @@
             @endforelse
         </div>
     </div>
+=======
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-hover">
                 <thead class="bg-light border-bottom text-uppercase tracking-wider fs-7 fw-bold text-secondary">
                     <tr>
-                        <th class="ps-4 py-3">Order ID</th>
+                        <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
+                        <th class="py-3">Order ID</th>
                         <th class="py-3">Customer</th>
                         <th class="py-3 text-end">Total Harga</th>
                         <th class="py-3 text-center">Status</th>
@@ -65,6 +81,9 @@
                     @forelse($sales as $sale)
                     <tr class="align-middle border-bottom border-light">
                         <td class="ps-4 py-3.5">
+                            <input type="checkbox" class="form-check-input order-checkbox" value="{{ $sale->id }}">
+                        </td>
+                        <td class="py-3.5">
                             <span class="fw-bold text-success font-monospace">#{{ $sale->id }}</span>
                         </td>
                         <td class="py-3.5">
@@ -86,6 +105,8 @@
                             <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">⚡ Menunggu</span>
                             @elseif($sale->status == 'diproses')
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">📦 Diproses</span>
+                            @elseif($sale->status == 'diantar')
+                            <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">🚚 Diantar</span>
                             @elseif($sale->status == 'batal')
                             <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">❌ Batal</span>
                             @else
@@ -104,37 +125,17 @@
                         </td>
                         <td class="py-3.5 text-center pe-4">
                             <div class="d-flex gap-2 justify-content-center">
-                                {{-- Tombol Kelola (Bawaan) --}}
                                 <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 fw-medium text-dark transition-all shadow-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalProsesAdmin{{ $sale->id }}">
                                     <i class="bi bi-sliders2 me-1 text-success"></i> Kelola
                                 </button>
-
-                                {{-- Tombol Cetak Invoice (Terpisah KWT & Kurir) --}}
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 fw-medium text-dark dropdown-toggle transition-all shadow-sm" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-printer me-1 text-primary"></i> Cetak
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow border-0">
-                                        <li>
-                                            <a class="dropdown-item py-2 small" href="{{ route('admin.order.invoice.kwt', $sale->id) }}?print=true" target="_blank">
-                                                <i class="bi bi-shop me-2 text-success"></i> Invoice KWT
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item py-2 small" href="{{ route('admin.order.invoice.kurir', $sale->id) }}?print=true" target="_blank">
-                                                <i class="bi bi-truck me-2 text-primary"></i> Surat Jalan Kurir
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
+                        <td colspan="8" class="text-center py-5 text-muted">
                             <div class="py-3">
                                 <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50"></i>
                                 <span class="d-block fw-medium">Belum ada pesanan masuk.</span>
@@ -168,7 +169,7 @@
 
                 <div class="modal-body px-4 py-3">
 
-                    <div class="p-3 border rounded-4 bg-light bg-opacity-50 mb-4">
+                    <div class="p-3 border rounded-4 bg-light bg-opacity-50 mb-3">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
                                 <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Customer</small>
@@ -193,6 +194,30 @@
                                 <span class="small text-success fw-bold bg-success bg-opacity-10 px-2 py-1.5 rounded d-inline-block">
                                     <i class="bi bi-clock-history me-1"></i>Armada meluncur pada: {{ \Carbon\Carbon::parse($sale->jadwal_pengiriman)->format('d F Y') }}
                                 </span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- 🌟 AUDIT REKONSILIASI KEUANGAN --}}
+                    <div class="p-3 border rounded-4 bg-white mb-4 shadow-sm text-dark small">
+                        <h6 class="fw-bold text-dark mb-2 fs-7 text-uppercase"><i class="bi bi-cash-stack text-success me-2"></i>Status Rekonsiliasi Keuangan</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <strong>Log Arus Dana:</strong>
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-2 px-2 py-1">Dana Masuk KWT</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status Refund:</strong>
+                                @if($sale->status == 'batal')
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-2 px-2 py-1">Sedang Diproses KWT</span>
+                                @else
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-2 px-2 py-1">Tidak Ada Pembatalan</span>
+                                @endif
+                            </div>
+                            @if($sale->alasan_tolak)
+                            <div class="col-12 border-top pt-2 mt-2 text-danger font-monospace">
+                                <strong>Alasan Tolak KWT:</strong> "{{ $sale->alasan_tolak }}"
                             </div>
                             @endif
                         </div>
@@ -236,7 +261,11 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     @if(empty($sale->jadwal_pengiriman))
+=======
+                    @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                     <div class="border-top pt-3 section-kurir-wrapper">
                         <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
                         <div class="row g-3">
@@ -264,7 +293,7 @@
                     @else
                     <div class="border-top pt-3 p-3 bg-light rounded-3 border">
                         <h6 class="fw-bold text-secondary mb-2 fs-7 text-uppercase"><i class="bi bi-shield-check text-success me-2"></i>Status Logistik Terkunci</h6>
-                        <div class="row small g-2">
+                        <div class="row small g-2 text-dark">
                             <div class="col-md-6"><strong>Kurir Pengantar:</strong> {{ $sale->kurir ?? '-' }}</div>
                             <div class="col-md-6"><strong>Kontak Kurir:</strong> {{ $sale->no_hp_kurir ?? '-' }}</div>
                         </div>
@@ -273,16 +302,69 @@
 
                 </div>
 
-                <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 justify-content-end gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
+                <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 d-flex justify-content-between gap-2">
+                    {{-- 🌟 SISI KIRI MODAL: TOMBOL PEMBATALAN PESANAN KWT (MENGGUNAKAN BOOTSTRAP TOGGLE AMAN) 🌟 --}}
+                    <div>
+                        @if($sale->status == 'menunggu' || $sale->status == 'diproses')
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
+                            data-bs-toggle="modal" data-bs-target="#modalTolakPesanan{{ $sale->id }}">
+                            <i class="bi bi-x-circle me-1"></i> Tolak Pesanan
+                        </button>
+                        @endif
+                    </div>
 
+<<<<<<< HEAD
                     @if(empty($sale->jadwal_pengiriman))
                     <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
                         <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
+=======
+                    {{-- SISI KANAN MODAL --}}
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
+
+                        @if($sale->status === 'diproses')
+                        <button type="submit" onclick="this.form.querySelector('.input-status-handler').value='diantar';" class="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-truck me-1"></i> Tandai Pesanan Diantar
+                        </button>
+                        @endif
+
+                        @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
+                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas Kurir
+                        </button>
+                        @else
+                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" disabled><i class="bi bi-lock-fill me-1"></i>Sistem Terkunci</button>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL FORM ALASAN PENOLAKAN PESANAN KWT --}}
+<div class="modal fade" id="modalTolakPesanan{{ $sale->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 p-4 pb-0">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Tolak & Batalkan Pesanan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.orders.reject', $sale->id) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4 pt-2">
+                    <p class="text-muted small mb-3">Berikan alasan mengapa transaksi ini ditolak. Catatan audit trail aliran dana refund akan dikirim ke email pembeli.</p>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-secondary mb-1">Alasan Pembatalan</label>
+                        <textarea name="alasan_tolak" class="form-control text-dark p-2.5 small" rows="3" placeholder="Contoh: Maaf, stok bayam ikat dari kelompok tani KWT Mandiri saat ini habis..." required style="border-radius: 10px; resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 p-4 pt-0 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light border rounded-pill px-4 fw-bold small py-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold py-2" style="background: #dc2626; border:none;">
+                        <i class="bi bi-check-lg me-1"></i> Konfirmasi Tolak
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
                     </button>
-                    @else
-                    <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" disabled><i class="bi bi-lock-fill me-1"></i>Sudah Dijadwalkan</button>
-                    @endif
                 </div>
             </form>
         </div>
@@ -317,8 +399,77 @@
         display: inline-block;
     }
 
+<<<<<<< HEAD
     .transition-all { transition: all 0.3s ease; }
     .table-hover tbody tr:hover { background-color: #fcfdfe !important; }
+=======
+    .fs-8 {
+        font-size: 0.72rem !important;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.06em;
+    }
+
+    .sm-table th,
+    .sm-table td {
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.82rem;
+    }
+
+    .bg-warning-subtle {
+        background-color: #fff3cd !important;
+        color: #856404 !important;
+    }
+
+    .border-warning-subtle {
+        border-color: #ffeeba !important;
+    }
+
+    .bg-primary-subtle {
+        background-color: #cce5ff !important;
+        color: #004085 !important;
+    }
+
+    .border-primary-subtle {
+        border-color: #b8daff !important;
+    }
+
+    .bg-success-subtle {
+        background-color: #d4edda !important;
+        color: #155724 !important;
+    }
+
+    .border-success-subtle {
+        border-color: #c3e6cb !important;
+    }
+
+    .bg-info-subtle {
+        background-color: #e0f7fa !important;
+        color: #00838f !important;
+    }
+
+    .border-info-subtle {
+        border-color: #b2ebf2 !important;
+    }
+
+    .bg-danger-subtle {
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
+    }
+
+    .border-danger-subtle {
+        border-color: #f5c6cb !important;
+    }
+
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(25, 135, 84, 0.02) !important;
+    }
+>>>>>>> 331fc6b73615be611e4252b2c16ffde800b6bb68
 </style>
 
 <script>
@@ -336,6 +487,56 @@
                 }
             });
         });
+
+        // Batch Action handler
+        const checkAll = document.getElementById('check-all');
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const btnBatchKwt = document.getElementById('btn-batch-kwt');
+        const btnBatchKurir = document.getElementById('btn-batch-kurir');
+
+        function updateBatchButtons() {
+            const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+            if (checkedCount > 0) {
+                btnBatchKwt.removeAttribute('disabled');
+                btnBatchKurir.removeAttribute('disabled');
+            } else {
+                btnBatchKwt.setAttribute('disabled', 'true');
+                btnBatchKurir.setAttribute('disabled', 'true');
+            }
+        }
+
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                checkboxes.forEach(cb => {
+                    cb.checked = checkAll.checked;
+                });
+                updateBatchButtons();
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateBatchButtons);
+        });
+
+        // Print batch KWT
+        if (btnBatchKwt) {
+            btnBatchKwt.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length > 0) {
+                    window.open("{{ route('admin.invoice.kwt.batch') }}?ids=" + selectedIds.join(','), '_blank');
+                }
+            });
+        }
+
+        // Print batch Kurir
+        if (btnBatchKurir) {
+            btnBatchKurir.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+                if (selectedIds.length > 0) {
+                    window.open("{{ route('admin.invoice.kurir.batch') }}?ids=" + selectedIds.join(','), '_blank');
+                }
+            });
+        }
     });
 </script>
 @endsection

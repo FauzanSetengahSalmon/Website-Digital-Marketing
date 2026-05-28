@@ -74,4 +74,17 @@ class ReportController extends Controller
 
         return redirect()->back()->with('success', 'Status pengaduan berhasil diperbarui.');
     }
+
+    // SISI KWT: Mengisi atau memperbarui tanggapan untuk laporan/pengaduan
+    public function updateTanggapan(Request $request, $id)
+    {
+        $request->validate([
+            'tanggapan_kwt' => 'required|string|max:2000',
+        ]);
+
+        $report = Report::where('id', $id)->where('kwt_id', Auth::id())->firstOrFail();
+        $report->update(['tanggapan_kwt' => $request->tanggapan_kwt]);
+
+        return redirect()->back()->with('success', 'Tanggapan berhasil dikirim.');
+    }
 }
