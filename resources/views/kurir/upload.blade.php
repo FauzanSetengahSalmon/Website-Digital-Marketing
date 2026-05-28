@@ -14,7 +14,24 @@
             <h5 class="mb-0 fw-bold"><i class="bi bi-truck"></i> Bukti Pengiriman #{{ $order->id }}</h5>
         </div>
         <div class="card-body">
-            {{-- DATA PELANGGAN --}}
+
+            {{-- CEK STATUS PESANAN --}}
+            @if($order->status == 'selesai')
+            {{-- JIKA SUDAH SELESAI, TAMPILKAN PESAN SUKSES --}}
+            <div class="text-center py-4">
+                <div class="text-success fs-1"><i class="bi bi-check-circle-fill"></i></div>
+                <h4 class="fw-bold mt-2">Pesanan Selesai!</h4>
+                <p class="text-muted">Bukti foto telah berhasil diunggah.</p>
+
+                @if($order->bukti_sampai)
+                <div class="mt-3">
+                    <small class="text-muted text-uppercase fw-bold">Foto Bukti:</small>
+                    <img src="{{ asset('storage/' . $order->bukti_sampai) }}" class="img-fluid rounded mt-2 shadow-sm" alt="Bukti Foto">
+                </div>
+                @endif
+            </div>
+            @else
+            {{-- JIKA BELUM SELESAI, TAMPILKAN DETAIL & FORM --}}
             <div class="mb-3">
                 <small class="text-muted text-uppercase fw-bold">Penerima:</small>
                 <div class="fw-bold fs-5">{{ $order->user->name ?? 'Pelanggan' }}</div>
@@ -24,7 +41,6 @@
 
             <hr>
 
-            {{-- DETAIL PRODUK --}}
             <div class="mb-3">
                 <small class="text-muted text-uppercase fw-bold">Daftar Produk:</small>
                 <ul class="list-group list-group-flush mt-2">
@@ -41,7 +57,6 @@
 
             <hr>
 
-            {{-- FORM UPLOAD --}}
             <form action="{{ route('kurir.store', [$order->id, $order->delivery_token]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
@@ -53,6 +68,7 @@
                     <i class="bi bi-check-circle-fill"></i> Selesaikan Pesanan
                 </button>
             </form>
+            @endif
         </div>
     </div>
 </body>
