@@ -11,6 +11,7 @@ use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail; // TAMBAHAN: Import Facade Mail untuk kirim email
 use App\Exports\KwtTransactionExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -89,6 +90,7 @@ class OrderController extends Controller
 
         return view('kwt.laporan', compact('orders', 'totalPendapatan', 'month', 'year'));
     }
+
     /**
      * Menampilkan Daftar Pesanan Masuk (Sisi KWT)
      */
@@ -190,7 +192,7 @@ class OrderController extends Controller
             'status' => 'diproses'
         ]);
 
-        return back()->with('success', 'Pesanan berhasil diterima.');
+        return back()->with('success', 'Pesanan berhasil diverifikasi. Menunggu Admin mengatur pengiriman.');
     }
 
     /**
@@ -204,16 +206,41 @@ class OrderController extends Controller
 
         $userId = Auth::id();
 
-        $order = Order::whereHas('details.product', function ($q) use ($userId) {
+        // Ambil relasi user dan details untuk keperluan email dan pengembalian stok
+        $order = Order::with(['user', 'details.product'])->whereHas('details.product', function ($q) use ($userId) {
             $q->where('user_id', $userId);
         })->findOrFail($id);
 
+        // 1. Kembalikan stok produk seperti di Admin
+        foreach ($order->details as $detail) {
+            if ($detail->product) {
+                $detail->product->increment('stok', $detail->jumlah);
+            }
+        }
+
+        // 2. Ubah status pesanan menjadi batal
         $order->update([
             'status' => 'batal',
             'alasan_tolak' => $request->alasan_tolak
         ]);
 
-        return back()->with('success', 'Pesanan berhasil dibatalkan.');
+        // 3. Kirim Email Notifikasi ke Customer
+        try {
+            if ($order->user && $order->user->email) {
+                Mail::raw(
+                    "Halo {$order->user->name},\n\nMohon maaf, pesanan Anda dengan ID #ORD-{$order->id} terpaksa kami TOLAK dengan alasan: \"{$request->alasan_tolak}\".\n\nDana Anda akan segera diproses untuk pengembalian (Refund).",
+                    function ($message) use ($order) {
+                        $message->to($order->user->email)
+                            ->subject("Pemberitahuan Pembatalan & Refund Pesanan #ORD-{$order->id}");
+                    }
+                );
+            }
+        } catch (\Exception $e) {
+            // Log error jika email gagal terkirim, tapi jangan sampai aplikasi crash
+            // \Log::error('Gagal mengirim email penolakan pesanan KWT: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Pesanan berhasil ditolak, stok dikembalikan, dan notifikasi email telah dikirim ke pelanggan.');
     }
 
     /**
