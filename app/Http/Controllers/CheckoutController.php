@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Setting; // 🌟 DITAMBAHKAN: Memanggil Model Setting
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class CheckoutController extends Controller
     public function __construct()
     {
         Config::$serverKey = trim(env('MIDTRANS_SERVER_KEY'));
-        
+
         Config::$isProduction = env('MIDTRANS_IS_PRODUCTION') == 'true' || env('MIDTRANS_IS_PRODUCTION') == true;
         Config::$isSanitized = true;
         Config::$is3ds = true;
@@ -53,6 +54,17 @@ class CheckoutController extends Controller
         $jarak = 0;
         $ongkir = 0;
 
+        // 🌟 AMBIL PENGATURAN DARI DATABASE 🌟
+        // Jika tabel settings kosong, gunakan nilai default ini
+        $setting = Setting::first() ?? new Setting([
+            'tarif_per_km' => 2000,
+            'minimal_km' => 1,
+            'maksimal_km' => 15,
+            'biaya_layanan' => 2000
+        ]);
+
+        $biayaLayanan = $setting->biaya_layanan;
+
         // HITUNG JARAK BERDASARKAN LATITUDE & LONGITUDE USER (Rumus Haversine)
         if (!empty($user->latitude) && !empty($user->longitude)) {
             $earthRadius = 6371; // Radius bumi dalam kilometer
@@ -69,9 +81,18 @@ class CheckoutController extends Controller
             // Jarak dalam KM
             $jarak = round($earthRadius * $c, 1);
 
-            // TARIF: 1 KM = Rp 4.000
-            $tarifPerKm = 2000;
-            $ongkir = $jarak * $tarifPerKm;
+            // 🌟 VALIDASI MAKSIMAL JARAK PENGIRIMAN 🌟
+            if ($jarak > $setting->maksimal_km) {
+                return redirect()->route('cart.index')->with('error', 'Maaf, lokasi pengiriman Anda terlalu jauh (Maksimal ' . $setting->maksimal_km . ' KM dari Pusat KWT).');
+            }
+
+            // 🌟 VALIDASI MINIMAL JARAK PENGIRIMAN 🌟
+            if ($jarak < $setting->minimal_km) {
+                $jarak = $setting->minimal_km;
+            }
+
+            // 🌟 TARIF DINAMIS BERDASARKAN DATABASE 🌟
+            $ongkir = $jarak * $setting->tarif_per_km;
 
             // Pembulatan ke atas agar tidak ada angka receh ke kelipatan 500
             $ongkir = ceil($ongkir / 500) * 500;
@@ -149,7 +170,8 @@ class CheckoutController extends Controller
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
             'ongkir' => $ongkir,
-            'totalBayar' => $subtotal + $ongkir,
+            'biayaLayanan' => $biayaLayanan, // 🌟 Mengirim biaya layanan ke View Checkout
+            'totalBayar' => $subtotal + $ongkir + $biayaLayanan, // 🌟 Total Keseluruhan
             'jarak' => $jarak,
             'alamatCustomer' => $alamatCustomer,
             'dataWilayah' => $dataWilayah,
@@ -177,12 +199,18 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang belanja Anda kosong!'], 400);
         }
 
+        // 🌟 MENGAMBIL BIAYA LAYANAN DARI DATABASE SAAT PROSES 🌟
+        $setting = Setting::first() ?? new Setting(['biaya_layanan' => 2000]);
+        $biaya_layanan = $setting->biaya_layanan;
+
         // Hitung akumulasi belanjaan murni barang
         $subtotal = $cartItems->sum(fn($i) => $i->jumlah * $i->product->harga);
         $ongkir = (int) $request->input('ongkir', 0);
-        $totalPembayaran = $subtotal + $ongkir;
 
-        // 🌟 PERBAIKAN MUTAKHIR: LANGSUNG AMBIL DARI TABLE USER (Anti Kosong & Akurat) 🌟
+        // 🌟 TOTAL PEMBAYARAN: Subtotal + Ongkir + Biaya Layanan 🌟
+        $totalPembayaran = $subtotal + $ongkir + $biaya_layanan;
+
+        // LANGSUNG AMBIL DARI TABLE USER (Anti Kosong & Akurat)
         $alamatFinal = $user->address;
 
         // Satukan komponen wilayah pendukung dari table users jika kolomnya terisi
@@ -201,6 +229,7 @@ class CheckoutController extends Controller
                 'user_id' => $user->id,
                 'total_harga' => $totalPembayaran,
                 'ongkir' => $ongkir,
+                'biaya_layanan' => $biaya_layanan, // 🌟 MENYIMPAN BIAYA LAYANAN KE DATABASE ORDERS
                 'status' => 'menunggu', // default berstatus menunggu bayar
                 'catatan' => $request->catatan,
                 'alamat' => $alamatFinal,
@@ -238,6 +267,16 @@ class CheckoutController extends Controller
                     'price' => $ongkir,
                     'quantity' => 1,
                     'name' => 'Ongkos Kirim Kurir KWT',
+                ];
+            }
+
+            // 🌟 TAMBAHKAN BIAYA LAYANAN APLIKASI KE STRUK INVOICE MIDTRANS 🌟
+            if ($biaya_layanan > 0) {
+                $itemDetailsMidtrans[] = [
+                    'id' => 'LAYANAN',
+                    'price' => $biaya_layanan,
+                    'quantity' => 1,
+                    'name' => 'Biaya Layanan Aplikasi',
                 ];
             }
 
@@ -306,7 +345,7 @@ class CheckoutController extends Controller
 
         // Proses sinkronisasi otomatis status order di DB lokal kamu
         if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-            $order->update(['status' => 'menunggu']); 
+            $order->update(['status' => 'menunggu']);
         } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
             $order->update(['status' => 'batal']);
         }

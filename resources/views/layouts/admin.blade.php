@@ -250,6 +250,7 @@
                     class="nav-link {{ request()->routeIs('admin.kurir.*') && !request()->routeIs('admin.kurir.pencairan*') && !request()->routeIs('admin.kurir.laporan') ? 'active' : '' }}">
                     <i class="bi bi-bicycle"></i> Data Kurir
                 </a>
+
                 <div class="nav-label">Laporan Global</div>
                 <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales*') || request()->routeIs('admin.kwt.laporan') ? 'active' : '' }}">
                     <i class="bi bi-cart-check-fill"></i> Penjualan Semua
@@ -258,7 +259,12 @@
                     class="nav-link {{ request()->routeIs('admin.kurir.pencairan*') || request()->routeIs('admin.kurir.laporan') ? 'active' : '' }}">
                     <i class="bi bi-wallet2"></i> Pencairan Kurir
                 </a>
+
                 <div class="nav-label">Sistem</div>
+                {{-- 🌟 MENU PENGATURAN BARU DITAMBAHKAN DI SINI 🌟 --}}
+                <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                    <i class="bi bi-gear-fill"></i> Pengaturan Tarif
+                </a>
                 <a href="{{ route('admin.profile') }}" class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
                     <i class="bi bi-person-circle"></i> Profile Admin
                 </a>

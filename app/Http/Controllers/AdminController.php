@@ -198,8 +198,10 @@ class AdminController extends Controller
         foreach ($kurirs as $kurir) {
             $totalOngkir = Order::where('kurir', $kurir->nama)->where('status', 'selesai')->sum('ongkir');
             $kurir->total_ongkir = $totalOngkir;
-            $kurir->potongan_admin = $totalOngkir * 0.15;
-            $kurir->pendapatan_bersih = $totalOngkir * 0.85;
+
+            // 🌟 PERBAIKAN: Potongan 15% dihapuskan. Pendapatan bersih = 100% Ongkir
+            $kurir->potongan_admin = 0;
+            $kurir->pendapatan_bersih = $totalOngkir;
         }
         return view('admin.kurir', compact('kurirs'));
     }
@@ -272,8 +274,10 @@ class AdminController extends Controller
             ->get();
 
         $totalOngkir = $orders->where('status', 'selesai')->sum('ongkir');
-        $potonganAdmin = $totalOngkir * 0.15;
-        $pendapatanBersih = $totalOngkir * 0.85;
+
+        // 🌟 PERBAIKAN: Potongan 15% dihapuskan. Pendapatan bersih = 100% Ongkir
+        $potonganAdmin = 0;
+        $pendapatanBersih = $totalOngkir;
 
         return view('admin.sales.kurir_laporan', compact(
             'kurir',

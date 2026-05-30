@@ -244,27 +244,16 @@
 
                         </td>
 
-                        {{-- PENDAPATAN --}}
+                        {{-- PENDAPATAN (REVISI 100% HAK KURIR) --}}
                         <td>
-
                             <div class="income-box">
-
                                 <div class="fw-bold text-success mb-1">
-                                    Rp {{ number_format($kurir->pendapatan_bersih ?? 0, 0, ',', '.') }}
-                                </div>
-
-                                <small class="text-muted d-block">
-                                    Total Ongkir:
                                     Rp {{ number_format($kurir->total_ongkir ?? 0, 0, ',', '.') }}
+                                </div>
+                                <small class="text-success fw-medium d-block" style="font-size: 0.75rem;">
+                                    <i class="bi bi-shield-check me-1"></i> 100% Hak Kurir
                                 </small>
-
-                                <small class="text-danger">
-                                    Potongan Admin 15%:
-                                    Rp {{ number_format($kurir->potongan_admin ?? 0, 0, ',', '.') }}
-                                </small>
-
                             </div>
-
                         </td>
 
                         {{-- STATUS --}}

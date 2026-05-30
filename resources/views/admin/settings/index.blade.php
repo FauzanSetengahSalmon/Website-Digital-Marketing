@@ -83,7 +83,6 @@
 
 <div class="container-fluid py-4">
 
-    {{-- HEADER --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
             <h2 class="fw-bold text-dark mb-1">Pengaturan Aplikasi</h2>
@@ -91,11 +90,9 @@
         </div>
     </div>
 
-    {{-- ALERT --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {{ session('success') }}
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
@@ -105,9 +102,7 @@
             <div class="page-card shadow-sm p-4 p-md-5">
 
                 <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-4">
-                    <div class="icon-box-lg">
-                        <i class="bi bi-gear-fill"></i>
-                    </div>
+                    <div class="icon-box-lg"><i class="bi bi-gear-fill"></i></div>
                     <div>
                         <h5 class="fw-bold mb-1 text-dark">Konfigurasi Tarif & Jarak</h5>
                         <p class="text-muted small mb-0">Perubahan akan langsung berlaku pada transaksi terbaru.</p>
@@ -119,28 +114,25 @@
                     @method('PUT')
 
                     <div class="row g-4">
-                        {{-- BIAYA LAYANAN --}}
                         <div class="col-12">
                             <label class="form-label-bold">Biaya Layanan Sistem (Platform Fee)</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">Rp</span>
                                 <input type="number" name="biaya_layanan" class="form-control input-clean input-clean-group" value="{{ $setting->biaya_layanan }}" required>
                             </div>
-                            <small class="petunjuk-admin"><i class="bi bi-info-circle me-1"></i>Biaya layanan yang dibebankan kepada pelanggan. 100% masuk ke pemasukan KWT/Admin.</small>
+                            <small class="petunjuk-admin"><i class="bi bi-info-circle me-1"></i>Biaya ini dibebankan kepada pelanggan. Masuk 100% ke Kas Admin.</small>
                         </div>
 
-                        {{-- TARIF PER KM --}}
                         <div class="col-12">
-                            <label class="form-label-bold">Tarif Ongkos Kirim per Kilometer (KM)</label>
+                            <label class="form-label-bold">Tarif Ongkir per Kilometer (KM)</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">Rp</span>
                                 <input type="number" name="tarif_per_km" class="form-control input-clean input-clean-group" value="{{ $setting->tarif_per_km }}" required>
                                 <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">/ KM</span>
                             </div>
-                            <small class="petunjuk-admin"><i class="bi bi-truck me-1"></i>Tarif ini akan dikalikan dengan jarak lokasi pelanggan. <strong class="text-success">100% biaya ongkir masuk ke kurir</strong>.</small>
+                            <small class="petunjuk-admin"><i class="bi bi-truck me-1"></i>Dikalikan dengan jarak pelanggan. <strong class="text-success">100% masuk ke kurir</strong>.</small>
                         </div>
 
-                        {{-- MINIMAL & MAKSIMAL KM --}}
                         <div class="col-md-6">
                             <label class="form-label-bold">Batas Minimal Jarak (KM)</label>
                             <div class="input-group">
@@ -156,7 +148,7 @@
                                 <input type="number" name="maksimal_km" class="form-control input-clean" value="{{ $setting->maksimal_km }}" required style="border-radius: 12px 0 0 12px;">
                                 <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">KM</span>
                             </div>
-                            <small class="petunjuk-admin text-danger">Pelanggan di atas jarak ini tidak bisa memesan.</small>
+                            <small class="petunjuk-admin text-danger">Pelanggan di atas jarak ini ditolak.</small>
                         </div>
                     </div>
 
@@ -167,26 +159,22 @@
                             <i class="bi bi-save2-fill me-2"></i> Simpan Perubahan
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
 
-        {{-- INFO PANEL --}}
         <div class="col-lg-4 mt-4 mt-lg-0">
             <div class="page-card shadow-sm p-4 bg-success bg-opacity-10 border-success border-opacity-25">
                 <h6 class="fw-bold text-success mb-3"><i class="bi bi-lightbulb-fill me-2"></i>Simulasi Sistem Tarif</h6>
-
                 <div class="small text-dark lh-lg">
-                    <p class="mb-2">Jika pelanggan berjarak <strong>4 KM</strong>, perhitungannya:</p>
+                    <p class="mb-2">Jika pelanggan berjarak <strong>4 KM</strong>:</p>
                     <ul class="list-unstyled mb-0">
-                        <li><i class="bi bi-dot"></i> Ongkir: 4 x Tarif per KM</li>
-                        <li><i class="bi bi-dot"></i> Total: Subtotal + Ongkir + Biaya Layanan</li>
+                        <li><i class="bi bi-dot"></i> Ongkir = 4 x Tarif per KM</li>
+                        <li><i class="bi bi-dot"></i> Total Belanja = Subtotal Produk + Ongkir + Biaya Layanan</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 @endsection

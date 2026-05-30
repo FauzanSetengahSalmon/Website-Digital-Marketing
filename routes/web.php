@@ -232,9 +232,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/kwt/{id}/laporan', [AdminController::class, 'reportKwt'])
                 ->name('kwt.laporan');
 
-            Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings.index');
+            Route::get('/admin/settings', [SettingController::class, 'index'])->name('settings.index');
 
-            Route::put('/admin/settings/update', [SettingController::class, 'update'])->name('admin.settings.update');
+            Route::put('/admin/settings/update', [SettingController::class, 'update'])->name('settings.update');
         });
 
     /*
