@@ -9,6 +9,7 @@ class Order extends Model
 {
     use HasFactory;
 
+    // 🌟 PERBAIKAN: Semua kolom yang akan diisi otomatis (Mass Assignment) wajib didaftarkan di sini
     protected $fillable = [
         'user_id',
         'total_harga',
@@ -25,14 +26,26 @@ class Order extends Model
         'jadwal_pengiriman',
         'status_pembayaran',
         'waktu_dana_masuk',
+
+        // -- Kolom Refund --
         'status_refund',
         'waktu_refund',
+        'alasan_refund',
+        'bukti_refund',
+        'catatan_admin_refund',
+
         'alasan_tolak',
+
+        // -- Kolom Pencairan & Token --
+        'is_paid_out',
+        'nama_penerima',
+        'delivery_token',
     ];
 
     protected $casts = [
         'waktu_dana_masuk' => 'datetime',
         'waktu_refund' => 'datetime',
+        'is_paid_out' => 'boolean',
     ];
 
     /*

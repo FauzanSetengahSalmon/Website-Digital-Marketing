@@ -19,7 +19,7 @@
             overflow-x: hidden;
         }
 
-        /* SIDEBAR: Diubah jadi kontainer Flexbox setinggi layar */
+        /* SIDEBAR: Kontainer Flexbox setinggi layar */
         .sidebar {
             width: 260px;
             height: 100vh;
@@ -41,7 +41,9 @@
             scrollbar-width: none;
         }
 
-        .sidebar-wrapper::-webkit-scrollbar { display: none; }
+        .sidebar-wrapper::-webkit-scrollbar {
+            display: none;
+        }
 
         .sidebar-header {
             padding: 30px 20px;
@@ -176,10 +178,24 @@
 
         /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
-            .sidebar { left: -260px; position: fixed; height: 100vh; }
-            .sidebar.show { left: 0; }
-            .main-content { margin-left: 0; padding: 20px; }
-            .mobile-header { display: flex !important; }
+            .sidebar {
+                left: -260px;
+                position: fixed;
+                height: 100vh;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .mobile-header {
+                display: flex !important;
+            }
         }
 
         .mobile-header {
@@ -200,7 +216,6 @@
 
     {{-- SIDEBAR --}}
     <aside class="sidebar" id="sidebar">
-
         <div class="sidebar-wrapper">
             <div class="sidebar-header">
                 <div class="profile-box">
@@ -231,26 +246,24 @@
                 <a href="{{ route('admin.kwt') }}" class="nav-link {{ request()->routeIs('admin.kwt') ? 'active' : '' }}">
                     <i class="bi bi-shop-window"></i> Kelola Akun KWT
                 </a>
-                <a href="{{ route('admin.kurir.index') }}" class="nav-link {{ request()->routeIs('kwt.kurir.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.kurir.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.kurir.*') && !request()->routeIs('admin.kurir.pencairan*') && !request()->routeIs('admin.kurir.laporan') ? 'active' : '' }}">
                     <i class="bi bi-bicycle"></i> Data Kurir
                 </a>
-
                 <div class="nav-label">Laporan Global</div>
                 <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales*') || request()->routeIs('admin.kwt.laporan') ? 'active' : '' }}">
                     <i class="bi bi-cart-check-fill"></i> Penjualan Semua
                 </a>
-                {{-- MENU BARU PENCAIRAN KURIR --}}
-                <a href="{{ route('admin.kurir.pencairan') }}" class="nav-link {{ request()->routeIs('admin.kurir.pencairan*') ? 'active' : '' }}">
+                <a href="{{ route('admin.kurir.pencairan') }}"
+                    class="nav-link {{ request()->routeIs('admin.kurir.pencairan*') || request()->routeIs('admin.kurir.laporan') ? 'active' : '' }}">
                     <i class="bi bi-wallet2"></i> Pencairan Kurir
                 </a>
-
                 <div class="nav-label">Sistem</div>
                 <a href="{{ route('admin.profile') }}" class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
                     <i class="bi bi-person-circle"></i> Profile Admin
                 </a>
             </nav>
         </div>
-
         <div class="logout-section">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -259,12 +272,10 @@
                 </button>
             </form>
         </div>
-
     </aside>
 
     {{-- MAIN CONTENT --}}
     <main class="main-content">
-
         <div class="mobile-header">
             <span class="fw-bold text-success">Admin KWT</span>
             <button class="btn btn-success btn-sm" onclick="toggleSidebar()">
@@ -273,7 +284,6 @@
         </div>
 
         @yield('content')
-
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

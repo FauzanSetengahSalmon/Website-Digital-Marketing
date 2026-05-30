@@ -68,16 +68,18 @@
         border-radius: 16px;
     }
 
-    /* RIGHT SUMMARY */
     .summary-card {
         position: sticky;
         top: 20px;
     }
 
-    /* PREMIUM HORIZONTAL TIMELINE TRACKER STYLING */
+    /* ========================================================
+       PREMIUM HORIZONTAL TIMELINE 5 STEPS STYLING
+       ======================================================== */
     .tracking-timeline {
         background: #ffffff;
-        padding: 10px 5px;
+        border-radius: 16px;
+        padding: 24px 10px 10px 10px;
     }
 
     .timeline-wrapper {
@@ -90,8 +92,8 @@
         content: '';
         position: absolute;
         top: 22px;
-        left: 8%;
-        width: 84%;
+        left: 10%;
+        width: 80%;
         height: 3px;
         background: #e2e8f0;
         z-index: 1;
@@ -105,39 +107,40 @@
     }
 
     .timeline-icon {
-        width: 44px;
-        height: 44px;
+        width: 46px;
+        height: 46px;
         border-radius: 50%;
         background: #ffffff;
-        border: 2px solid #cbd5e1;
+        border: 3px solid #e2e8f0;
         color: #94a3b8;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 12px auto;
-        font-size: 1.1rem;
+        margin: 0 auto 10px auto;
+        font-size: 1.2rem;
         transition: all 0.3s ease;
     }
 
     .timeline-step.active .timeline-icon {
         background: #e8f5e9;
-        border-color: #4caf50;
-        color: #4caf50;
-        box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.15);
+        border-color: #22c55e;
+        color: #22c55e;
+        animation: pulseTimeline 1.8s infinite;
     }
 
     .timeline-step.completed .timeline-icon {
-        background: #4caf50;
-        border-color: #4caf50;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border-color: transparent;
         color: #ffffff;
-        box-shadow: 0 4px 10px rgba(76, 175, 80, 0.15);
+        box-shadow: 0 6px 15px rgba(34, 197, 94, 0.25);
     }
 
     .timeline-text {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 700;
         color: #94a3b8;
-        margin-bottom: 3px;
+        margin-bottom: 4px;
+        line-height: 1.2;
     }
 
     .timeline-step.active .timeline-text,
@@ -146,11 +149,45 @@
     }
 
     .timeline-time {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #64748b;
         display: block;
         font-weight: 500;
         line-height: 1.3;
+    }
+
+    @keyframes pulseTimeline {
+        0% {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .timeline-icon {
+            width: 38px;
+            height: 38px;
+            font-size: 1rem;
+        }
+
+        .timeline-wrapper::before {
+            top: 18px;
+        }
+
+        .timeline-text {
+            font-size: 0.72rem;
+        }
+
+        .timeline-time {
+            font-size: 0.65rem;
+        }
     }
 
     .total-price {
@@ -186,13 +223,17 @@
 
     .wa-link:hover {
         color: #128C7E !important;
-        transform: scale(1.03);
         text-decoration: underline !important;
         background-color: #f1f5f9;
         transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 </style>
+
+@php
+// GANTI DENGAN NOMOR WA ADMIN SISTEM ANDA
+$noAdminSistem = '0822222222';
+$pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait pesanan saya dengan ID #ORD-{$order->id}.");
+@endphp
 
 <div class="container py-5">
 
@@ -223,10 +264,12 @@
         if($order->status == 'diproses') $statusColor = 'primary';
         if($order->status == 'diantar') $statusColor = 'info';
         if($order->status == 'selesai') $statusColor = 'success';
-        if($order->status == 'ditolak' || $order->status == 'dibatalkan' || $order->status == 'batal') $statusColor = 'danger';
+        if(in_array($order->status, ['ditolak', 'dibatalkan', 'batal'])) $statusColor = 'danger';
         @endphp
         <span class="badge bg-{{ $statusColor }} status-pill">
-            {{ strtoupper($order->status == 'diproses' ? 'Sedang Diproses' : ($order->status == 'diantar' ? 'Pesanan Diantar' : ($order->status == 'menunggu' ? 'Menunggu Konfirmasi' : $order->status))) }}
+            {{ strtoupper($order->status == 'menunggu' ? 'MENUNGGU VERIFIKASI KWT' : 
+              ($order->status == 'diproses' ? 'SEDANG DIPROSES ADMIN' : 
+              ($order->status == 'diantar' ? 'PESANAN DIANTAR' : $order->status))) }}
         </span>
     </div>
 
@@ -235,72 +278,95 @@
         {{-- LEFT SIDE --}}
         <div class="col-lg-7">
 
-            {{-- TRACKING TIMELINE STATUS --}}
+            {{-- ==========================================
+                 TRACKING TIMELINE (5 STEPS TERKONEKSI BUKTI FOTO)
+                 ========================================== --}}
             <div class="card-modern mb-4">
                 <h6 class="fw-bold mb-4"><i class="bi bi-truck-flatbed text-success me-2"></i>Status Lacak Pesanan</h6>
 
                 <div class="tracking-timeline">
                     <div class="timeline-wrapper">
 
-                        {{-- STEP 1: Pesanan Dibuat --}}
+                        {{-- STEP 1: Dipesan --}}
                         <div class="timeline-step completed">
                             <div class="timeline-icon">
                                 <i class="bi bi-file-earmark-text"></i>
                             </div>
-                            <div class="timeline-text">Pesanan Dibuat</div>
-                            <small class="timeline-time">{{ $order->created_at->format('d M Y, H:i') }} WIB</small>
+                            <div class="timeline-text">Dipesan</div>
+                            <small class="timeline-time">{{ $order->created_at->format('d M') }}</small>
                         </div>
 
-                        {{-- STEP 2: Diverifikasi & Diproses --}}
+                        {{-- STEP 2: Verifikasi KWT --}}
                         <div class="timeline-step {{ in_array($order->status, ['diproses', 'diantar', 'selesai']) ? 'completed' : ($order->status == 'menunggu' ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-box-seam"></i>
                             </div>
-                            <div class="timeline-text">Diverifikasi & Diproses</div>
+                            <div class="timeline-text">Verifikasi</div>
                             <small class="timeline-time">
-                                @if(in_array($order->status, ['diproses', 'diantar', 'selesai']))
-                                @if($order->jadwal_pengiriman)
-                                Dijadwalkan: <span class="text-success fw-bold">{{ $order->jadwal_pengiriman }}</span>
+                                @if($order->status == 'menunggu')
+                                Cek Stok KWT...
                                 @else
-                                Pesanan siap dikirim
-                                @endif
-                                @else
-                                Menunggu konfirmasi...
+                                Stok Tersedia
                                 @endif
                             </small>
                         </div>
 
-                        {{-- STEP 3: Sedang Diantar --}}
+                        {{-- STEP 3: Dijadwalkan Admin --}}
                         <div class="timeline-step {{ in_array($order->status, ['diantar', 'selesai']) ? 'completed' : ($order->status == 'diproses' ? 'active' : '') }}">
+                            <div class="timeline-icon">
+                                <i class="bi bi-calendar2-check"></i>
+                            </div>
+                            <div class="timeline-text">Dijadwal</div>
+                            <small class="timeline-time">
+                                pengririman akan dilakukan pada tanggal:
+                                @if($order->jadwal_pengiriman)
+                                <span class="text-success fw-bold">{{ \Carbon\Carbon::parse($order->jadwal_pengiriman)->format('d M Y') }}</span>
+                                @else
+                                @if(in_array($order->status, ['menunggu']))
+                                Menunggu verifikasi
+                                @else
+                                Mengatur jadwal
+                                @endif
+                                @endif
+                            </small>
+                        </div>
+
+                        {{-- STEP 4: Diantar Kurir (Terkoneksi dengan Bukti Foto) --}}
+                        <div class="timeline-step {{ $order->status == 'selesai' || ($order->status == 'diantar' && $order->bukti_sampai) ? 'completed' : ($order->status == 'diantar' && !$order->bukti_sampai ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-truck"></i>
                             </div>
-                            <div class="timeline-text">Sedang Diantar</div>
-                            <small class="timeline-time text-success fw-bold">
-                                @if($order->status == 'diantar')
-                                Kurir dalam perjalanan
-                                @if($order->kurir)
-                                <span class="d-block text-muted fw-normal" style="font-size: 0.7rem;">({{ $order->kurir }})</span>
-                                @endif
-                                @elseif($order->status == 'selesai')
-                                Telah sampai tujuan
+                            <div class="timeline-text">Diantar</div>
+                            <small class="timeline-time {{ $order->status == 'diantar' ? 'text-success fw-bold' : '' }}">
+
+                                @if(in_array($order->status, ['menunggu', 'diproses']))
+                                Menunggu kurir
+                                @elseif($order->status == 'diantar')
+                                @if($order->bukti_sampai)
+                                Kurir Telah sampai
                                 @else
-                                Menunggu kurir lepas...
+                                Kurir sedang diperjalanan
+                                @endif
+                                @else
+                                Kurir Telah sampai
                                 @endif
                             </small>
                         </div>
 
-                        {{-- STEP 4: Pesanan Selesai --}}
-                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : ($order->status == 'diantar' ? 'active' : '') }}">
+                        {{-- STEP 5: Selesai (Aktif saat foto bukti diunggah) --}}
+                        <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : ($order->status == 'diantar' && $order->bukti_sampai ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-house-check"></i>
                             </div>
-                            <div class="timeline-text">Pesanan Selesai</div>
+                            <div class="timeline-text">Selesai</div>
                             <small class="timeline-time">
                                 @if($order->status == 'selesai')
-                                {{ $order->updated_at->format('d M Y, H:i') }} WIB
+                                Pesanan telah sampai pada tanggal:
+                                <span class="text-success fw-bold">{{ $order->updated_at->format('d M') }}</span>
+                                @elseif($order->status == 'diantar' && $order->bukti_sampai)
+                                Konfirmasi yuk!
                                 @else
-                                Menunggu fotomu
+                                Menunggu diterima
                                 @endif
                             </small>
                         </div>
@@ -339,19 +405,38 @@
             <div class="card-modern mb-4">
                 <div class="d-flex gap-3">
                     <div class="icon-box">
-                        <i class="bi bi-truck"></i>
+                        <i class="bi bi-person-bounding-box"></i>
                     </div>
                     <div>
                         <h6 class="fw-bold mb-1">Informasi Pengantar</h6>
 
                         @if($order->kurir)
-                        <div class="fw-semibold text-dark">{{ $order->kurir }}</div>
+                        @php
+                        $kurirParts = explode(' - ', $order->kurir);
+                        $namaKurir = $kurirParts[0] ?? 'Kurir Internal';
+
+                        $detailKendaraan = count($kurirParts) > 1 ? implode(' - ', array_slice($kurirParts, 1)) : '';
+
+                        // Cek dari database sebagai fallback
+                        if(!$detailKendaraan) {
+                        $dataKurir = \App\Models\Kurir::where('nama', $order->kurir)->first();
+                        $detailKendaraan = $dataKurir ? $dataKurir->kendaraan : '';
+                        }
+
+                        $isMobil = $detailKendaraan ? (str_contains(strtolower($detailKendaraan), 'mobil') || str_contains(strtolower($detailKendaraan), 'carry')) : false;
+                        @endphp
+
+                        <div class="fw-semibold text-dark">{{ $namaKurir }}</div>
+
+                        @if($detailKendaraan)
+                        <span class="badge bg-secondary bg-opacity-10 text-dark border px-2 py-1 mt-1 mb-1 d-inline-block">
+                            <i class="bi {{ $isMobil ? 'bi-car-front-fill' : 'bi-bicycle' }} me-1 text-success"></i> {{ $detailKendaraan }}
+                        </span>
+                        @endif
+
                         <div class="text-muted small mt-1">
                             Hubungi Kurir:
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}"
-                                target="_blank"
-                                class="fw-bold text-success text-decoration-none wa-link"
-                                title="Klik untuk chat WhatsApp Kurir">
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->no_hp_kurir) }}" target="_blank" class="fw-bold text-success text-decoration-none wa-link">
                                 <i class="bi bi-whatsapp"></i> {{ $order->no_hp_kurir }}
                             </a>
                         </div>
@@ -477,8 +562,8 @@
         <div class="col-lg-5">
             <div class="summary-card">
 
-                {{-- 🌟 INFO DANA MASUK & TOMBOL KLAIM REFUND JIKA STATUSNYA BATAL/DITOLAK 🌟 --}}
-                @if($order->status == 'batal' || $order->status == 'ditolak' || $order->status == 'dibatalkan')
+                {{-- INFO DANA MASUK & TOMBOL KLAIM REFUND JIKA BATAL/DITOLAK --}}
+                @if(in_array($order->status, ['batal', 'ditolak', 'dibatalkan']))
                 <div class="card-modern mb-4 border border-danger bg-white shadow-sm">
                     <h5 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-octagon-fill me-1"></i> Pesanan Dibatalkan KWT</h5>
                     <p class="text-muted small mb-2"><strong>Alasan Pembatalan:</strong> <span class="text-dark">"{{ $order->alasan_tolak ?? 'Komoditas sayur/hasil tani tidak memenuhi standar kelayakan pengiriman.' }}"</span></p>
@@ -500,40 +585,60 @@
 
                     <p class="text-muted small mb-3">Dana transaksi Anda dijamin aman. Harap klik tombol di bawah untuk menyetorkan nomor rekening pribadi tujuan pencairan melalui WhatsApp resmi Pengurus KWT.</p>
 
-                    @php
-                    $noAdminKWT = '0822222222'; // Sesuaikan nomor HP Admin KWT Anda
-                    $pesanWA = rawurlencode("Halo Pengurus KWT, pesanan saya dengan ID #ORD-".$order->id." ditolak dengan alasan '".$order->alasan_tolak."'. Saya ingin mengajukan klaim pengembalian dana (refund) sebesar Rp ".number_format($order->total_harga, 0, ',', '.')." atas nama " . Auth::user()->name . ".");
-                    @endphp
-
-                    <a href="https://wa.me/{{ $noAdminKWT }}?text={{ $pesanWA }}" target="_blank" class="btn btn-danger w-100 py-2.5 fw-bold text-white d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; background: #dc2626; border: none; text-decoration: none;">
+                    <a href="https://wa.me/{{ $noAdminSistem }}?text={{ $pesanAdminSistem }}" target="_blank" class="btn btn-danger w-100 py-2.5 fw-bold text-white d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; background: #dc2626; border: none;">
                         <i class="bi bi-whatsapp"></i> Klaim Pengembalian Dana (Refund)
                     </a>
                 </div>
                 @endif
 
-                {{-- TOMBOL SELESAI & UPLOAD FOTO BUKTI --}}
+                {{-- ===============================================
+                     KARTU KONFIRMASI SELESAI (TERGANTUNG FOTO KURIR)
+                     =============================================== --}}
                 @if($order->status == 'diantar')
-                <div class="card-modern mb-4 border border-success bg-white shadow-sm">
-                    <h5 class="fw-bold text-success mb-2"><i class="bi bi-box-seam-fill me-1"></i> Pesanan Sudah Sampai?</h5>
-                    <p class="text-muted small mb-3">Silakan upload foto bukti paket telah kamu terima untuk menyelesaikan pesanan ini.</p>
+                <div class="card-modern mb-4 border {{ $order->bukti_sampai ? 'border-success' : 'border-warning' }} bg-white shadow-sm">
+                    <h5 class="fw-bold {{ $order->bukti_sampai ? 'text-success' : 'text-warning' }} mb-2">
+                        <i class="bi {{ $order->bukti_sampai ? 'bi-check-circle-fill' : 'bi-truck' }} me-1"></i>
+                        {{ $order->bukti_sampai ? 'Paket Tiba di Tujuan' : 'Pesanan Sedang Diantar' }}
+                    </h5>
 
-                    <form action="{{ route('orders.complete', $order->id) }}" method="POST" enctype="multipart/form-data">
+                    <div class="p-3 {{ $order->bukti_sampai ? 'bg-success border-success' : 'bg-warning border-warning' }} bg-opacity-10 rounded-3 mb-3 border border-opacity-25 d-flex align-items-center gap-3">
+                        <div class="{{ $order->bukti_sampai ? 'bg-success' : 'bg-warning' }} text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
+                            <i class="bi {{ $order->bukti_sampai ? 'bi-camera-fill' : 'bi-truck' }} fs-5"></i>
+                        </div>
+                        <div>
+                            <span class="d-block fw-bold {{ $order->bukti_sampai ? 'text-success' : 'text-dark' }}" style="font-size: 0.95rem;">
+                                Status: {{ $order->bukti_sampai ? 'Menunggu Konfirmasi Anda' : 'Dalam Perjalanan' }}
+                            </span>
+                            <span class="small {{ $order->bukti_sampai ? 'text-success' : 'text-dark' }}" style="line-height: 1.2; display: block; margin-top: 4px;">
+                                {{ $order->bukti_sampai ? 'Kurir telah mengunggah bukti pengiriman. Silakan periksa barang belanjaan Anda.' : 'Kurir sedang menuju alamat Anda. Tombol konfirmasi akan aktif setelah kurir mengunggah bukti foto pesanan sampai.' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    @if($order->bukti_sampai)
+                    <div class="text-center mb-3">
+                        <p class="text-muted small mb-2 text-start">Pratinjau Bukti Pengiriman:</p>
+                        <img src="{{ asset('storage/' . $order->bukti_sampai) }}" class="img-fluid rounded-4 border shadow-sm w-100" style="max-height: 250px; object-fit: cover;">
+                    </div>
+                    <p class="text-muted small mb-3">Jika pesanan Anda sudah sesuai dan diterima dengan baik, klik <strong>"Pesanan Diterima"</strong> di bawah. <br><br>Jika paket belum diterima atau ada kendala, segera hubungi <a href="https://wa.me/{{ $noAdminSistem }}?text={{ $pesanAdminSistem }}" target="_blank" class="fw-bold text-success text-decoration-none wa-link"><i class="bi bi-whatsapp"></i> Admin E-Food</a>.</p>
+
+                    <form action="{{ route('orders.complete', $order->id) }}" method="POST">
                         @csrf
                         @method('PATCH')
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Foto Bukti Penerimaan:</label>
-                            <input type="file" name="bukti_sampai" class="form-control" accept="image/*" required style="border-radius: 10px;">
-                        </div>
 
-                        <div class="d-flex justify-content-end gap-2 mt-2">
-                            <a href="{{ route('orders.history') }}" class="btn btn-light border rounded-pill px-3 fw-bold small py-2">
-                                <i class="bi bi-x-lg me-1"></i> Batal
-                            </a>
-                            <button type="submit" class="btn btn-selesai rounded-pill px-4 fw-bold py-2" onclick="return confirm('Apakah kamu yakin barang sudah diterima dengan benar?')">
-                                <i class="bi bi-check-lg me-1"></i> Selesai
+                        <div class="d-flex justify-content-end mt-2">
+                            <button type="submit" class="btn btn-selesai rounded-pill w-100 fw-bold py-2.5 shadow-sm" onclick="return confirm('Apakah Anda yakin pesanan sudah diterima dengan lengkap dan sesuai?')">
+                                <i class="bi bi-check-circle-fill me-1"></i> Pesanan Diterima (Selesai)
                             </button>
                         </div>
                     </form>
+                    @else
+                    <div class="d-flex justify-content-end mt-2">
+                        <button type="button" class="btn btn-secondary rounded-pill w-100 fw-bold py-2.5 shadow-sm" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            <i class="bi bi-hourglass-split me-1"></i> Menunggu Foto Bukti Kurir
+                        </button>
+                    </div>
+                    @endif
                 </div>
                 @endif
 
@@ -548,13 +653,13 @@
                     </div>
 
                     @if($order->bukti_sampai)
-                    <p class="text-muted small mb-2 ms-1">Foto bukti penerimaan paket:</p>
+                    <p class="text-muted small mb-2 ms-1">Foto bukti pengiriman dari kurir:</p>
                     <div class="rounded-4 overflow-hidden border border-light p-1 bg-light">
                         <img src="{{ asset('storage/' . $order->bukti_sampai) }}" class="img-fluid rounded-3 w-100" style="max-height: 280px; object-fit: cover; background: #fff;">
                     </div>
                     @else
                     <div class="alert alert-warning small rounded-3 p-2 mb-0">
-                        <i class="bi bi-exclamation-circle-fill me-1"></i> Selesai tanpa berkas lampiran foto.
+                        <i class="bi bi-check-circle-fill me-1"></i> Pesanan telah diselesaikan.
                     </div>
                     @endif
                 </div>

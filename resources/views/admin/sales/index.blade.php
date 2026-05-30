@@ -46,6 +46,7 @@
             @endforelse
         </div>
     </div>
+
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
@@ -55,22 +56,34 @@
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <div class="table-responsive">
-            <table class="table align-middle mb-0 table-hover">
+            <table class="table align-middle mb-0 table-hover" id="admin-interactive-table">
                 <thead class="bg-light border-bottom text-uppercase tracking-wider fs-7 fw-bold text-secondary">
                     <tr>
-                        <th class="ps-4 py-3">Order ID</th>
+                        <th class="ps-4 py-3 sortable" data-sort="id" style="cursor: pointer;">
+                            Order ID <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                        </th>
                         <th class="py-3">Customer</th>
                         <th class="py-3">KWT</th>
-                        <th class="py-3 text-end">Total Harga</th>
-                        <th class="py-3 text-center">Status</th>
+                        <th class="py-3 text-end sortable" data-sort="subtotal" style="cursor: pointer;">
+                            Total Harga
+                        </th>
+                        <th class="py-3 text-center sortable" data-sort="status" style="cursor: pointer;">
+                            Status <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                        </th>
                         <th class="py-3">Jadwal Kirim</th>
-                        <th class="py-3">Tanggal Transaksi</th>
+                        <th class="py-3 sortable" data-sort="date" style="cursor: pointer;">
+                            Tanggal Transaksi <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                        </th>
                         <th class="py-3 text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($sales as $sale)
-                    <tr class="align-middle border-bottom border-light">
+                    <tr class="align-middle border-bottom border-light data-row"
+                        data-id="{{ $sale->id }}"
+                        data-date="{{ $sale->created_at->timestamp }}"
+                        data-status-text="{{ $sale->status_refund != 'tidak_ada' ? $sale->status_refund : $sale->status }}"
+                        data-subtotal="{{ $sale->total_harga }}">
                         <td class="ps-4 py-3.5">
                             <span class="fw-bold text-success font-monospace">#{{ $sale->id }}</span>
                         </td>
@@ -87,19 +100,28 @@
                         </td>
                         <td class="py-3.5">
                             @php
-                                $kwtNames = $sale->details->map(fn($d) => $d->product->user->name ?? 'KWT Umum')->unique()->filter()->implode(', ');
+                            $kwtNames = $sale->details->map(fn($d) => $d->product->user->name ?? 'KWT Umum')->unique()->filter()->implode(', ');
                             @endphp
                             @if($kwtNames)
-                                <span class="fw-bold text-dark fs-7">{{ $kwtNames }}</span>
+                            <span class="fw-bold text-dark fs-7">{{ $kwtNames }}</span>
                             @else
-                                <span class="text-muted small italic">-</span>
+                            <span class="text-muted small italic">-</span>
                             @endif
                         </td>
                         <td class="py-3.5 text-end">
                             <span class="fw-bold text-dark">Rp {{ number_format($sale->total_harga, 0, ',', '.') }}</span>
                         </td>
                         <td class="py-3.5 text-center">
-                            @if($sale->status == 'menunggu')
+                            {{-- PRIORITASKAN TAMPILAN STATUS REFUND --}}
+                            @if($sale->status_refund == 'diajukan')
+                            <span class="badge bg-danger text-white rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8"><i class="bi bi-exclamation-circle me-1"></i> Refund Diajukan</span>
+                            @elseif($sale->status_refund == 'disetujui')
+                            <span class="badge bg-success text-white rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8"><i class="bi bi-check-circle me-1"></i> Refund Disetujui</span>
+                            @elseif($sale->status_refund == 'ditolak')
+                            <span class="badge bg-secondary text-white rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">Refund Ditolak</span>
+
+                            {{-- JIKA TIDAK ADA REFUND, TAMPILKAN STATUS NORMAL --}}
+                            @elseif($sale->status == 'menunggu')
                             <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">⚡ Menunggu</span>
                             @elseif($sale->status == 'diproses')
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">📦 Diproses</span>
@@ -119,7 +141,8 @@
                             @endif
                         </td>
                         <td class="py-3.5 text-secondary fs-7">
-                            <i class="bi bi-calendar3 me-1 text-muted"></i> {{ $sale->created_at->format('d M Y, H:i') }} WIB
+                            {{-- 🌟 PERBAIKAN ZONA WAKTU (WIB / Asia/Jakarta) 🌟 --}}
+                            <i class="bi bi-calendar3 me-1 text-muted"></i> {{ $sale->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
                         </td>
                         <td class="py-3.5 text-center pe-4">
                             <div class="d-flex gap-2 justify-content-center">
@@ -132,7 +155,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
+                    <tr class="empty-row">
                         <td colspan="8" class="text-center py-5 text-muted">
                             <div class="py-3">
                                 <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50"></i>
@@ -207,10 +230,16 @@
                             </div>
                             <div class="col-md-6">
                                 <strong>Status Refund:</strong>
-                                @if($sale->status == 'batal')
-                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-2 px-2 py-1">Sedang Diproses KWT</span>
+                                @if($sale->status_refund == 'diajukan')
+                                <span class="badge bg-warning text-dark rounded-2 px-2 py-1"><i class="bi bi-exclamation-circle me-1"></i>Menunggu Tinjauan</span>
+                                @elseif($sale->status_refund == 'disetujui')
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-2 px-2 py-1">Disetujui Admin</span>
+                                @elseif($sale->status_refund == 'ditolak')
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-2 px-2 py-1">Ditolak Admin</span>
+                                @elseif($sale->status == 'batal')
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-2 px-2 py-1">Batal (Tanpa Refund)</span>
                                 @else
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-2 px-2 py-1">Tidak Ada Pembatalan</span>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-2 px-2 py-1">Tidak Ada Pengajuan</span>
                                 @endif
                             </div>
                             @if($sale->alasan_tolak)
@@ -223,6 +252,67 @@
 
                     <div class="mb-4">
                         <h6 class="fw-bold text-dark mb-2 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-basket3-fill text-success me-2"></i>Komoditas Hasil Panen KWT</h6>
+                        {{-- STATUS KONFIRMASI KWT --}}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary">
+                                <i class="bi bi-check2-square text-success me-2"></i>
+                                Status Konfirmasi KWT
+                            </h6>
+
+                            <div class="border rounded-4 overflow-hidden bg-white shadow-sm">
+
+                                @php
+                                $groupedKwt = $sale->details
+                                ->groupBy(fn($d) => $d->product->user->name ?? 'KWT Umum');
+                                @endphp
+
+                                @foreach($groupedKwt as $kwtName => $items)
+
+                                @php
+                                $allReady = $items->every(fn($item) => $item->stok_ready);
+                                $readyAt = $items->first()->stok_ready_at;
+                                $readyBy = $items->first()->stok_ready_by;
+                                @endphp
+
+                                <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+
+                                    <div>
+                                        <div class="fw-bold text-dark">
+                                            <i class="bi bi-people-fill text-success me-1"></i>
+                                            {{ $kwtName }}
+                                        </div>
+
+                                        @if($allReady)
+                                        <small class="text-success">
+                                            Sudah ACC stok
+                                            @if($readyAt)
+                                            • {{ \Carbon\Carbon::parse($readyAt)->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB
+                                            @endif
+                                        </small>
+                                        @else
+                                        <small class="text-danger">
+                                            Belum ACC stok
+                                        </small>
+                                        @endif
+                                    </div>
+
+                                    <div>
+                                        @if($allReady)
+                                        <span class="badge bg-success rounded-pill px-3 py-2">
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+                                            READY
+                                        </span>
+                                        @else
+                                        <span class="badge bg-danger rounded-pill px-3 py-2">
+                                            <i class="bi bi-hourglass-split me-1"></i>
+                                            MENUNGGU
+                                        </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
                         <div class="table-responsive rounded-3 border bg-white">
                             <table class="table align-middle mb-0 sm-table">
                                 <thead class="table-light text-secondary fs-8 fw-bold text-uppercase">
@@ -259,7 +349,7 @@
                         </div>
                     </div>
 
-                    @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
+                    @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal' && $sale->status_refund != 'diajukan')
                     <div class="border-top pt-3 section-kurir-wrapper">
                         <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
                         <div class="row g-3">
@@ -274,32 +364,68 @@
                                     @endforeach
                                 </select>
                             </div>
+
                             <div class="col-md-4">
                                 <label class="form-label fw-bold text-dark small mb-1">Nomor HP Aktif Kurir</label>
-                                <input type="text" name="no_hp_kurir" class="form-control input-phone-admin rounded-3 py-2 fs-7 bg-light border-secondary-subtle font-monospace" value="{{ $sale->no_hp_kurir ?? '' }}" placeholder="Terisi otomatis..." readonly>
+                                <input type="text"
+                                    name="no_hp_kurir"
+                                    class="form-control input-phone-admin rounded-3 py-2 fs-7 bg-light border-secondary-subtle font-monospace"
+                                    value="{{ $sale->no_hp_kurir ?? '' }}"
+                                    placeholder="Terisi otomatis..."
+                                    readonly>
                             </div>
+
                             <div class="col-md-4">
                                 <label class="form-label fw-bold text-dark small mb-1">Jadwal Pengiriman</label>
-                                <input type="date" name="jadwal_pengiriman" class="form-control rounded-3 py-2 fs-7 border-secondary-subtle" min="{{ date('Y-m-d') }}" required>
+                                <input type="date"
+                                    name="jadwal_pengiriman"
+                                    class="form-control rounded-3 py-2 fs-7 border-secondary-subtle"
+                                    min="{{ date('Y-m-d') }}"
+                                    required>
                             </div>
                         </div>
                     </div>
                     @else
                     <div class="border-top pt-3 p-3 bg-light rounded-3 border">
-                        <h6 class="fw-bold text-secondary mb-2 fs-7 text-uppercase"><i class="bi bi-shield-check text-success me-2"></i>Status Logistik Terkunci</h6>
-                        <div class="row small g-2 text-dark">
-                            <div class="col-md-6"><strong>Kurir Pengantar:</strong> {{ $sale->kurir ?? '-' }}</div>
-                            <div class="col-md-6"><strong>Kontak Kurir:</strong> {{ $sale->no_hp_kurir ?? '-' }}</div>
+                        <h6 class="fw-bold text-secondary mb-3 fs-7 text-uppercase">
+                            <i class="bi bi-shield-check text-success me-2"></i>
+                            Status Logistik Terkunci
+                        </h6>
+                        @php
+                        $kurirData = \App\Models\Kurir::where('nama', $sale->kurir)->first();
+                        @endphp
+                        <div class="row small g-3 text-dark">
+                            <div class="col-md-4">
+                                <div class="fw-semibold text-muted mb-1">
+                                    Kurir Pengantar
+                                </div>
+                                <div class="fw-bold">
+                                    {{ $sale->kurir ?? '-' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="fw-semibold text-muted mb-1">
+                                    Kontak Kurir
+                                </div>
+                                <div class="fw-bold">
+                                    {{ $sale->no_hp_kurir ?? '-' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="fw-semibold text-muted mb-1">
+                                    Kendaraan
+                                </div>
+                                <div class="fw-bold text-success">
+                                    {{ $kurirData->kendaraan ?? '-' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     @endif
-
                 </div>
-
                 <div class="modal-footer border-0 px-4 pb-4 bg-light bg-opacity-25 d-flex justify-content-between gap-2">
-                    {{-- SISI KIRI: TOMBOL TOLAK --}}
                     <div>
-                        @if($sale->status == 'menunggu' || $sale->status == 'diproses')
+                        @if(($sale->status == 'menunggu' || $sale->status == 'diproses') && $sale->status_refund != 'diajukan')
                         <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
                             data-bs-toggle="modal" data-bs-target="#modalTolakPesanan{{ $sale->id }}">
                             <i class="bi bi-x-circle me-1"></i> Tolak Pesanan
@@ -309,7 +435,15 @@
 
                     {{-- SISI KANAN: TOMBOL AKSI --}}
                     <div class="d-flex gap-2">
-                        {{-- 🌟 TOMBOL KIRIM LINK WA KE KURIR (MUNCUL JIKA STATUS DIANTAR) 🌟 --}}
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
+
+                        {{-- JIKA ADA PENGAJUAN REFUND, TOMBOL BIASA HILANG, GANTI DENGAN TOMBOL TINJAU REFUND --}}
+                        @if($sale->status_refund == 'diajukan')
+                        <button type="button" class="btn btn-sm btn-danger rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modalRefundAdmin{{ $sale->id }}">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Tinjau Pengajuan Refund
+                        </button>
+                        @else
+                        {{-- TOMBOL KIRIM LINK WA KE KURIR --}}
                         @if($sale->status == 'diantar')
                         @php
                         if(!$sale->delivery_token) {
@@ -325,8 +459,6 @@
                         </a>
                         @endif
 
-                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
-
                         @if($sale->status === 'diproses')
                         <button type="submit" onclick="this.form.querySelector('.input-status-handler').value='diantar';" class="btn btn-sm btn-info text-white rounded-pill px-4 fw-bold shadow-sm">
                             <i class="bi bi-truck me-1"></i> Tandai Diantar
@@ -338,6 +470,7 @@
                             <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas
                         </button>
                         @endif
+                        @endif
                     </div>
                 </div>
             </form>
@@ -345,7 +478,69 @@
     </div>
 </div>
 
-{{-- MODAL FORM ALASAN PENOLAKAN PESANAN KWT --}}
+{{-- MODAL TINJAU REFUND ADMIN --}}
+@if($sale->status_refund == 'diajukan')
+<div class="modal fade" id="modalRefundAdmin{{ $sale->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white border-bottom-0 p-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Tinjau Pengajuan Refund</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.orders.refund', $sale->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body p-4 pt-3">
+                    <p class="small text-muted mb-3">Mohon periksa alasan dan bukti pengajuan pengembalian dana dari pelanggan ini secara teliti.</p>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-secondary mb-1">Alasan dari Customer:</label>
+                        <div class="text-dark bg-light p-3 rounded border small mb-0 lh-base">
+                            {{ $sale->alasan_refund ?? 'Tidak ada alasan yang diberikan.' }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="small fw-bold text-secondary d-block mb-2">Bukti Foto Kerusakan/Ketidaksesuaian:</label>
+                        @if($sale->bukti_refund)
+                        <div class="text-center bg-light border rounded p-2">
+                            <img src="{{ asset('storage/' . $sale->bukti_refund) }}" alt="Bukti Refund" class="img-fluid rounded" style="max-height: 250px; object-fit: contain;">
+                        </div>
+                        @else
+                        <p class="text-danger small mb-0"><i class="bi bi-x-circle me-1"></i> Tidak ada foto bukti yang dilampirkan.</p>
+                        @endif
+                    </div>
+
+                    <hr class="border-danger opacity-25">
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-danger mb-1">Keputusan Akhir Admin:</label>
+                        <select name="keputusan" class="form-select border-danger-subtle rounded-3" required>
+                            <option value="">-- Pilih Keputusan Evaluasi --</option>
+                            <option value="disetujui">✅ Setujui Refund (Uang Dikembalikan)</option>
+                            <option value="ditolak">❌ Tolak Refund (Bukti Tidak Valid / Pesanan Selesai)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="small fw-bold text-danger mb-1">Catatan Tambahan untuk Customer:</label>
+                        <textarea name="catatan_admin_refund" class="form-control rounded-3" rows="2" placeholder="Cth: Dana direfund 100% / Maaf kerusakan terjadi pada saat perjalanan kurir..."></textarea>
+                        <small class="text-muted" style="font-size: 0.7rem;">*Catatan dan notifikasi ini akan otomatis dikirim via Email ke Customer.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 p-4 pt-0 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light border rounded-pill px-4 fw-bold small" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modalProsesAdmin{{ $sale->id }}">Kembali ke Detail</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="bi bi-send-check me-1"></i> Konfirmasi Keputusan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
+{{-- MODAL FORM ALASAN PENOLAKAN PESANAN ADMIN --}}
 <div class="modal fade" id="modalTolakPesanan{{ $sale->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
         <div class="modal-content rounded-4 border-0 shadow-lg">
@@ -423,22 +618,79 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.select-kurir-admin').forEach(selectElement => {
-            selectElement.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const phone = selectedOption.getAttribute('data-phone');
+    document.querySelectorAll('.select-kurir-admin').forEach(selectElement => {
 
-                const wrapper = this.closest('.section-kurir-wrapper');
-                const phoneInput = wrapper.querySelector('.input-phone-admin');
+        function updateKurirInfo(select) {
+            const selectedOption = select.options[select.selectedIndex];
+            const phone = selectedOption.getAttribute('data-phone');
+            const kendaraan = selectedOption.getAttribute('data-kendaraan');
+            const wrapper = select.closest('.section-kurir-wrapper');
+            const phoneInput = wrapper.querySelector('.input-phone-admin');
+            const kendaraanInput = wrapper.querySelector('.input-kendaraan-admin');
+            if (phoneInput) {
+                phoneInput.value = phone ? phone : '';
+            }
+            if (kendaraanInput) {
+                kendaraanInput.value = kendaraan ? kendaraan : '';
+            }
+        }
+        selectElement.addEventListener('change', function() {
+            updateKurirInfo(this);
+        });
+        updateKurirInfo(selectElement);
+    });
 
-                if (phoneInput) {
-                    phoneInput.value = phone ? phone : '';
+    let sortDirection = {
+        id: false,
+        date: false,
+        status: false,
+        subtotal: false
+    };
+    const headers = document.querySelectorAll('th.sortable');
+
+    headers.forEach(th => {
+        th.addEventListener('click', () => {
+            const sortType = th.getAttribute('data-sort');
+            const tbody = document.querySelector('#admin-interactive-table tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr.data-row'));
+
+            sortDirection[sortType] = !sortDirection[sortType];
+            const isAsc = sortDirection[sortType];
+
+            headers.forEach(header => {
+                const icon = header.querySelector('.sort-icon');
+                if (icon) icon.className = 'bi bi-arrow-down-up ms-1 text-muted sort-icon';
+            });
+            const activeIcon = th.querySelector('.sort-icon');
+            if (activeIcon) {
+                activeIcon.className = isAsc ? 'bi bi-arrow-up ms-1 text-success sort-icon' : 'bi bi-arrow-down ms-1 text-success sort-icon';
+            }
+
+            rows.sort((a, b) => {
+                let valA, valB;
+                if (sortType === 'id') {
+                    valA = parseInt(a.getAttribute('data-id'));
+                    valB = parseInt(b.getAttribute('data-id'));
+                } else if (sortType === 'date') {
+                    valA = parseInt(a.getAttribute('data-date'));
+                    valB = parseInt(b.getAttribute('data-date'));
+                } else if (sortType === 'subtotal') {
+                    valA = parseFloat(a.getAttribute('data-subtotal'));
+                    valB = parseFloat(b.getAttribute('data-subtotal'));
+                } else if (sortType === 'status') {
+                    valA = a.getAttribute('data-status-text').toLowerCase();
+                    valB = b.getAttribute('data-status-text').toLowerCase();
                 }
+
+                if (valA < valB) return isAsc ? -1 : 1;
+                if (valA > valB) return isAsc ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(row => {
+                tbody.appendChild(row);
             });
         });
-
-        // No batch print logic needed on this page
     });
 </script>
 @endsection

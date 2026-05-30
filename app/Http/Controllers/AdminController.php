@@ -12,6 +12,7 @@ use App\Models\KurirPencairan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
 
 class AdminController extends Controller
@@ -88,12 +89,22 @@ class AdminController extends Controller
 
     public function updateOrderStatus(Request $request, $id)
     {
-        $order = Order::findOrFail($id);
+        // PERBAIKAN: Load relasi product sekalian untuk proses kembalikan stok
+        $order = Order::with('details.product')->findOrFail($id);
         $status = $request->input('status');
 
         if ($status === 'batal') {
-            $order->update(['status' => 'batal']);
-            return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dibatalkan.');
+            // PERBAIKAN: Cek agar tidak double-return stok jika halaman direfresh
+            if ($order->status !== 'batal') {
+                // PERBAIKAN: Kembalikan stok saat admin yang membatalkan pesanan
+                foreach ($order->details as $detail) {
+                    if ($detail->product) {
+                        $detail->product->increment('stok', $detail->jumlah);
+                    }
+                }
+                $order->update(['status' => 'batal']);
+            }
+            return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dibatalkan dan stok dikembalikan.');
         }
 
         if ($status === 'diantar') {
@@ -101,19 +112,24 @@ class AdminController extends Controller
             return redirect()->back()->with('success', 'Pesanan #' . $id . ' statusnya diubah menjadi Pesanan Diantar.');
         }
 
-        $request->validate([
-            'kurir' => 'required|string|max:255',
-            'no_hp_kurir' => 'required|string|max:20',
-            'jadwal_pengiriman' => 'required|date|after_or_equal:today'
-        ]);
+        if ($status === 'diproses') {
+            $request->validate([
+                'kurir' => 'required|string|max:255',
+                'no_hp_kurir' => 'required|string|max:20',
+                'jadwal_pengiriman' => 'required|date|after_or_equal:today'
+            ]);
 
-        $order->status = 'diproses';
-        $order->kurir = $request->input('kurir');
-        $order->no_hp_kurir = $request->input('no_hp_kurir');
-        $order->jadwal_pengiriman = $request->input('jadwal_pengiriman');
-        $order->save();
+            $order->update([
+                'status' => 'diproses',
+                'kurir' => $request->input('kurir'),
+                'no_hp_kurir' => $request->input('no_hp_kurir'),
+                'jadwal_pengiriman' => $request->input('jadwal_pengiriman')
+            ]);
 
-        return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dijadwalkan!');
+            return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dijadwalkan!');
+        }
+
+        return redirect()->back()->with('error', 'Status tidak dikenali.');
     }
 
     public function kwtIndex()
@@ -140,7 +156,17 @@ class AdminController extends Controller
         ]);
 
         event(new Registered($user));
-        return back()->with('success', 'Akun KWT berhasil dibuat!');
+        return back()->with('success', 'Akun KWT berhasil dibuat dan otomatis terverifikasi!');
+    }
+
+    public function verifyKwt($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update([
+            'email_verified_at' => now()
+        ]);
+
+        return back()->with('success', 'Akun KWT ' . $user->name . ' berhasil diverifikasi!');
     }
 
     public function updateKwt(Request $request, $id)
@@ -210,9 +236,6 @@ class AdminController extends Controller
         return view('admin.sales.invoice_kurir', compact('sale'));
     }
 
-    /**
-     * Cetak Invoice KWT Batch (Multi-select)
-     */
     public function printInvoiceKwtBatch(Request $request)
     {
         $ids = explode(',', $request->query('ids', ''));
@@ -229,9 +252,6 @@ class AdminController extends Controller
         return view('admin.sales.invoice_kwt_batch', compact('allGrouped'));
     }
 
-    /**
-     * Cetak Invoice Kurir Batch (Multi-select)
-     */
     public function printInvoiceKurirBatch(Request $request)
     {
         $ids = explode(',', $request->query('ids', ''));
@@ -240,9 +260,6 @@ class AdminController extends Controller
         return view('admin.sales.invoice_kurir_batch', compact('sales'));
     }
 
-    /**
-     * Cetak Laporan & Invoice Penghasilan Kurir
-     */
     public function reportKurir(Request $request, $id)
     {
         $kurir = Kurir::findOrFail($id);
@@ -254,10 +271,7 @@ class AdminController extends Controller
             ->whereYear('created_at', $year)
             ->get();
 
-        // Hitung total ongkir
         $totalOngkir = $orders->where('status', 'selesai')->sum('ongkir');
-
-        // Tambahkan perhitungan ini agar view bisa membacanya
         $potonganAdmin = $totalOngkir * 0.15;
         $pendapatanBersih = $totalOngkir * 0.85;
 
@@ -292,7 +306,12 @@ class AdminController extends Controller
     public function riwayatPencairanKurir()
     {
         $pencairan = KurirPencairan::latest()->get();
-        return view('admin.kurir.pencairan', compact('pencairan'));
+        $list_kurir = Kurir::where('status', 'aktif')->get();
+
+        return view('admin.kurir.pencairan', compact(
+            'pencairan',
+            'list_kurir'
+        ));
     }
 
     public function storePencairanKurir(Request $request)
@@ -336,5 +355,76 @@ class AdminController extends Controller
             ->sum(DB::raw('harga_saat_ini * jumlah'));
 
         return view('admin.kwt.laporan', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year'));
+    }
+
+    /**
+     * SISI ADMIN: Verifikasi (Terima/Tolak) Pengajuan Refund Customer
+     */
+    public function prosesRefund(Request $request, $id)
+    {
+        $request->validate([
+            'keputusan' => 'required|in:disetujui,ditolak',
+            'catatan_admin_refund' => 'nullable|string|max:1000'
+        ]);
+
+        $order = Order::with(['user', 'details.product'])->findOrFail($id);
+
+        if ($request->keputusan == 'disetujui') {
+            // PERBAIKAN: Cek dulu agar stok tidak dobel balik kalau disubmit berkali-kali
+            if ($order->status_refund !== 'disetujui') {
+                foreach ($order->details as $detail) {
+                    if ($detail->product) {
+                        $detail->product->increment('stok', $detail->jumlah);
+                    }
+                }
+
+                $order->update([
+                    'status_refund' => 'disetujui',
+                    'status' => 'batal',
+                    'catatan_admin_refund' => $request->catatan_admin_refund
+                ]);
+
+                try {
+                    if ($order->user && $order->user->email) {
+                        $total_rp = number_format($order->total_harga, 0, ',', '.');
+                        $catatan = $request->catatan_admin_refund ?? 'Sesuai dengan pengajuan komplain Anda.';
+
+                        Mail::raw(
+                            "Halo {$order->user->name},\n\nPengajuan Refund (Pengembalian Dana) Anda untuk pesanan #ORD-{$order->id} telah DISETUJUI oleh Admin.\n\nDetail Pengajuan Anda:\n- Alasan Komplain: \"{$order->alasan_refund}\"\n\nTotal Dana yang Dikembalikan: Rp {$total_rp}\nCatatan Admin: \"{$catatan}\"\n\nDana Anda akan segera diproses. Terima kasih.",
+                            function ($message) use ($order) {
+                                $message->to($order->user->email)
+                                    ->subject("Refund Disetujui: Pesanan #ORD-{$order->id}");
+                            }
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Abaikan jika email gagal terkirim
+                }
+            }
+            return back()->with('success', 'Refund disetujui. Dana dikembalikan ke pelanggan dan stok dipulihkan.');
+        } else {
+            $order->update([
+                'status_refund' => 'ditolak',
+                'catatan_admin_refund' => $request->catatan_admin_refund
+            ]);
+
+            try {
+                if ($order->user && $order->user->email) {
+                    $catatan = $request->catatan_admin_refund ?? 'Bukti yang dilampirkan tidak memenuhi syarat pengembalian.';
+
+                    Mail::raw(
+                        "Halo {$order->user->name},\n\nMohon maaf, Pengajuan Refund (Pengembalian Dana) Anda untuk pesanan #ORD-{$order->id} DITOLAK oleh Admin.\n\nDetail Pengajuan Anda:\n- Alasan Komplain: \"{$order->alasan_refund}\"\n\nCatatan Admin: \"{$catatan}\"\n\nJika ada pertanyaan lebih lanjut, silakan hubungi layanan pelanggan kami.",
+                        function ($message) use ($order) {
+                            $message->to($order->user->email)
+                                ->subject("Refund Ditolak: Pesanan #ORD-{$order->id}");
+                        }
+                    );
+                }
+            } catch (\Exception $e) {
+                // Abaikan error email
+            }
+
+            return back()->with('success', 'Pengajuan refund ditolak. Pesanan dilanjutkan.');
+        }
     }
 }

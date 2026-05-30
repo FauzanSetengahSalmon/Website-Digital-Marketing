@@ -3,8 +3,9 @@
 @section('content')
 <style>
     :root {
-        --admin-dark: #111827;
-        --admin-primary: #2563eb;
+        --kwt-green: #064e3b;
+        --kwt-light: #10b981;
+        --kwt-soft: #ecfdf5;
     }
 
     .profile-card {
@@ -15,7 +16,7 @@
     }
 
     .profile-header-admin {
-        background: linear-gradient(135deg, #111827, #1e3a8a);
+        background: linear-gradient(135deg, var(--kwt-green), #065f46);
         padding: 30px;
         position: relative;
     }
@@ -34,8 +35,8 @@
     }
 
     .form-control:focus {
-        border-color: var(--admin-primary);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        border-color: var(--kwt-light);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
     }
 
     .btn-thin {
@@ -47,14 +48,15 @@
     }
 
     .btn-update {
-        background: var(--admin-primary);
+        background: var(--kwt-green);
         color: white;
         border: none;
     }
 
     .btn-update:hover {
-        background: #1d4ed8;
+        background: #065f46;
         transform: translateY(-1px);
+        color: white;
     }
 
     .avatar-wrapper:hover .camera-overlay {
@@ -62,13 +64,19 @@
     }
 
     .admin-badge {
-        background: #dbeafe;
-        color: #1d4ed8;
+        background: #d1fae5;
+        color: var(--kwt-green);
         padding: 6px 14px;
         border-radius: 50px;
         font-size: 0.8rem;
         font-weight: 700;
         display: inline-block;
+    }
+
+    .info-box {
+        background: var(--kwt-soft);
+        border: 1px solid #a7f3d0;
+        color: #065f46;
     }
 </style>
 
@@ -77,7 +85,7 @@
     <!-- HEADER -->
     <div class="mb-4">
         <h4 class="fw-bold mb-0">
-            Profil <span class="text-primary">Administrator</span>
+            Profil <span style="color: var(--kwt-light);">Administrator</span>
         </h4>
 
         <p class="text-muted small">
@@ -145,7 +153,8 @@
                         <div class="bg-white rounded-3 d-flex align-items-center justify-content-center"
                             style="width: 50px; height: 50px;">
 
-                            <i class="bi bi-shield-lock text-primary fs-4"></i>
+                            <i class="bi bi-shield-lock fs-4"
+                                style="color: var(--kwt-light);"></i>
                         </div>
 
                         <div>
@@ -254,7 +263,8 @@
                             <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
                                 class="w-100 h-100 object-fit-cover">
                             @else
-                            <span class="fs-1 fw-bold text-primary">
+                            <span class="fs-1 fw-bold"
+                                style="color: var(--kwt-light);">
                                 {{ substr(Auth::user()->name, 0, 1) }}
                             </span>
                             @endif
@@ -262,8 +272,8 @@
                         </div>
 
                         <button type="button"
-                            class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle shadow-sm"
-                            style="width: 35px; height: 35px; border: 2px solid white;"
+                            class="btn btn-sm position-absolute bottom-0 end-0 rounded-circle shadow-sm"
+                            style="width: 35px; height: 35px; border: 2px solid white; background: var(--kwt-green); color: white;"
                             onclick="document.getElementById('photoInput').click()">
 
                             <i class="bi bi-camera"></i>
@@ -291,14 +301,16 @@
                 <div class="text-start small text-muted">
 
                     <p class="mb-2">
-                        <i class="bi bi-calendar-check me-2 text-primary"></i>
+                        <i class="bi bi-calendar-check me-2"
+                            style="color: var(--kwt-light);"></i>
 
                         Bergabung:
                         {{ Auth::user()->created_at->format('d M Y') }}
                     </p>
 
                     <p class="mb-0">
-                        <i class="bi bi-envelope me-2 text-primary"></i>
+                        <i class="bi bi-envelope me-2"
+                            style="color: var(--kwt-light);"></i>
 
                         {{ Auth::user()->email }}
                     </p>
@@ -306,7 +318,7 @@
                 </div>
             </div>
 
-            <div class="mt-3 p-3 bg-primary-subtle text-primary-emphasis small rounded-3 border border-primary-subtle">
+            <div class="mt-3 p-3 small rounded-3 info-box">
                 <i class="bi bi-info-circle-fill me-2"></i>
                 Klik foto profil untuk mengganti avatar administrator.
             </div>

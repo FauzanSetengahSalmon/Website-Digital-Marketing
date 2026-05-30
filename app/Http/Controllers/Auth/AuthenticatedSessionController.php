@@ -29,51 +29,29 @@ class AuthenticatedSessionController extends Controller
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ], [
-            'email.required' => 'Alamat email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'password.required' => 'Password wajib diisi.',
         ]);
 
-        // CARI USER BERDASARKAN EMAIL
         $user = User::where('email', $request->email)->first();
 
-        // JIKA EMAIL TIDAK ADA
-        if (!$user) {
-            return back()
-                ->withErrors([
-                    'email' => 'Email belum terdaftar di sistem.',
-                ])
-                ->withInput();
-        }
-
-        // JIKA PASSWORD SALAH
-        if (!Hash::check($request->password, $user->password)) {
-            return back()
-                ->withErrors([
-                    'password' => 'Password yang Anda masukkan salah.',
-                ])
-                ->withInput();
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'email' => 'Kombinasi email atau password salah.',
+            ])->withInput();
         }
 
         // LOGIN USER
         Auth::login($user);
-
         $request->session()->regenerate();
 
-        // AMBIL USER LOGIN
-        $user = Auth::user();
-
-        // REDIRECT BERDASARKAN ROLE
         if ($user->role === 'admin') {
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect()->route('admin.dashboard');
         }
 
         if ($user->role === 'kwt') {
-            return redirect()->intended(route('kwt.dashboard'));
+            return redirect()->route('kwt.dashboard');
         }
 
-        return redirect()->intended(route('home'));
+        return redirect()->route('home');
     }
 
     /**

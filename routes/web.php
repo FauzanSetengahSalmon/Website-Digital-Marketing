@@ -13,6 +13,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\KurirController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -175,6 +176,8 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/kwt/delete/{id}', [AdminController::class, 'destroyKwt'])
                 ->name('kwt.destroy');
 
+            Route::patch('/kwt/verify/{id}', [AdminController::class, 'verifyKwt'])
+                ->name('kwt.verify');
             /*
             |--------------------------------------------------------------------------
             | SALES & ORDER MANAGEMENT
@@ -189,12 +192,15 @@ Route::middleware(['auth'])->group(function () {
 
             /*
             |--------------------------------------------------------------------------
-            | REJECT ORDER
+            | REJECT & REFUND ORDER (ADMIN)
             |--------------------------------------------------------------------------
             */
 
             Route::post('/orders/{id}/reject', [ProductController::class, 'tolakPesanan'])
                 ->name('orders.reject');
+
+            Route::put('/order/{id}/proses-refund', [AdminController::class, 'prosesRefund'])
+                ->name('orders.refund');
 
             /*
             |--------------------------------------------------------------------------
@@ -225,6 +231,10 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/kwt/{id}/laporan', [AdminController::class, 'reportKwt'])
                 ->name('kwt.laporan');
+
+            Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings.index');
+
+            Route::put('/admin/settings/update', [SettingController::class, 'update'])->name('admin.settings.update');
         });
 
     /*
@@ -301,6 +311,14 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/orders/{id}/accept', [OrderController::class, 'acceptOrder'])
                 ->name('orders.accept');
 
+            /*
+            |--------------------------------------------------------------------------
+            | KWT READY STOCK
+            |--------------------------------------------------------------------------
+            */
+
+            Route::put('/orders/{id}/ready-stock', [OrderController::class, 'readyStock'])
+                ->name('orders.readyStock');
             /*
             |--------------------------------------------------------------------------
             | REJECT / CANCEL ORDER
@@ -397,7 +415,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ORDER HISTORY
+    | ORDER HISTORY & REFUND (CUSTOMER)
     |--------------------------------------------------------------------------
     */
 
@@ -411,6 +429,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::patch('/riwayat-pesanan/{id}/complete', 'complete')
             ->name('orders.complete');
+
+        Route::post('/riwayat-pesanan/{id}/refund', 'ajukanRefund')
+            ->name('orders.refund');
     });
 
     /*

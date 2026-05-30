@@ -11,7 +11,7 @@ use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail; // TAMBAHAN: Import Facade Mail untuk kirim email
+use Illuminate\Support\Facades\Mail;
 use App\Exports\KwtTransactionExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -70,8 +70,6 @@ class OrderController extends Controller
     public function kwtLaporan(Request $request)
     {
         $userId = Auth::id();
-
-        // Ambil filter dari request, default ke bulan & tahun sekarang
         $month = $request->query('month', date('m'));
         $year = $request->query('year', date('Y'));
 
@@ -112,7 +110,6 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        // TOTAL KHUSUS KWT (Hanya menghitung item milik KWT ini)
         foreach ($orders as $order) {
             $order->total_kwt = $order->details->sum(function ($detail) {
                 return $detail->harga_saat_ini * $detail->jumlah;
@@ -169,7 +166,6 @@ class OrderController extends Controller
             })
             ->findOrFail($id);
 
-        // Menghitung subtotal murni produk milik KWT ini
         $order->total_kwt = $order->details->sum(function ($detail) {
             return $detail->harga_saat_ini * $detail->jumlah;
         });
@@ -178,21 +174,54 @@ class OrderController extends Controller
     }
 
     /**
-     * KWT: Terima Pesanan
+     * SISI KWT: Konfirmasi Ketersediaan Stok (Tersimpan Permanen)
      */
-    public function acceptOrder($id)
+    public function acceptOrder(Request $request, $id)
     {
         $userId = Auth::id();
+        $order = Order::with('details.product')->findOrFail($id);
 
-        $order = Order::whereHas('details.product', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->findOrFail($id);
+        // 1. Tangkap data checkbox dari Javascript Blade (bentuknya array)
+        $stokReadyData = $request->input('stok_ready', []);
 
-        $order->update([
-            'status' => 'diproses'
-        ]);
+        // 2. Ambil detail pesanan HANYA milik KWT yang sedang login
+        $details = $order->details->filter(function ($detail) use ($userId) {
+            return $detail->product && $detail->product->user_id == $userId;
+        });
 
-        return back()->with('success', 'Pesanan berhasil diverifikasi. Menunggu Admin mengatur pengiriman.');
+        // 3. Update database (Pasti berhasil karena sudah ada di $fillable)
+        foreach ($details as $detail) {
+            // Jika ada data toggle yang dikirim untuk produk ini
+            if (isset($stokReadyData[$detail->id])) {
+                $isReady = $stokReadyData[$detail->id] == '1' || $stokReadyData[$detail->id] == 1;
+
+                $detail->update([
+                    'stok_ready' => $isReady ? 1 : 0,
+                    'stok_ready_at' => $isReady ? now() : null,
+                ]);
+            }
+        }
+        $belumReady = \App\Models\OrderDetail::where('order_id', $order->id)
+            ->where('stok_ready', 0)
+            ->exists();
+
+        if (!$belumReady && $order->status === 'menunggu') {
+            $order->update(['status' => 'diproses']);
+            $message = 'Stok berhasil dikonfirmasi. Pesanan sekarang Diproses Admin!';
+        } else {
+            $message = 'Ketersediaan stok berhasil dikunci di database.';
+        }
+
+        // 5. Response khusus untuk Javascript (AJAX) agar halaman TIDAK REFRESH
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        }
+
+        // Fallback jika Javascript di browser error/mati
+        return back()->with('success', $message);
     }
 
     /**
@@ -205,39 +234,36 @@ class OrderController extends Controller
         ]);
 
         $userId = Auth::id();
-
-        // Ambil relasi user dan details untuk keperluan email dan pengembalian stok
         $order = Order::with(['user', 'details.product'])->whereHas('details.product', function ($q) use ($userId) {
             $q->where('user_id', $userId);
         })->findOrFail($id);
 
-        // 1. Kembalikan stok produk seperti di Admin
-        foreach ($order->details as $detail) {
-            if ($detail->product) {
-                $detail->product->increment('stok', $detail->jumlah);
+        // PERBAIKAN: Proteksi agar jika direfresh, stok tidak bertambah ganda
+        if ($order->status !== 'batal') {
+            foreach ($order->details as $detail) {
+                if ($detail->product) {
+                    $detail->product->increment('stok', $detail->jumlah);
+                }
             }
-        }
 
-        // 2. Ubah status pesanan menjadi batal
-        $order->update([
-            'status' => 'batal',
-            'alasan_tolak' => $request->alasan_tolak
-        ]);
+            $order->update([
+                'status' => 'batal',
+                'alasan_tolak' => $request->alasan_tolak
+            ]);
 
-        // 3. Kirim Email Notifikasi ke Customer
-        try {
-            if ($order->user && $order->user->email) {
-                Mail::raw(
-                    "Halo {$order->user->name},\n\nMohon maaf, pesanan Anda dengan ID #ORD-{$order->id} terpaksa kami TOLAK dengan alasan: \"{$request->alasan_tolak}\".\n\nDana Anda akan segera diproses untuk pengembalian (Refund).",
-                    function ($message) use ($order) {
-                        $message->to($order->user->email)
-                            ->subject("Pemberitahuan Pembatalan & Refund Pesanan #ORD-{$order->id}");
-                    }
-                );
+            try {
+                if ($order->user && $order->user->email) {
+                    Mail::raw(
+                        "Halo {$order->user->name},\n\nMohon maaf, pesanan Anda dengan ID #ORD-{$order->id} terpaksa kami TOLAK dengan alasan: \"{$request->alasan_tolak}\".\n\nDana Anda akan segera diproses untuk pengembalian (Refund).",
+                        function ($message) use ($order) {
+                            $message->to($order->user->email)
+                                ->subject("Pemberitahuan Pembatalan & Refund Pesanan #ORD-{$order->id}");
+                        }
+                    );
+                }
+            } catch (\Exception $e) {
+                // Abaikan jika error
             }
-        } catch (\Exception $e) {
-            // Log error jika email gagal terkirim, tapi jangan sampai aplikasi crash
-            // \Log::error('Gagal mengirim email penolakan pesanan KWT: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Pesanan berhasil ditolak, stok dikembalikan, dan notifikasi email telah dikirim ke pelanggan.');
@@ -255,14 +281,8 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
 
         if ($request->hasFile('bukti_pengiriman')) {
-            // Simpan gambar bukti pengiriman kurir ke folder storage/public/bukti_kirim
             $path = $request->file('bukti_pengiriman')->store('bukti_kirim', 'public');
-
-            // 🌟 PROTEKSI: Update bukti pengiriman tanpa merusak / mengubah paksa data alamat yang sudah benar 🌟
-            $order->update([
-                'bukti_pengiriman' => $path
-            ]);
-
+            $order->update(['bukti_pengiriman' => $path]);
             return back()->with('success', 'Bukti pengiriman berhasil diunggah, kurir siap mengantar hasil panen KWT!');
         }
 
@@ -310,10 +330,7 @@ class OrderController extends Controller
      */
     public function complete(Request $request, $id)
     {
-        $request->validate([
-            'bukti_sampai' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
-
+        // Validasi foto (bukti_sampai) dihapus karena itu tugas kurir
         $order = Order::where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
@@ -322,18 +339,11 @@ class OrderController extends Controller
             return back()->with('error', 'Status pesanan tidak valid.');
         }
 
-        if ($request->hasFile('bukti_sampai')) {
-            $path = $request->file('bukti_sampai')->store('bukti_sampai', 'public');
+        $order->update([
+            'status' => 'selesai',
+        ]);
 
-            $order->update([
-                'status' => 'selesai',
-                'bukti_sampai' => $path
-            ]);
-
-            return back()->with('success', 'Pesanan selesai!');
-        }
-
-        return back()->with('error', 'Upload gagal.');
+        return back()->with('success', 'Pesanan berhasil diselesaikan! Terima kasih.');
     }
 
     /**
@@ -360,5 +370,36 @@ class OrderController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Laporan berhasil dikirim! Tim kami akan segera menindaklanjuti.');
+    }
+
+    /**
+     * SISI CUSTOMER: Mengajukan Refund
+     */
+    public function ajukanRefund(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_refund' => 'required|string|max:1000',
+            'bukti_refund'  => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $order = Order::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        if (!in_array($order->status, ['diantar', 'selesai']) || $order->status_refund !== 'tidak_ada') {
+            return back()->with('error', 'Pesanan ini tidak memenuhi syarat untuk direfund.');
+        }
+
+        if ($request->hasFile('bukti_refund')) {
+            $path = $request->file('bukti_refund')->store('bukti_refunds', 'public');
+
+            $order->update([
+                'status_refund' => 'diajukan',
+                'alasan_refund' => $request->alasan_refund,
+                'bukti_refund'  => $path,
+            ]);
+
+            return back()->with('success', 'Pengajuan pengembalian dana (Refund) berhasil dikirim. Menunggu verifikasi Admin.');
+        }
+
+        return back()->with('error', 'Gagal mengunggah bukti foto.');
     }
 }

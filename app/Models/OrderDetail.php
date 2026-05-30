@@ -9,18 +9,17 @@ class OrderDetail extends Model
 {
     use HasFactory;
 
+    // INI YANG DITAMBAHKAN: stok_ready, stok_ready_at, dan status_kwt
     protected $fillable = [
         'order_id',
         'product_id',
         'jumlah',
         'harga_saat_ini',
+        'stok_ready',
+        'stok_ready_at',
+        'status_kwt',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATION ORDER
-    |--------------------------------------------------------------------------
-    */
     public function order()
     {
         return $this->belongsTo(
@@ -29,11 +28,6 @@ class OrderDetail extends Model
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATION PRODUCT
-    |--------------------------------------------------------------------------
-    */
     public function product()
     {
         return $this->belongsTo(
@@ -42,14 +36,8 @@ class OrderDetail extends Model
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUBTOTAL
-    |--------------------------------------------------------------------------
-    */
     public function getSubtotalAttribute()
     {
-        return $this->jumlah *
-            $this->harga_saat_ini;
+        return $this->jumlah * $this->harga_saat_ini;
     }
 }
