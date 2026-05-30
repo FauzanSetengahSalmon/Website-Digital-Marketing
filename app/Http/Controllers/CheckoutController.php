@@ -306,7 +306,7 @@ class CheckoutController extends Controller
 
         // Proses sinkronisasi otomatis status order di DB lokal kamu
         if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-            $order->update(['status' => 'menunggu']); // Lunas! status diatur menunggu konfirmasi/packing pengurus KWT
+            $order->update(['status' => 'menunggu']); 
         } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
             $order->update(['status' => 'batal']);
         }
