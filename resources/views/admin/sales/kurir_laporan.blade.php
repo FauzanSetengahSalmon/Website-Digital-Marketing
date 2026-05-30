@@ -31,68 +31,28 @@
     {{-- WIDGET STATISTIK --}}
     <div class="row g-3 mb-4 no-print">
 
-        {{-- Pendapatan Bersih (85%) --}}
-        <div class="col-12 col-sm-6 col-xl-3">
+        {{-- Total Pendapatan Kurir (100%) --}}
+        <div class="col-12 col-md-6">
             <div class="card stat-card border-0 shadow-sm h-100 bg-gradient-success text-white">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="small fw-bold text-uppercase tracking-wider opacity-75">
-                            Pendapatan Bersih (85%)
+                            Total Pendapatan (100% Hak Kurir)
                         </span>
                         <div class="stat-icon bg-white text-success rounded-3 shadow-sm">
                             <i class="bi bi-cash-stack fs-4 text-success"></i>
                         </div>
                     </div>
-                    <h3 class="fw-extrabold mb-1" id="widget-bersih">
-                        Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}
-                    </h3>
-                    <p class="small mb-0 opacity-75">Hak kurir setelah potongan admin</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- Total Omzet Ongkir (100%) --}}
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card stat-card border-0 shadow-sm h-100 bg-white">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <span class="small fw-semibold text-muted text-uppercase tracking-wider">
-                            Total Ongkir (100%)
-                        </span>
-                        <div class="stat-icon bg-success bg-opacity-10 text-success rounded-3">
-                            <i class="bi bi-wallet2 fs-4"></i>
-                        </div>
-                    </div>
-                    <h3 class="fw-extrabold mb-1 text-dark" id="widget-ongkir">
+                    <h3 class="fw-extrabold mb-1" id="widget-ongkir">
                         Rp {{ number_format($totalOngkir, 0, ',', '.') }}
                     </h3>
-                    <p class="small mb-0 text-muted">Akumulasi tarif ongkos kirim</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- Potongan Admin (15%) --}}
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card stat-card border-0 shadow-sm h-100 bg-white">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <span class="small fw-semibold text-muted text-uppercase tracking-wider">
-                            Potongan Admin (15%)
-                        </span>
-                        <div class="stat-icon bg-danger bg-opacity-10 text-danger rounded-3">
-                            <i class="bi bi-percent fs-4"></i>
-                        </div>
-                    </div>
-                    <h3 class="fw-extrabold mb-1 text-danger" id="widget-potongan">
-                        Rp {{ number_format($potonganAdmin, 0, ',', '.') }}
-                    </h3>
-                    <p class="small mb-0 text-muted">Biaya pemeliharaan sistem</p>
+                    <p class="small mb-0 opacity-75">Seluruh tarif ongkir tanpa potongan admin.</p>
                 </div>
             </div>
         </div>
 
         {{-- Jumlah Pengiriman --}}
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-md-6">
             <div class="card stat-card border-0 shadow-sm h-100 bg-white">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -204,8 +164,7 @@
                             <th class="py-3 sortable" data-sort="date" style="cursor: pointer;" title="Klik untuk mengurutkan">
                                 Tanggal Transaksi <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
                             </th>
-                            <th class="py-3 text-end">Ongkos Kirim</th>
-                            <th class="py-3 text-end">Bersih (85%)</th>
+                            <th class="py-3 text-end">Tarif Ongkir</th>
                             <th class="py-3 text-center pe-4 sortable" data-sort="status" style="cursor: pointer;" title="Klik untuk mengurutkan">
                                 Status <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
                             </th>
@@ -233,11 +192,8 @@
                             <td class="py-3 text-secondary small">
                                 {{ $order->created_at->format('d M Y, H:i') }} WIB
                             </td>
-                            <td class="py-3 text-end fw-bold text-dark">
-                                Rp {{ number_format($order->ongkir, 0, ',', '.') }}
-                            </td>
                             <td class="py-3 text-end fw-bold text-success">
-                                Rp {{ number_format($order->ongkir * 0.85, 0, ',', '.') }}
+                                Rp {{ number_format($order->ongkir, 0, ',', '.') }}
                             </td>
                             <td class="py-3 text-center pe-4">
                                 @if($order->status == 'selesai')
@@ -255,7 +211,7 @@
                         </tr>
                         @empty
                         <tr class="empty-row">
-                            <td colspan="8" class="text-center py-5 text-muted">
+                            <td colspan="7" class="text-center py-5 text-muted">
                                 <div class="py-3">
                                     <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50 text-success"></i>
                                     <span>Tidak ada data pengiriman untuk bulan ini.</span>
@@ -306,17 +262,13 @@
     <div class="print-summary-box p-4 rounded-4 mb-4" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
         <h6 class="fw-bold text-uppercase small text-muted mb-3 border-bottom pb-2">Rangkuman Keuangan Periode Ini</h6>
         <div class="row text-center">
-            <div class="col-4 border-end">
-                <small class="text-muted d-block mb-1">Total Tarif Ongkir (100%)</small>
-                <h4 class="fw-bold text-dark" id="print-total-ongkir">Rp 0</h4>
+            <div class="col-6 border-end">
+                <small class="text-muted d-block mb-1">Total Trip / Pengiriman</small>
+                <h4 class="fw-bold text-dark" id="print-jumlah-trip">0 Pesanan</h4>
             </div>
-            <div class="col-4 border-end">
-                <small class="text-muted d-block mb-1">Potongan Manajemen (15%)</small>
-                <h4 class="fw-bold text-danger" id="print-potongan-admin">Rp 0</h4>
-            </div>
-            <div class="col-4">
-                <small class="text-muted d-block mb-1 fw-bold text-success">Pendapatan Bersih Kurir (85%)</small>
-                <h3 class="fw-extrabold text-success" id="print-pendapatan-bersih">Rp 0</h3>
+            <div class="col-6">
+                <small class="text-muted d-block mb-1 fw-bold text-success">Pendapatan Bersih Kurir (100%)</small>
+                <h3 class="fw-extrabold text-success" id="print-total-ongkir">Rp 0</h3>
             </div>
         </div>
     </div>
@@ -332,7 +284,6 @@
                 <th>Tanggal Order</th>
                 <th>Status</th>
                 <th class="text-end">Tarif Ongkir</th>
-                <th class="text-end">Hak Kurir (85%)</th>
             </tr>
         </thead>
         <tbody>
@@ -343,26 +294,24 @@
                 <td class="small">{{ $order->alamat }}</td>
                 <td>{{ $order->created_at->format('d M Y') }}</td>
                 <td class="text-uppercase">{{ $order->status }}</td>
-                <td class="text-end">Rp {{ number_format($order->ongkir, 0, ',', '.') }}</td>
-                <td class="text-end fw-bold">Rp {{ number_format($order->ongkir * 0.85, 0, ',', '.') }}</td>
+                <td class="text-end text-success fw-bold">Rp {{ number_format($order->ongkir, 0, ',', '.') }}</td>
             </tr>
             @empty
             <tr id="print-empty-row">
-                <td colspan="7" class="text-center py-4 text-muted">Belum ada pengiriman untuk periode ini.</td>
+                <td colspan="6" class="text-center py-4 text-muted">Belum ada pengiriman untuk periode ini.</td>
             </tr>
             @endforelse
 
             @if($orders->isNotEmpty())
             <tr id="print-empty-row" style="display: none;">
-                <td colspan="7" class="text-center py-4 text-muted">Belum ada data pengiriman yang dipilih.</td>
+                <td colspan="6" class="text-center py-4 text-muted">Belum ada data pengiriman yang dipilih.</td>
             </tr>
             @endif
         </tbody>
         <tfoot>
             <tr class="fw-bold bg-light">
-                <td colspan="5" class="text-end">Total Kumulatif:</td>
-                <td class="text-end" id="print-foot-ongkir">Rp 0</td>
-                <td class="text-end text-success" id="print-foot-bersih">Rp 0</td>
+                <td colspan="5" class="text-end">Total Kumulatif Pendapatan:</td>
+                <td class="text-end text-success fs-6" id="print-foot-ongkir">Rp 0</td>
             </tr>
         </tfoot>
     </table>
@@ -511,20 +460,13 @@
 
         // Fungsi khusus untuk Update Layout Cetakan
         function updatePrintLayout(totalOngkir, totalTripCount) {
-            const potonganAdmin = totalOngkir * 0.15;
-            const pendapatanBersih = totalOngkir * 0.85;
-
             const printTotalOngkir = document.getElementById('print-total-ongkir');
-            const printPotonganAdmin = document.getElementById('print-potongan-admin');
-            const printPendapatanBersih = document.getElementById('print-pendapatan-bersih');
             const printFootOngkir = document.getElementById('print-foot-ongkir');
-            const printFootBersih = document.getElementById('print-foot-bersih');
+            const printJumlahTrip = document.getElementById('print-jumlah-trip');
 
             if (printTotalOngkir) printTotalOngkir.innerHTML = formatRupiah(totalOngkir);
-            if (printPotonganAdmin) printPotonganAdmin.innerHTML = formatRupiah(potonganAdmin);
-            if (printPendapatanBersih) printPendapatanBersih.innerHTML = formatRupiah(pendapatanBersih);
             if (printFootOngkir) printFootOngkir.innerHTML = formatRupiah(totalOngkir);
-            if (printFootBersih) printFootBersih.innerHTML = formatRupiah(pendapatanBersih);
+            if (printJumlahTrip) printJumlahTrip.innerHTML = totalTripCount + ' Pesanan';
 
             const printEmptyRow = document.getElementById('print-empty-row');
             if (printEmptyRow) {
@@ -557,18 +499,11 @@
                 btnCetakTerpilih.disabled = (totalTripCount === 0);
             }
 
-            const potonganAdmin = totalOngkir * 0.15;
-            const pendapatanBersih = totalOngkir * 0.85;
-
             // Widget di Layar (Kalkulasi Berdasarkan yang dicentang)
             const widgetOngkir = document.getElementById('widget-ongkir');
-            const widgetPotongan = document.getElementById('widget-potongan');
-            const widgetBersih = document.getElementById('widget-bersih');
             const widgetJumlahTrip = document.getElementById('widget-jumlah-trip');
 
             if (widgetOngkir) widgetOngkir.innerHTML = formatRupiah(totalOngkir);
-            if (widgetPotongan) widgetPotongan.innerHTML = formatRupiah(potonganAdmin);
-            if (widgetBersih) widgetBersih.innerHTML = formatRupiah(pendapatanBersih);
             if (widgetJumlahTrip) {
                 widgetJumlahTrip.innerHTML = `${totalTripCount} <span class="fs-6 fw-normal text-muted">Terpilih</span>`;
             }

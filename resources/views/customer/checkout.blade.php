@@ -344,11 +344,18 @@
                 </div>
                 @endif
 
+                {{-- 🌟 MENAMPILKAN BIAYA LAYANAN DARI CONTROLLER 🌟 --}}
+                <div class="d-flex justify-content-between mb-3 text-secondary small">
+                    <span>Biaya Layanan Aplikasi <i class="bi bi-info-circle ms-1" title="Biaya operasional platform E-Food" style="cursor:help;"></i></span>
+                    <span class="text-dark fw-medium">Rp {{ number_format($biayaLayanan ?? 0, 0, ',', '.') }}</span>
+                </div>
+
                 <hr class="my-2 text-muted opacity-25">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <span class="fw-bold text-dark small">Total Pembayaran</span>
-                    <h5 class="fw-bold text-danger mb-0">Rp {{ number_format(($totalSemuaProduk + $totalSemuaOngkirSetelahDiskon), 0, ',', '.') }}</h5>
+                    {{-- 🌟 MENGHITUNG TOTAL BARU (PRODUK + ONGKIR + BIAYA LAYANAN) 🌟 --}}
+                    <h5 class="fw-bold text-danger mb-0">Rp {{ number_format(($totalSemuaProduk + $totalSemuaOngkirSetelahDiskon + ($biayaLayanan ?? 0)), 0, ',', '.') }}</h5>
                 </div>
 
                 <form id="checkoutForm">
@@ -422,7 +429,6 @@
                         },
                         onClose: function() {
                             alert('Anda menutup halaman pembayaran sebelum menyelesaikan transaksi.');
-                            // 🌟 FIX: Menyelaraskan rute redirect agar menggunakan helper url Laravel 🌟
                             window.location.href = "{{ url('/riwayat-pesanan') }}/" + data.order_id;
                         }
                     });
