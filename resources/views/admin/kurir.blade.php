@@ -627,12 +627,9 @@
         let jenis = document.getElementById('jenis_tambah').value;
         let plat = document.getElementById('plat_tambah').value;
 
-        // Gabungkan nilai dropdown dan teks (Contoh: "Motor - Beat D 1234 ABC")
-        // Disimpan ke dalam input hidden 'name="kendaraan"' untuk dikirim ke Controller
         document.getElementById('hasil_kendaraan_tambah').value = jenis + ' - ' + plat;
     }
 
-    // Fungsi untuk Modal Edit (Dibuat dinamis sesuai ID kurir)
     function updateKendaraanEdit(id) {
         let jenis = document.getElementById('jenis_edit_' + id).value;
         let plat = document.getElementById('plat_edit_' + id).value;
