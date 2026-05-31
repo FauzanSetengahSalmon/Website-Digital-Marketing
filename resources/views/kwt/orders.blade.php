@@ -189,7 +189,7 @@
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8 shadow-sm">✅ {{ $sale->status }}</span>
                             @endif
                         </td>
-                        <td class="py-3 text-secondary fs-7">
+                        <td class="py-3 text-secondary fs-7 text-center">
                             <div class="fw-medium text-dark">{{ $sale->created_at->format('d M Y') }}</div>
                             <small class="text-muted">{{ $sale->created_at->format('H:i') }} WIB</small>
                         </td>

@@ -21,7 +21,9 @@ use App\Http\Controllers\SettingController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [ProductController::class, 'home'])->name('home');
+Route::get('/', [ProductController::class, 'home'])
+    ->middleware(\App\Http\Middleware\RedirectHomeBerdasarkanRole::class)
+    ->name('home');
 
 Route::view('/tentang-kami', 'about')->name('about');
 
@@ -157,7 +159,7 @@ Route::middleware(['auth'])->group(function () {
 
             Route::post('/pencairan-kurir/store', [AdminController::class, 'storePencairanKurir'])
                 ->name('kurir.pencairan.store');
-                
+
             Route::post('/kurir/{id}/cairkan', [AdminController::class, 'cairkanKurir'])
                 ->name('kurir.cairkan');
 
