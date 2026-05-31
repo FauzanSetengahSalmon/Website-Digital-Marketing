@@ -6,24 +6,18 @@
     {{-- HEADER --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
-            <h4 class="fw-bold text-dark mb-1">Riwayat Pencairan Kurir</h4>
+            <h4 class="fw-bold text-dark mb-1">Rekapitulasi Armada Kurir</h4>
             <p class="text-muted small mb-0">
-                Kelola pencairan penghasilan kurir dan pantau histori distribusi dana operasional pengantaran.
+                Pantau daftar armada kurir operasional beserta akumulasi pendapatan dari tugas pengantaran.
             </p>
         </div>
 
         <div class="d-flex gap-2 flex-wrap">
             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold fs-7 d-flex align-items-center">
-                <i class="bi bi-cash-coin me-1"></i>
-                {{ $pencairan->count() }} Total Pencairan
+                <i class="bi bi-truck me-1"></i>
+                {{ $list_kurir->count() }} Total Kurir
             </span>
-
-            <button class="btn btn-success rounded-pill px-4 shadow-sm fw-semibold"
-                data-bs-toggle="modal"
-                data-bs-target="#modalTambah">
-                <i class="bi bi-plus-circle me-1"></i>
-                Tambah Pencairan
-            </button>
+            {{-- Tombol Tambah Pencairan Dihapus Sesuai Permintaan --}}
         </div>
     </div>
 
@@ -31,7 +25,7 @@
     <div class="mb-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h6 class="text-uppercase fw-bold text-secondary small tracking-widest mb-0">
-                <i class="bi bi-truck me-2 text-primary"></i>Rekap Penghasilan Kurir
+                <i class="bi bi-wallet2 me-2 text-primary"></i>Pintas Laporan Kurir
             </h6>
         </div>
 
@@ -93,18 +87,18 @@
     </div>
     @endif
 
-    {{-- TABLE --}}
+    {{-- TABLE DATA KURIR --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
 
         <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div>
                     <h6 class="fw-bold text-dark mb-1">
-                        <i class="bi bi-clock-history text-success me-2"></i>
-                        Histori Pencairan Dana Kurir
+                        <i class="bi bi-card-list text-success me-2"></i>
+                        Data Pendapatan Seluruh Kurir
                     </h6>
                     <small class="text-muted">
-                        Seluruh aktivitas pencairan penghasilan kurir tercatat otomatis.
+                        Daftar armada yang ditugaskan beserta total hasil tarikan ongkos kirim.
                     </small>
                 </div>
             </div>
@@ -116,17 +110,23 @@
                 <thead class="bg-light border-bottom text-uppercase tracking-wider fs-8 fw-bold text-secondary">
                     <tr>
                         <th class="ps-4 py-3">Kurir</th>
-                        <th class="py-3">Penerima</th>
-                        <th class="py-3">Kontak</th>
-                        <th class="py-3 text-end">Total Pencairan</th>
-                        <th class="py-3 text-center">Status</th>
-                        <th class="py-3">Tanggal</th>
+                        <th class="py-3">Kendaraan</th>
+                        <th class="py-3">Kontak WhatsApp</th>
+                        <th class="py-3 text-end">Total Pendapatan</th>
+                        <th class="py-3 text-center">Status Aktivitas</th>
+                        <th class="py-3">Tanggal Gabung</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                    @forelse($pencairan as $item)
+                    @forelse($list_kurir as $kurir)
+                    @php
+                    // Menghitung pendapatan langsung dari tabel orders yang sudah selesai[cite: 1]
+                    $pendapatan = \App\Models\Order::where('kurir', $kurir->nama)
+                    ->where('status', 'selesai')
+                    ->sum('ongkir');
+                    @endphp
                     <tr class="border-bottom border-light">
 
                         {{-- KURIR --}}
@@ -135,12 +135,12 @@
 
                                 <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
                                     style="width: 40px; height: 40px;">
-                                    {{ substr($item->nama_kurir, 0, 1) }}
+                                    {{ substr($kurir->nama, 0, 1) }}
                                 </div>
 
                                 <div>
                                     <span class="fw-bold text-dark d-block">
-                                        {{ $item->nama_kurir }}
+                                        {{ $kurir->nama }}
                                     </span>
 
                                     <small class="text-muted">
@@ -151,39 +151,44 @@
                             </div>
                         </td>
 
-                        {{-- PENERIMA --}}
+                        {{-- KENDARAAN --}}
                         <td class="py-3">
-                            <span class="fw-semibold text-dark">
-                                {{ $item->nama_penerima }}
+                            <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-1.5 fw-semibold fs-8">
+                                {{ $kurir->kendaraan ?? 'Belum Diatur' }}
                             </span>
                         </td>
 
                         {{-- KONTAK --}}
                         <td class="py-3">
-                            <span class="font-monospace small text-secondary">
-                                {{ $item->no_hp ?? '-' }}
-                            </span>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $kurir->no_hp) }}" target="_blank" class="text-decoration-none font-monospace small text-secondary">
+                                <i class="bi bi-whatsapp text-success me-1"></i> {{ $kurir->no_hp ?? '-' }}
+                            </a>
                         </td>
 
-                        {{-- TOTAL --}}
+                        {{-- TOTAL PENDAPATAN --}}
                         <td class="py-3 text-end">
                             <span class="fw-bold text-success fs-6">
-                                Rp {{ number_format($item->total_cair, 0, ',', '.') }}
+                                Rp {{ number_format($pendapatan, 0, ',', '.') }}
                             </span>
                         </td>
 
                         {{-- STATUS --}}
                         <td class="py-3 text-center">
+                            @if($kurir->status == 'aktif')
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8">
-                                <i class="bi bi-check-circle-fill me-1"></i>
-                                Berhasil
+                                <i class="bi bi-check-circle-fill me-1"></i> Aktif
                             </span>
+                            @else
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8">
+                                <i class="bi bi-x-circle-fill me-1"></i> Nonaktif
+                            </span>
+                            @endif
                         </td>
 
-                        {{-- TANGGAL --}}
+                        {{-- TANGGAL GABUNG --}}
                         <td class="py-3 text-secondary fs-7">
                             <i class="bi bi-calendar3 me-1 text-muted"></i>
-                            {{ $item->created_at->format('d M Y, H:i') }} WIB
+                            {{ $kurir->created_at ? $kurir->created_at->format('d M Y') : '-' }}
                         </td>
 
                     </tr>
@@ -196,11 +201,11 @@
                                 <i class="bi bi-inbox fs-1 opacity-50 d-block mb-3"></i>
 
                                 <h6 class="fw-bold text-dark">
-                                    Belum Ada Data Pencairan
+                                    Belum Ada Data Kurir
                                 </h6>
 
                                 <p class="small text-muted mb-0">
-                                    Data pencairan kurir akan muncul di sini.
+                                    Daftar armada kurir yang ditambahkan akan muncul di sini.
                                 </p>
                             </div>
 
@@ -214,125 +219,7 @@
     </div>
 </div>
 
-{{-- MODAL TAMBAH --}}
-<div class="modal fade" id="modalTambah" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg">
-
-            <form action="{{ route('admin.kurir.pencairan.store') }}" method="POST">
-                @csrf
-
-                <div class="modal-header border-0 p-4 pb-2">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-0">
-                            Tambah Pencairan Kurir
-                        </h5>
-
-                        <small class="text-muted">
-                            Input pencairan dana penghasilan kurir.
-                        </small>
-                    </div>
-
-                    <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body p-4 pt-2">
-
-                    {{-- KURIR --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">
-                            Pilih Kurir
-                        </label>
-
-                        <select name="nama_kurir"
-                            class="form-select rounded-3"
-                            required>
-
-                            <option value="">-- Pilih Kurir --</option>
-
-                            @foreach($list_kurir as $kurir)
-                            <option value="{{ $kurir->nama }}">
-                                {{ $kurir->nama }}
-                            </option>
-                            @endforeach
-
-                        </select>
-                    </div>
-
-                    {{-- PENERIMA --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">
-                            Nama Penerima
-                        </label>
-
-                        <input type="text"
-                            name="nama_penerima"
-                            class="form-control rounded-3"
-                            placeholder="Masukkan nama penerima"
-                            required>
-                    </div>
-
-                    {{-- NO HP --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">
-                            Nomor HP
-                        </label>
-
-                        <input type="text"
-                            name="no_hp"
-                            class="form-control rounded-3"
-                            placeholder="08xxxxxxxxxx">
-                    </div>
-
-                    {{-- TOTAL --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-dark">
-                            Total Pencairan
-                        </label>
-
-                        <input type="number"
-                            name="total_cair"
-                            class="form-control rounded-3"
-                            placeholder="Masukkan total pencairan"
-                            required>
-                    </div>
-
-                    {{-- CATATAN --}}
-                    <div class="mb-2">
-                        <label class="form-label fw-semibold small text-dark">
-                            Catatan Tambahan
-                        </label>
-
-                        <textarea name="catatan"
-                            rows="3"
-                            class="form-control rounded-3"
-                            placeholder="Opsional..."></textarea>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer border-0 p-4 pt-0">
-
-                    <button type="button"
-                        class="btn btn-light border rounded-pill px-4"
-                        data-bs-dismiss="modal">
-                        Batal
-                    </button>
-
-                    <button type="submit"
-                        class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="bi bi-save2 me-1"></i>
-                        Simpan Pencairan
-                    </button>
-
-                </div>
-            </form>
-
-        </div>
-    </div>
-</div>
+{{-- MODAL TAMBAH PENCAIRAN DIHAPUS --}}
 
 <style>
     .fs-7 {

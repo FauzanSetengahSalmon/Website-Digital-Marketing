@@ -24,13 +24,21 @@
     '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
     '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
     ];
-    $namaBulan = $bulanIndo[$month] ?? date('F', mktime(0, 0, 0, $month, 1));
+    $namaBulan = $bulanIndo[request('month', date('m'))] ?? date('F', mktime(0, 0, 0, date('m'), 1));
+
     $jumlahSelesai = $orders->where('status', 'selesai')->count();
+
+    // Cek berapa order selesai yang belum dicairkan (is_paid_out == false/0)
+    $pendingCount = $orders->where('status', 'selesai')->where('is_paid_out', false)->count();
+
+    // Variabel untuk trigger print (Anti Error)
+    $printedIdsString = session()->has('printed_ids') && is_array(session('printed_ids'))
+    ? implode(',', session('printed_ids'))
+    : '';
     @endphp
 
     {{-- WIDGET STATISTIK --}}
     <div class="row g-3 mb-4 no-print">
-
         {{-- Total Pendapatan Kurir (100%) --}}
         <div class="col-12 col-md-6">
             <div class="card stat-card border-0 shadow-sm h-100 bg-gradient-success text-white">
@@ -73,7 +81,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     {{-- FILTER DATA --}}
@@ -82,33 +89,27 @@
             <h5 class="fw-bold text-dark mb-3"><i class="bi bi-funnel text-success me-2"></i>Filter Laporan</h5>
             <form action="{{ route('admin.kurir.laporan', $kurir->id) }}" method="GET">
                 <div class="row g-3 align-items-end">
-
-                    {{-- BULAN --}}
                     <div class="col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Bulan</label>
                         <select name="month" class="form-select rounded-3 border-secondary-subtle py-2">
-                            @for($m=5; $m<=12; $m++)
+                            @for($m=1; $m<=12; $m++)
                                 @php $mVal=str_pad($m, 2, '0' , STR_PAD_LEFT); @endphp
-                                <option value="{{ $mVal }}" {{ $month == $mVal ? 'selected' : '' }}>
+                                <option value="{{ $mVal }}" {{ request('month', date('m')) == $mVal ? 'selected' : '' }}>
                                 {{ $bulanIndo[$mVal] }}
                                 </option>
                                 @endfor
                         </select>
                     </div>
-
-                    {{-- TAHUN --}}
                     <div class="col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Tahun</label>
                         <select name="year" class="form-select rounded-3 border-secondary-subtle py-2">
-                            @for($y=2026; $y<=max(2026, date('Y')); $y++)
-                                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
+                            @for($y=2024; $y<=max(2024, date('Y')); $y++)
+                                <option value="{{ $y }}" {{ request('year', date('Y')) == $y ? 'selected' : '' }}>
                                 {{ $y }}
                                 </option>
                                 @endfor
                         </select>
                     </div>
-
-                    {{-- BUTTONS --}}
                     <div class="col-md-4 d-flex gap-2">
                         <button type="submit" class="btn btn-success rounded-3 w-100 py-2 fw-semibold shadow-sm">
                             <i class="bi bi-filter me-1"></i> Terapkan
@@ -122,127 +123,173 @@
         </div>
     </div>
 
-    {{-- CARD TABEL INTERAKTIF --}}
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
-        <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <h5 class="fw-bold text-dark mb-0">
-                <i class="bi bi-clock-history text-success me-2"></i>Riwayat Pengiriman
-            </h5>
-
-            {{-- KELOMPOK TOMBOL CETAK & BADGE --}}
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-light text-success border px-3 py-2 rounded-pill fw-semibold">
-                    {{ $orders->count() }} Data Ditemukan
-                </span>
-
-                <button id="btn-cetak-terpilih" onclick="triggerPrint('terpilih')"
-                    class="btn btn-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-printer-fill"></i>
-                    Cetak Terpilih
-                </button>
-
-                <button id="btn-cetak-semua" onclick="triggerPrint('semua')"
-                    class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2"
-                    {{ $jumlahSelesai == 0 ? 'disabled' : '' }}>
-                    <i class="bi bi-printer"></i>
-                    Cetak Semua
-                </button>
-            </div>
-        </div>
-
-        <div class="card-body p-0 mt-3">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0 table-hover" id="interactive-table">
-                    <thead class="table-light text-uppercase tracking-wider fs-7">
-                        <tr>
-                            <th class="ps-4 py-3" style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input" {{ $jumlahSelesai == 0 ? 'disabled' : 'checked' }}></th>
-                            <th class="py-3 sortable" data-sort="id" style="cursor: pointer;" title="Klik untuk mengurutkan">
-                                Order ID <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
-                            </th>
-                            <th class="py-3">Customer</th>
-                            <th class="py-3">Alamat Tujuan</th>
-                            <th class="py-3 sortable" data-sort="date" style="cursor: pointer;" title="Klik untuk mengurutkan">
-                                Tanggal Transaksi <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
-                            </th>
-                            <th class="py-3 text-end">Tarif Ongkir</th>
-                            <th class="py-3 text-center pe-4 sortable" data-sort="status" style="cursor: pointer;" title="Klik untuk mengurutkan">
-                                Status <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($orders as $order)
-                        <tr class="data-row" data-id="{{ $order->id }}" data-date="{{ $order->created_at->timestamp }}" data-status-text="{{ $order->status }}">
-                            <td class="ps-4 py-3">
-                                {{-- MATIKAN CHECKBOX JIKA STATUS BUKAN SELESAI --}}
-                                <input type="checkbox" class="form-check-input order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}" data-ongkir="{{ $order->ongkir }}" {{ $order->status == 'selesai' ? 'checked' : 'disabled' }}>
-                            </td>
-                            <td class="py-3">
-                                <span class="fw-bold text-success font-monospace">#{{ $order->id }}</span>
-                            </td>
-                            <td class="py-3">
-                                <div class="fw-semibold text-dark">{{ $order->user->name ?? 'Masyarakat' }}</div>
-                                <small class="text-muted font-monospace">{{ $order->nomor_hp ?? $order->user->phone_number ?? '-' }}</small>
-                            </td>
-                            <td class="py-3" style="max-width: 250px;">
-                                <div class="text-truncate" title="{{ $order->alamat }}">
-                                    {{ $order->alamat }}
-                                </div>
-                            </td>
-                            <td class="py-3 text-secondary small">
-                                {{ $order->created_at->format('d M Y, H:i') }} WIB
-                            </td>
-                            <td class="py-3 text-end fw-bold text-success">
-                                Rp {{ number_format($order->ongkir, 0, ',', '.') }}
-                            </td>
-                            <td class="py-3 text-center pe-4">
-                                @if($order->status == 'selesai')
-                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Selesai</span>
-                                @elseif($order->status == 'diproses')
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Diproses</span>
-                                @elseif($order->status == 'diantar')
-                                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Diantar</span>
-                                @elseif($order->status == 'batal')
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">Batal</span>
-                                @else
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1 fw-bold text-uppercase fs-8">{{ $order->status }}</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr class="empty-row">
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <div class="py-3">
-                                    <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50 text-success"></i>
-                                    <span>Tidak ada data pengiriman untuk bulan ini.</span>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    {{-- ALERT --}}
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    @endif
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ $errors->first() }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    {{-- TRIGGER PRINT --}}
+    <div id="print-trigger-data" data-ids="{{ $printedIdsString }}" style="display: none;"></div>
+
+    {{-- FORM & TABEL UTAMA --}}
+    <form id="formCairkan" action="{{ route('admin.kurir.cairkan', $kurir->id) }}" method="POST">
+        @csrf
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
+            <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-clock-history text-success me-2"></i>Riwayat Pengiriman
+                </h5>
+
+                {{-- 2 TOMBOL PROFESIONAL --}}
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button type="button" id="btn-cetak-terpilih" class="btn btn-warning btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalCairkan" disabled>
+                        <i class="bi bi-wallet2"></i> Cairkan & Cetak Pilihan
+                    </button>
+
+                    <button type="button" id="btn-cetak-semua" class="btn btn-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" {{ $pendingCount == 0 ? 'disabled' : '' }}>
+                        <i class="bi bi-cash-coin"></i> Cairkan & Cetak Semua
+                    </button>
+                </div>
+            </div>
+
+            {{-- MODAL KONFIRMASI (TanPA INPUT TEKS) --}}
+            <div class="modal fade" id="modalCairkan" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-4">
+                        <div class="modal-header bg-success border-0 p-4">
+                            <h5 class="modal-title fw-bold text-white"><i class="bi bi-check-circle me-2"></i>Konfirmasi Pencairan</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4 text-center">
+                            <i class="bi bi-person-bounding-box text-success mb-3" style="font-size: 3rem;"></i>
+                            <h4 class="fw-bold text-dark">{{ $kurir->nama }}</h4>
+                            <p class="text-muted mb-0">Dana ongkos kirim akan dicairkan dan diberikan kepada kurir yang bersangkutan.</p>
+
+                            <div class="alert alert-success bg-success-subtle mt-4 border-0 rounded-3 small mb-0 text-dark text-start">
+                                <i class="bi bi-info-circle-fill text-success me-1"></i>
+                                Data transaksi akan ditandai <strong>Sudah Cair</strong> secara permanen di database dan bukti penyerahan dana akan otomatis dicetak.
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 p-4 pt-0 justify-content-center">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-success rounded-pill fw-bold px-5 shadow-sm">Proses & Cetak Struk</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0 mt-3">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover" id="interactive-table">
+                        <thead class="table-light text-uppercase tracking-wider fs-7">
+                            <tr>
+                                <th class="ps-4 py-3" style="width: 40px;" title="Pilih Semua yang Belum Cair">
+                                    <input type="checkbox" id="check-all" class="form-check-input" {{ $pendingCount == 0 ? 'disabled' : '' }}>
+                                </th>
+                                <th class="py-3 sortable" data-sort="id" style="cursor: pointer;">
+                                    Order ID <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                                </th>
+                                <th class="py-3">Customer</th>
+                                <th class="py-3">Alamat Tujuan</th>
+                                <th class="py-3 sortable" data-sort="date" style="cursor: pointer;">
+                                    Tanggal Order <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                                </th>
+                                <th class="py-3 text-end">Tarif Ongkir</th>
+                                <th class="py-3 text-center pe-4 sortable" data-sort="status" style="cursor: pointer;">
+                                    Status / Pencairan <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($orders as $order)
+                            @php
+                            $isCair = $order->is_paid_out == true;
+                            $rowClass = $isCair ? 'bg-light opacity-75' : '';
+                            @endphp
+                            <tr class="data-row {{ $rowClass }}" data-id="{{ $order->id }}" data-date="{{ $order->created_at->timestamp }}" data-status-text="{{ $order->status }}">
+                                <td class="ps-4 py-3">
+                                    @if($isCair)
+                                    {{-- PERBAIKAN: Menambahkan value dan data-ongkir agar Javascript tetap bisa membaca data ini saat dicetak --}}
+                                    <input type="checkbox" class="form-check-input bg-secondary border-secondary shadow-none order-checkbox-disabled" value="{{ $order->id }}" data-ongkir="{{ $order->ongkir }}" disabled checked style="cursor: not-allowed;">
+                                    @else
+                                    <input type="checkbox" name="order_ids[]" class="form-check-input order-checkbox shadow-sm border-secondary" value="{{ $order->id }}" data-ongkir="{{ $order->ongkir }}" {{ $order->status == 'selesai' ? '' : 'disabled' }} style="cursor: pointer;">
+                                    @endif
+                                </td>
+                                <td class="py-3">
+                                    <span class="fw-bold {{ $isCair ? 'text-secondary text-decoration-line-through' : 'text-success' }} font-monospace">#ORD-{{ $order->id }}</span>
+                                </td>
+                                <td class="py-3">
+                                    <div class="fw-semibold {{ $isCair ? 'text-muted' : 'text-dark' }}">{{ $order->user->name ?? 'Masyarakat' }}</div>
+                                    <small class="{{ $isCair ? 'text-muted' : 'text-secondary' }} font-monospace">{{ $order->nomor_hp ?? $order->user->phone_number ?? '-' }}</small>
+                                </td>
+                                <td class="py-3" style="max-width: 250px;">
+                                    <div class="text-truncate {{ $isCair ? 'text-muted' : 'text-dark' }}" title="{{ $order->alamat }}">
+                                        {{ $order->alamat }}
+                                    </div>
+                                </td>
+                                <td class="py-3 text-secondary small">
+                                    {{ $order->created_at->format('d M Y, H:i') }} WIB
+                                </td>
+                                <td class="py-3 text-end fw-extrabold {{ $isCair ? 'text-muted' : 'text-success' }}">
+                                    Rp {{ number_format($order->ongkir, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 text-center pe-4">
+                                    @if($isCair)
+                                    <span class="badge bg-secondary text-white rounded-pill px-3 py-1.5 fw-medium fs-8 shadow-sm"><i class="bi bi-check2-all me-1"></i>Sudah Cair</span>
+                                    @elseif($order->status == 'selesai')
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">Siap Cair</span>
+                                    @elseif($order->status == 'diproses')
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">Diproses</span>
+                                    @elseif($order->status == 'diantar')
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">Diantar</span>
+                                    @elseif($order->status == 'batal')
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">Batal</span>
+                                    @else
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5 fw-bold text-uppercase fs-8">{{ $order->status }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr class="empty-row">
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <div class="py-3">
+                                        <i class="bi bi-inbox fs-2 mb-2 d-block opacity-50 text-success"></i>
+                                        <span>Tidak ada data pengiriman.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
-{{-- AREA INVOICE CETAKAN (Hanya Muncul saat Print) --}}
+{{-- AREA INVOICE CETAKAN (Murni Hasil Generate Server) --}}
 <div class="print-only">
-
-    {{-- KOP SURAT / HEADER DOKUMEN --}}
-    <div class="print-header d-flex justify-content-between align-items-center pb-4 mb-4 border-bottom border-2">
+    <div class="print-header d-flex justify-content-between align-items-center pb-4 mb-4 border-bottom border-2 border-dark">
         <div>
             <h2 class="fw-extrabold text-success mb-1">KWT DIGITAL CIBIRU</h2>
             <p class="small text-muted mb-0">Website Digital Marketing - Kelompok Wanita Tani Cibiru</p>
             <p class="small text-muted mb-0">Kec. Cibiru, Kota Bandung, Jawa Barat</p>
         </div>
         <div class="text-end">
-            <h4 class="fw-bold text-dark mb-1">INVOICE PENGHASILAN</h4>
-            <span class="badge bg-success text-uppercase py-1.5 px-3 rounded-pill text-white fw-bold">KURIR INTERNAL</span>
+            <h4 class="fw-bold text-dark mb-1">INVOICE PENCAIRAN KURIR</h4>
+            <span class="badge bg-success text-uppercase py-1.5 px-3 rounded-pill text-white fw-bold">ARMADA INTERNAL</span>
         </div>
     </div>
 
-    {{-- DETAIL MITRA --}}
     <div class="row mb-4">
         <div class="col-6">
             <h6 class="text-muted text-uppercase small fw-bold mb-2">Informasi Penerima / Kurir:</h6>
@@ -253,28 +300,26 @@
         <div class="col-6 text-end">
             <h6 class="text-muted text-uppercase small fw-bold mb-2">Rincian Dokumen:</h6>
             <p class="mb-1"><strong>Periode Laporan:</strong> {{ $namaBulan }} {{ $year }}</p>
-            <p class="mb-1"><strong>Tanggal Cetak:</strong> {{ \Carbon\Carbon::now()->format('d F Y, H:i') }} WIB</p>
-            <p class="mb-0"><strong>Dicetak Oleh:</strong> Administrator</p>
+            <p class="mb-1"><strong>Tanggal Cetak:</strong> {{ \Carbon\Carbon::now()->timezone('Asia/Jakarta')->format('d F Y, H:i') }} WIB</p>
+            <p class="mb-0"><strong>Dicetak Oleh:</strong> {{ Auth::user()->name ?? 'Administrator' }}</p>
         </div>
     </div>
 
-    {{-- KELOLA TOTAL BIAYA --}}
     <div class="print-summary-box p-4 rounded-4 mb-4" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
-        <h6 class="fw-bold text-uppercase small text-muted mb-3 border-bottom pb-2">Rangkuman Keuangan Periode Ini</h6>
+        <h6 class="fw-bold text-uppercase small text-muted mb-3 border-bottom pb-2">Rangkuman Pencairan Dana</h6>
         <div class="row text-center">
             <div class="col-6 border-end">
-                <small class="text-muted d-block mb-1">Total Trip / Pengiriman</small>
+                <small class="text-muted d-block mb-1">Total Trip / Order Dicairkan</small>
                 <h4 class="fw-bold text-dark" id="print-jumlah-trip">0 Pesanan</h4>
             </div>
             <div class="col-6">
-                <small class="text-muted d-block mb-1 fw-bold text-success">Pendapatan Bersih Kurir (100%)</small>
+                <small class="text-muted d-block mb-1 fw-bold text-success">Total Dana Cair Bersih</small>
                 <h3 class="fw-extrabold text-success" id="print-total-ongkir">Rp 0</h3>
             </div>
         </div>
     </div>
 
-    {{-- TABEL DATA TRANSAKSI --}}
-    <h6 class="fw-bold text-uppercase small text-muted mb-2"><i class="bi bi-list-check me-2"></i>Daftar Pengiriman Tercetak</h6>
+    <h6 class="fw-bold text-uppercase small text-muted mb-2"><i class="bi bi-list-check me-2"></i>Daftar Pengiriman Dicairkan</h6>
     <table class="print-table w-100 mb-5" id="print-data-table">
         <thead>
             <tr>
@@ -282,59 +327,48 @@
                 <th>Nama Customer</th>
                 <th>Tujuan Pengiriman</th>
                 <th>Tanggal Order</th>
-                <th>Status</th>
                 <th class="text-end">Tarif Ongkir</th>
             </tr>
         </thead>
         <tbody>
             @forelse($orders as $order)
             <tr data-print-order-id="{{ $order->id }}" class="print-order-row" style="display: none;">
-                <td class="font-monospace fw-bold">#{{ $order->id }}</td>
+                <td class="font-monospace fw-bold">#ORD-{{ $order->id }}</td>
                 <td>{{ $order->user->name ?? 'Masyarakat' }}</td>
                 <td class="small">{{ $order->alamat }}</td>
                 <td>{{ $order->created_at->format('d M Y') }}</td>
-                <td class="text-uppercase">{{ $order->status }}</td>
                 <td class="text-end text-success fw-bold">Rp {{ number_format($order->ongkir, 0, ',', '.') }}</td>
             </tr>
             @empty
-            <tr id="print-empty-row">
-                <td colspan="6" class="text-center py-4 text-muted">Belum ada pengiriman untuk periode ini.</td>
-            </tr>
             @endforelse
-
-            @if($orders->isNotEmpty())
             <tr id="print-empty-row" style="display: none;">
-                <td colspan="6" class="text-center py-4 text-muted">Belum ada data pengiriman yang dipilih.</td>
+                <td colspan="5" class="text-center py-4 text-muted">Belum ada data pencairan yang dicetak.</td>
             </tr>
-            @endif
         </tbody>
         <tfoot>
             <tr class="fw-bold bg-light">
-                <td colspan="5" class="text-end">Total Kumulatif Pendapatan:</td>
-                <td class="text-end text-success fs-6" id="print-foot-ongkir">Rp 0</td>
+                <td colspan="4" class="text-end py-2">TOTAL AKUMULASI DANA CAIR:</td>
+                <td class="text-end text-success fs-6 py-2" id="print-foot-ongkir">Rp 0</td>
             </tr>
         </tfoot>
     </table>
 
-    {{-- TANDA TANGAN --}}
     <div class="row mt-5 pt-3">
         <div class="col-4 text-center">
-            <p class="mb-5 small text-muted">Kurir Penerima,</p>
-            <div class="mt-4 border-bottom w-75 mx-auto" style="height: 40px;"></div>
+            <p class="mb-5 small text-muted">Kurir Penerima Dana,</p>
+            <div class="mt-4 border-bottom border-dark w-75 mx-auto" style="height: 40px;"></div>
             <p class="fw-bold text-dark mt-1">{{ $kurir->nama }}</p>
         </div>
         <div class="col-4"></div>
         <div class="col-4 text-center">
-            <p class="mb-5 small text-muted">Mengetahui, Admin KWT</p>
-            <div class="mt-4 border-bottom w-75 mx-auto" style="height: 40px;"></div>
+            <p class="mb-5 small text-muted">Mengetahui, Admin Keuangan</p>
+            <div class="mt-4 border-bottom border-dark w-75 mx-auto" style="height: 40px;"></div>
             <p class="fw-bold text-dark mt-1">{{ Auth::user()->name }}</p>
         </div>
     </div>
-
 </div>
 
 <style>
-    /* Gradient stats card style */
     .bg-gradient-success {
         background: linear-gradient(135deg, #10b981, #059669);
     }
@@ -389,7 +423,6 @@
             font-size: 11px !important;
         }
 
-        /* Sembunyikan seluruh sidebar admin & UI */
         .sidebar,
         .logout-section,
         .mobile-header,
@@ -435,15 +468,6 @@
             font-weight: bold;
         }
     }
-
-    .bg-info-subtle {
-        background-color: #e0f7fa !important;
-        color: #00838f !important;
-    }
-
-    .border-info-subtle {
-        border-color: #b2ebf2 !important;
-    }
 </style>
 
 <script>
@@ -451,141 +475,95 @@
         const checkAll = document.getElementById('check-all');
         const checkboxes = document.querySelectorAll('.order-checkbox');
         const btnCetakTerpilih = document.getElementById('btn-cetak-terpilih');
+        const btnCetakSemua = document.getElementById('btn-cetak-semua');
 
-        function formatRupiah(number) {
-            return 'Rp ' + new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 0
-            }).format(Math.round(number));
+        function toggleProsesButton() {
+            if (!btnCetakTerpilih) return;
+            const hasChecked = Array.from(checkboxes).some(cb => cb.checked && !cb.disabled);
+            btnCetakTerpilih.disabled = !hasChecked;
         }
 
-        // Fungsi khusus untuk Update Layout Cetakan
-        function updatePrintLayout(totalOngkir, totalTripCount) {
-            const printTotalOngkir = document.getElementById('print-total-ongkir');
-            const printFootOngkir = document.getElementById('print-foot-ongkir');
-            const printJumlahTrip = document.getElementById('print-jumlah-trip');
-
-            if (printTotalOngkir) printTotalOngkir.innerHTML = formatRupiah(totalOngkir);
-            if (printFootOngkir) printFootOngkir.innerHTML = formatRupiah(totalOngkir);
-            if (printJumlahTrip) printJumlahTrip.innerHTML = totalTripCount + ' Pesanan';
-
-            const printEmptyRow = document.getElementById('print-empty-row');
-            if (printEmptyRow) {
-                printEmptyRow.style.display = (totalTripCount === 0) ? 'table-row' : 'none';
-            }
-        }
-
-        // Hitung total dari checkbox yang sedang dicentang saat ini
-        function updateTotals() {
-            let totalOngkir = 0;
-            let totalTripCount = 0;
-
-            checkboxes.forEach(cb => {
-                const ongkir = parseFloat(cb.getAttribute('data-ongkir')) || 0;
-                const orderId = cb.value;
-
-                const printRow = document.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);
-
-                if (cb.checked && !cb.disabled) {
-                    totalTripCount++;
-                    totalOngkir += ongkir;
-                    if (printRow) printRow.style.display = 'table-row';
-                } else {
-                    if (printRow) printRow.style.display = 'none';
-                }
-            });
-
-            // Aktifkan / Nonaktifkan tombol cetak terpilih
-            if (btnCetakTerpilih) {
-                btnCetakTerpilih.disabled = (totalTripCount === 0);
-            }
-
-            // Widget di Layar (Kalkulasi Berdasarkan yang dicentang)
-            const widgetOngkir = document.getElementById('widget-ongkir');
-            const widgetJumlahTrip = document.getElementById('widget-jumlah-trip');
-
-            if (widgetOngkir) widgetOngkir.innerHTML = formatRupiah(totalOngkir);
-            if (widgetJumlahTrip) {
-                widgetJumlahTrip.innerHTML = `${totalTripCount} <span class="fs-6 fw-normal text-muted">Terpilih</span>`;
-            }
-
-            // Update Total pada Layout Print sesuai dengan checkbox
-            updatePrintLayout(totalOngkir, totalTripCount);
-        }
-
-        // TRIGGER FUNGSI CETAK DENGAN DUA MODE
-        window.triggerPrint = function(mode) {
-            if (mode === 'semua') {
-                // Tampilkan semua baris pada print layout YANG STATUSNYA SELESAI
-                let totalOngkirSemua = 0;
-                let totalTripSemua = 0;
-
-                checkboxes.forEach(cb => {
-                    const status = cb.getAttribute('data-status');
-                    const ongkir = parseFloat(cb.getAttribute('data-ongkir')) || 0;
-                    const orderId = cb.value;
-                    const printRow = document.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);
-
-                    // Hanya print yang selesai (meskipun tak di-centang)
-                    if (status === 'selesai') {
-                        totalTripSemua++;
-                        totalOngkirSemua += ongkir;
-                        if (printRow) printRow.style.display = 'table-row';
-                    } else {
-                        // Pastikan status non-selesai tersembunyi
-                        if (printRow) printRow.style.display = 'none';
-                    }
-                });
-
-                updatePrintLayout(totalOngkirSemua, totalTripSemua);
-
-                window.print();
-
-                // Kembalikan ke state awal (hanya berdasarkan checkbox) setelah window print ditutup
-                setTimeout(() => {
-                    updateTotals();
-                }, 500);
-
-            } else {
-                // Cetak terpilih (Sudah di-handle otomatis oleh updateTotals setiap klik)
-                window.print();
-            }
-        };
-
-        // Event listener saat window print selesai/batal (Jaga-jaga agar data kembali normal)
-        window.addEventListener('afterprint', () => {
-            updateTotals();
-        });
-
-        // Event listener CheckAll dan Checkbox
         if (checkAll) {
             checkAll.addEventListener('change', function() {
                 checkboxes.forEach(cb => {
-                    // Jangan toggle checkbox yang disabled (non-selesai)
-                    if (!cb.disabled) {
-                        cb.checked = checkAll.checked;
-                    }
+                    if (!cb.disabled) cb.checked = checkAll.checked;
                 });
-                updateTotals();
+                toggleProsesButton();
             });
         }
 
         checkboxes.forEach(cb => {
             cb.addEventListener('change', function() {
                 if (checkAll) {
-                    // Cek apakah semua checkbox yang "TIDAK DISABLED" sudah tercentang
                     const enabledCheckboxes = Array.from(checkboxes).filter(chk => !chk.disabled);
                     const checkedCount = enabledCheckboxes.filter(chk => chk.checked).length;
-
                     checkAll.checked = (checkedCount === enabledCheckboxes.length && enabledCheckboxes.length > 0);
                 }
-                updateTotals();
+                toggleProsesButton();
             });
         });
 
-        // Inisialisasi awal
-        updateTotals();
+        // Event Tombol Cetak Semua (Otomatis centang yang belum cair & panggil modal)
+        if (btnCetakSemua) {
+            btnCetakSemua.addEventListener('click', function() {
+                checkboxes.forEach(cb => {
+                    if (!cb.disabled) cb.checked = true;
+                });
+                if (checkAll) checkAll.checked = true;
+                toggleProsesButton();
 
-        // LOGIKA SORTING
+                var modal = new bootstrap.Modal(document.getElementById('modalCairkan'));
+                modal.show();
+            });
+        }
+
+        // FUNGSI RENDER CETAKAN OTOMATIS SETELAH SUBMIT
+        const triggerDiv = document.getElementById('print-trigger-data');
+        if (triggerDiv) {
+            const idsString = triggerDiv.getAttribute('data-ids');
+
+            // Jika ada string ID, berarti baru saja sukses mencairkan
+            if (idsString && idsString.trim() !== '') {
+                const printedIds = idsString.split(',').map(id => parseInt(id.trim(), 10));
+
+                let totalOngkir = 0;
+                let totalTripCount = 0;
+
+                // Loop Semua checkbox di tabel (termasuk yang abu-abu agar terbaca valuenya)
+                document.querySelectorAll('.order-checkbox, .order-checkbox-disabled').forEach(cb => {
+                    const orderId = parseInt(cb.value, 10);
+                    const printRow = document.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);
+
+                    if (printedIds.includes(orderId)) {
+                        const ongkir = parseFloat(cb.getAttribute('data-ongkir')) || 0;
+
+                        totalTripCount++;
+                        totalOngkir += ongkir;
+                        if (printRow) printRow.style.display = 'table-row';
+                    } else {
+                        if (printRow) printRow.style.display = 'none';
+                    }
+                });
+
+                // Terapkan hasil kalkulasi ke struk cetakan
+                const pTrip = document.getElementById('print-jumlah-trip');
+                const pOmzet = document.getElementById('print-total-ongkir');
+                const pFoot = document.getElementById('print-foot-ongkir');
+                const pEmpty = document.getElementById('print-empty-row');
+
+                if (pTrip) pTrip.innerHTML = `${totalTripCount} Pesanan`;
+                if (pOmzet) pOmzet.innerHTML = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalOngkir);
+                if (pFoot) pFoot.innerHTML = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalOngkir);
+                if (pEmpty) pEmpty.style.display = totalTripCount === 0 ? 'table-row' : 'none';
+
+                // Trigger pop-up print otomatis
+                setTimeout(() => {
+                    window.print();
+                }, 800);
+            }
+        }
+
+        // LOGIKA SORTING TABEL
         let sortDirection = {
             id: false,
             date: false,
@@ -624,7 +602,6 @@
                         valA = a.getAttribute('data-status-text').toLowerCase();
                         valB = b.getAttribute('data-status-text').toLowerCase();
                     }
-
                     if (valA < valB) return isAsc ? -1 : 1;
                     if (valA > valB) return isAsc ? 1 : -1;
                     return 0;
@@ -634,9 +611,7 @@
                     tbody.appendChild(row);
                     const orderId = row.getAttribute('data-id');
                     const printRow = printTbody.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);
-                    if (printRow) {
-                        printTbody.appendChild(printRow);
-                    }
+                    if (printRow) printTbody.appendChild(printRow);
                 });
             });
         });

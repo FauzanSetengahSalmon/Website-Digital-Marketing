@@ -157,6 +157,11 @@ Route::middleware(['auth'])->group(function () {
 
             Route::post('/pencairan-kurir/store', [AdminController::class, 'storePencairanKurir'])
                 ->name('kurir.pencairan.store');
+                
+            Route::post('/kurir/{id}/cairkan', [AdminController::class, 'cairkanKurir'])
+                ->name('kurir.cairkan');
+
+            Route::post('/kwt/{id}/cairkan', [AdminController::class, 'cairkan'])->name('kwt.cairkan');
 
             /*
             |--------------------------------------------------------------------------

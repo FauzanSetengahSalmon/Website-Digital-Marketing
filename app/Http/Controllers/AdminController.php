@@ -37,6 +37,7 @@ class AdminController extends Controller
         $penjualanPerKwt = User::where('role', 'kwt')
             ->get()
             ->map(function ($kwt) {
+                // Total omzet keseluruhan (semua status selesai)
                 $omzet = OrderDetail::whereHas('product', function ($q) use ($kwt) {
                     $q->where('user_id', $kwt->id);
                 })
@@ -45,22 +46,38 @@ class AdminController extends Controller
                     })
                     ->sum(DB::raw('harga_saat_ini * jumlah'));
 
+                // Total yang SUDAH dicairkan (is_cair_kwt = true)
+                $sudahDicairkan = OrderDetail::whereHas('product', function ($q) use ($kwt) {
+                    $q->where('user_id', $kwt->id);
+                })
+                    ->where('is_cair_kwt', true)
+                    ->sum(DB::raw('harga_saat_ini * jumlah'));
+
                 return [
                     'nama' => $kwt->name,
                     'omzet' => $omzet,
+                    'sudah_dicairkan' => $sudahDicairkan,
+                    'sisa_saldo' => $omzet - $sudahDicairkan,
                     'produk_count' => $kwt->products()->count()
                 ];
             })->sortByDesc('omzet');
 
-        $penjualanPerKurir = \App\Models\Kurir::all()->map(function ($kurir) {
-            $totalOngkir = \App\Models\Order::where('kurir', $kurir->nama)
-                ->where('status', 'selesai')
-                ->sum('ongkir');
-            return [
-                'nama' => $kurir->nama,
-                'total_ongkir' => $totalOngkir
-            ];
-        })->sortByDesc('total_ongkir');
+        $penjualanPerKurir = Kurir::all()
+            ->map(function ($kurir) {
+                $totalOngkir = Order::where('kurir', $kurir->nama)
+                    ->where('status', 'selesai')
+                    ->sum('ongkir');
+                $sudahDicairkan = Order::where('kurir', $kurir->nama)
+                    ->where('status', 'selesai')
+                    ->where('is_paid_out', true)
+                    ->sum('ongkir');
+
+                return [
+                    'nama' => $kurir->nama,
+                    'total_ongkir' => $totalOngkir,
+                    'sudah_dicairkan' => $sudahDicairkan,
+                ];
+            })->sortByDesc('total_ongkir');
 
         return view('admin.dashboard', compact(
             'totalKwt',
@@ -89,14 +106,11 @@ class AdminController extends Controller
 
     public function updateOrderStatus(Request $request, $id)
     {
-        // PERBAIKAN: Load relasi product sekalian untuk proses kembalikan stok
         $order = Order::with('details.product')->findOrFail($id);
         $status = $request->input('status');
 
         if ($status === 'batal') {
-            // PERBAIKAN: Cek agar tidak double-return stok jika halaman direfresh
             if ($order->status !== 'batal') {
-                // PERBAIKAN: Kembalikan stok saat admin yang membatalkan pesanan
                 foreach ($order->details as $detail) {
                     if ($detail->product) {
                         $detail->product->increment('stok', $detail->jumlah);
@@ -198,8 +212,6 @@ class AdminController extends Controller
         foreach ($kurirs as $kurir) {
             $totalOngkir = Order::where('kurir', $kurir->nama)->where('status', 'selesai')->sum('ongkir');
             $kurir->total_ongkir = $totalOngkir;
-
-            // 🌟 PERBAIKAN: Potongan 15% dihapuskan. Pendapatan bersih = 100% Ongkir
             $kurir->potongan_admin = 0;
             $kurir->pendapatan_bersih = $totalOngkir;
         }
@@ -275,7 +287,6 @@ class AdminController extends Controller
 
         $totalOngkir = $orders->where('status', 'selesai')->sum('ongkir');
 
-        // 🌟 PERBAIKAN: Potongan 15% dihapuskan. Pendapatan bersih = 100% Ongkir
         $potonganAdmin = 0;
         $pendapatanBersih = $totalOngkir;
 
@@ -290,21 +301,31 @@ class AdminController extends Controller
         ));
     }
 
-    public function cairkan(Request $request, $kwt_id)
+    public function cairkan(Request $request, $id)
     {
         $request->validate([
             'order_ids' => 'required|array',
-            'nama_penerima' => 'required|string|max:255'
+            'nama_penerima' => 'required|string'
+        ], [
+            'order_ids.required' => 'Anda harus mencentang minimal 1 transaksi untuk dicairkan!',
+            'nama_penerima.required' => 'Nama penerima dana tidak boleh kosong!'
         ]);
 
-        Order::whereIn('id', $request->order_ids)->update([
-            'is_paid_out' => true,
-            'nama_penerima' => $request->nama_penerima
-        ]);
+        // PERBAIKAN: Proses ubah is_cair_kwt menjadi TRUE dan SIMPAN nama penerima ke database
+        OrderDetail::whereIn('order_id', $request->order_ids)
+            ->whereHas('product', function ($query) use ($id) {
+                $query->where('user_id', $id);
+            })
+            ->update([
+                'is_cair_kwt' => true,
+                'nama_penerima_cair' => $request->nama_penerima
+            ]);
 
-        return back()->with('printed_ids', $request->order_ids)
-            ->with('penerima', $request->nama_penerima)
-            ->with('success', 'Transaksi berhasil dicairkan.');
+        return back()->with([
+            'success' => 'Dana berhasil dicairkan dan disimpan ke riwayat database!',
+            'printed_ids' => $request->order_ids,
+            'penerima' => $request->nama_penerima
+        ]);
     }
 
     public function riwayatPencairanKurir()
@@ -327,14 +348,32 @@ class AdminController extends Controller
 
     public function cairkanKurir(Request $request, $id)
     {
+        // Validasi wajib pilih minimal 1 data
+        $request->validate([
+            'order_ids' => 'required|array'
+        ], [
+            'order_ids.required' => 'Anda harus mencentang minimal 1 transaksi pengiriman untuk dicairkan!'
+        ]);
+
         $kurir = Kurir::findOrFail($id);
+
+        // Hitung total ongkir khusus untuk order yang dicentang
+        $totalCair = Order::whereIn('id', $request->order_ids)->sum('ongkir');
+
+        // Catat ke riwayat pencairan
         KurirPencairan::create([
             'nama_kurir' => $kurir->nama,
-            'nama_penerima' => $request->nama_penerima,
-            'total_cair' => $request->total_cair
+            'nama_penerima' => $kurir->nama,
+            'total_cair' => $totalCair
         ]);
-        Order::where('kurir', $kurir->nama)->where('status', 'selesai')->update(['is_paid_out' => true]);
-        return back()->with('success', 'Pencairan berhasil!');
+
+        // Update HANYA order yang dipilih jadi "Sudah Cair"
+        Order::whereIn('id', $request->order_ids)->update(['is_paid_out' => true]);
+
+        return back()->with([
+            'success' => 'Dana kurir berhasil dicairkan dan invoice siap dicetak!',
+            'printed_ids' => $request->order_ids
+        ]);
     }
 
     public function reportKwt(Request $request, $id)
@@ -350,20 +389,18 @@ class AdminController extends Controller
             ->latest()
             ->get();
 
-        $totalPendapatan = OrderDetail::whereHas('product', fn($q) => $q->where('user_id', $kwt->id))
-            ->whereHas('order', function ($q) use ($month, $year) {
-                $q->where('status', 'selesai')
-                    ->whereMonth('created_at', $month)
-                    ->whereYear('created_at', $year);
-            })
-            ->sum(DB::raw('harga_saat_ini * jumlah'));
+        $totalPendapatan = 0;
+        foreach ($orders->where('status', 'selesai') as $order) {
+            $totalPendapatan += $order->details->filter(function ($d) use ($kwt) {
+                return $d->product && $d->product->user_id == $kwt->id;
+            })->sum(function ($d) {
+                return $d->harga_saat_ini * $d->jumlah;
+            });
+        }
 
         return view('admin.kwt.laporan', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year'));
     }
 
-    /**
-     * SISI ADMIN: Verifikasi (Terima/Tolak) Pengajuan Refund Customer
-     */
     public function prosesRefund(Request $request, $id)
     {
         $request->validate([
@@ -374,7 +411,6 @@ class AdminController extends Controller
         $order = Order::with(['user', 'details.product'])->findOrFail($id);
 
         if ($request->keputusan == 'disetujui') {
-            // PERBAIKAN: Cek dulu agar stok tidak dobel balik kalau disubmit berkali-kali
             if ($order->status_refund !== 'disetujui') {
                 foreach ($order->details as $detail) {
                     if ($detail->product) {
@@ -402,7 +438,6 @@ class AdminController extends Controller
                         );
                     }
                 } catch (\Exception $e) {
-                    // Abaikan jika email gagal terkirim
                 }
             }
             return back()->with('success', 'Refund disetujui. Dana dikembalikan ke pelanggan dan stok dipulihkan.');
@@ -425,7 +460,6 @@ class AdminController extends Controller
                     );
                 }
             } catch (\Exception $e) {
-                // Abaikan error email
             }
 
             return back()->with('success', 'Pengajuan refund ditolak. Pesanan dilanjutkan.');

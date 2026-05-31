@@ -28,15 +28,24 @@ class KwtController extends Controller
         return response()->json(['message' => 'KWT berhasil didaftarkan', 'data' => $kwt], 201);
     }
 
-    public function cairkan(Request $request, $kwt_id)
-    {
-        $request->validate([
-            'order_ids' => 'required|array',
-            'order_ids.*' => 'exists:orders,id'
-        ]);
-        
-        Order::whereIn('id', $request->order_ids)->update(['is_paid_out' => true]);
+    // public function cairkan(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'order_ids' => 'required|array',
+    //         'nama_penerima' => 'required|string'
+    //     ]);
 
-        return back()->with('success', 'Dana berhasil dicairkan dan invoice dikunci.');
-    }
+    //     // Update HANYA produk milik KWT ini di dalam order yang dicentang
+    //     \App\Models\OrderDetail::whereIn('order_id', $request->order_ids)
+    //         ->whereHas('product', function ($query) use ($id) {
+    //             $query->where('user_id', $id);
+    //         })
+    //         ->update(['is_cair_kwt' => true]);
+
+    //     return back()->with([
+    //         'success' => 'Dana berhasil dicairkan!',
+    //         'printed_ids' => $request->order_ids,
+    //         'penerima' => $request->nama_penerima
+    //     ]);
+    // }
 }

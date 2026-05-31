@@ -9,7 +9,7 @@ class OrderDetail extends Model
 {
     use HasFactory;
 
-    // INI YANG DITAMBAHKAN: stok_ready, stok_ready_at, dan status_kwt
+    // PERBAIKAN: Menghapus status_kwt, menambahkan is_cair_kwt dan nama_penerima_cair
     protected $fillable = [
         'order_id',
         'product_id',
@@ -17,7 +17,8 @@ class OrderDetail extends Model
         'harga_saat_ini',
         'stok_ready',
         'stok_ready_at',
-        'status_kwt',
+        'is_cair_kwt',
+        'nama_penerima_cair',
     ];
 
     public function order()
