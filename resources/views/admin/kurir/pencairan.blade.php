@@ -112,7 +112,7 @@
                         <th class="ps-4 py-3">Kurir</th>
                         <th class="py-3">Kendaraan</th>
                         <th class="py-3">Kontak WhatsApp</th>
-                        <th class="py-3 text-end">Total Pendapatan</th>
+                        <th class="py-3 text-end">Total Pendapatan <i class="bi bi-info-circle ms-1" title="Termasuk tarif jarak & tambahan kapasitas bawaan" style="cursor:help;"></i></th>
                         <th class="py-3 text-center">Status Aktivitas</th>
                         <th class="py-3">Tanggal Gabung</th>
                     </tr>
@@ -165,11 +165,12 @@
                             </a>
                         </td>
 
-                        {{-- TOTAL PENDAPATAN --}}
+                        {{-- TOTAL PENDAPATAN (RINCIAN VOLUME) --}}
                         <td class="py-3 text-end">
                             <span class="fw-bold text-success fs-6">
                                 Rp {{ number_format($pendapatan, 0, ',', '.') }}
                             </span>
+                            <small class="d-block text-muted mt-1" style="font-size: 0.7rem;">(Jarak + Volume Barang)</small>
                         </td>
 
                         {{-- STATUS --}}
@@ -218,8 +219,6 @@
         </div>
     </div>
 </div>
-
-{{-- MODAL TAMBAH PENCAIRAN DIHAPUS --}}
 
 <style>
     .fs-7 {

@@ -525,7 +525,7 @@ $noAdminSistem = '0822222222';
                                 <i class="bi bi-file-earmark-text"></i>
                             </div>
                             <div class="timeline-text">Dipesan</div>
-                            <small class="timeline-time">{{ $order->created_at->format('d M') }}</small>
+                            <small class="timeline-time">{{ $order->created_at->timezone('Asia/Jakarta')->format('d M Y') }}</small>
                         </div>
 
                         {{-- STEP 2: Verifikasi KWT --}}

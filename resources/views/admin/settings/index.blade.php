@@ -114,38 +114,57 @@
                     @method('PUT')
 
                     <div class="row g-4">
-                        <div class="col-12">
-                            <label class="form-label-bold">Biaya Layanan Sistem (Platform Fee)</label>
+                        {{-- BIAYA ADMIN --}}
+                        <div class="col-12 border-bottom pb-4 mb-2">
+                            <label class="form-label-bold">Biaya Layanan Sistem (Platform Fee Admin)</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">Rp</span>
-                                <input type="number" name="biaya_layanan" class="form-control input-clean input-clean-group" value="{{ $setting->biaya_layanan }}" required>
+                                <input type="number" name="biaya_layanan" class="form-control input-clean input-clean-group" value="{{ $setting->biaya_layanan ?? 0 }}" required>
                             </div>
-                            <small class="petunjuk-admin"><i class="bi bi-info-circle me-1"></i>Biaya ini dibebankan kepada pelanggan. Masuk 100% ke Kas Admin.</small>
+                            <small class="petunjuk-admin"><i class="bi bi-info-circle me-1"></i>Biaya dasar ini dibebankan kepada pelanggan. Masuk 100% ke Kas Admin.</small>
                         </div>
 
+                        {{-- BIAYA ONGKIR & KURIR --}}
                         <div class="col-12">
-                            <label class="form-label-bold">Tarif Ongkir per Kilometer (KM)</label>
+                            <label class="form-label-bold">Tarif Ongkir Dasar per Kilometer (KM)</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">Rp</span>
-                                <input type="number" name="tarif_per_km" class="form-control input-clean input-clean-group" value="{{ $setting->tarif_per_km }}" required>
+                                <input type="number" name="tarif_per_km" class="form-control input-clean input-clean-group" value="{{ $setting->tarif_per_km ?? 0 }}" required>
                                 <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">/ KM</span>
                             </div>
                             <small class="petunjuk-admin"><i class="bi bi-truck me-1"></i>Dikalikan dengan jarak pelanggan. <strong class="text-success">100% masuk ke kurir</strong>.</small>
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label-bold">Batas Normal Kapasitas Barang </label>
+                            <div class="input-group">
+                                <input type="number" name="batas_jumlah_barang" class="form-control input-clean" value="{{ $setting->batas_jumlah_barang ?? 0 }}" required style="border-radius: 12px 0 0 12px;">
+                                <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">Item</span>
+                            </div>
+                            <small class="petunjuk-admin"><i class="bi bi-box me-1"></i>Misal diisi 10, ongkir kurir akan naik setiap kelipatan 10 barang. Isi 0 untuk mematikan.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label-bold">Ongkir Ekstra per Kelipatan</label>
+                            <div class="input-group">
+                                <span class="input-group-text input-group-text-custom">Rp</span>
+                                <input type="number" name="biaya_tambahan_per_barang" class="form-control input-clean input-clean-group" value="{{ $setting->biaya_tambahan_per_barang ?? 0 }}" required>
+                            </div>
+                            <small class="petunjuk-admin"><i class="bi bi-plus-circle me-1"></i>Tarif tambahan (masuk ke kurir) setiap kali melewati batas jumlah barang di atas.</small>
+                        </div>
+                        <div class="col-md-6 mt-4">
                             <label class="form-label-bold">Batas Minimal Jarak (KM)</label>
                             <div class="input-group">
-                                <input type="number" name="minimal_km" class="form-control input-clean" value="{{ $setting->minimal_km }}" required style="border-radius: 12px 0 0 12px;">
+                                <input type="number" name="minimal_km" class="form-control input-clean" value="{{ $setting->minimal_km ?? 1 }}" required style="border-radius: 12px 0 0 12px;">
                                 <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">KM</span>
                             </div>
                             <small class="petunjuk-admin">Jarak terdekat yang dihitung.</small>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 mt-4">
                             <label class="form-label-bold">Batas Maksimal Jarak (KM)</label>
                             <div class="input-group">
-                                <input type="number" name="maksimal_km" class="form-control input-clean" value="{{ $setting->maksimal_km }}" required style="border-radius: 12px 0 0 12px;">
+                                <input type="number" name="maksimal_km" class="form-control input-clean" value="{{ $setting->maksimal_km ?? 15 }}" required style="border-radius: 12px 0 0 12px;">
                                 <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">KM</span>
                             </div>
                             <small class="petunjuk-admin text-danger">Pelanggan di atas jarak ini ditolak.</small>
@@ -165,12 +184,21 @@
 
         <div class="col-lg-4 mt-4 mt-lg-0">
             <div class="page-card shadow-sm p-4 bg-success bg-opacity-10 border-success border-opacity-25">
-                <h6 class="fw-bold text-success mb-3"><i class="bi bi-lightbulb-fill me-2"></i>Simulasi Sistem Tarif</h6>
+                <h6 class="fw-bold text-success mb-3"><i class="bi bi-lightbulb-fill me-2"></i>Simulasi Hak Kurir</h6>
+
                 <div class="small text-dark lh-lg">
-                    <p class="mb-2">Jika pelanggan berjarak <strong>4 KM</strong>:</p>
+                    <p class="mb-2"><strong>Contoh perhitungan Ongkir Dasar:</strong><br>Jika pelanggan berjarak 4 KM:</p>
                     <ul class="list-unstyled mb-0">
                         <li><i class="bi bi-dot"></i> Ongkir = 4 x Tarif per KM</li>
-                        <li><i class="bi bi-dot"></i> Total Belanja = Subtotal Produk + Ongkir + Biaya Layanan</li>
+                    </ul>
+
+                    <hr class="my-3 opacity-25" style="border-color: #10b981;">
+
+                    <p class="mb-2"><strong>Contoh Ongkir & Kapasitas Barang:</strong><br>Misal Ongkir Dasar = Rp 8.000, Batas = 10, Ekstra = Rp 1.000.</p>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="bi bi-dot"></i> Beli 1 - 10 barang: <strong>Rp 8.000</strong></li>
+                        <li><i class="bi bi-dot"></i> Beli 11 - 20 barang: <strong>Rp 9.000</strong> <em class="text-muted">(+1000 ke kurir)</em></li>
+                        <li><i class="bi bi-dot"></i> Beli 21 - 30 barang: <strong>Rp 10.000</strong> <em class="text-muted">(+2000 ke kurir)</em></li>
                     </ul>
                 </div>
             </div>

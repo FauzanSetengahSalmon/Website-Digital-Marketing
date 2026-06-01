@@ -321,13 +321,32 @@
                     <h6 class="fw-bold m-0 text-dark">Ringkasan Pembayaran</h6>
                 </div>
 
+                @php
+                // Cek apakah ada biaya ekstra volume untuk ditampilkan teks keterangan
+                $settingData = \App\Models\Setting::first();
+                $batasQty = $settingData->batas_jumlah_barang ?? 0;
+
+                $qtyTotal = $cartItems->sum('jumlah');
+
+                // Kalau belanjaan melebihi batas, maka nilainya TRUE
+                $adaEkstraVolume = ($batasQty > 0 && $qtyTotal > $batasQty);
+                @endphp
+
                 <div class="d-flex justify-content-between mb-2 text-secondary small">
-                    <span>Subtotal untuk Produk</span>
+                    <span>Subtotal Produk</span>
                     <span class="text-dark fw-medium">Rp {{ number_format($totalSemuaProduk, 0, ',', '.') }}</span>
                 </div>
 
+                {{-- 🌟 ONGKIR GABUNGAN DENGAN LOGIKA TEKS PENJELASAN 🌟 --}}
                 <div class="d-flex justify-content-between mb-2 text-secondary small">
-                    <span>Total Ongkos Kirim</span>
+                    <span>
+                        Total Ongkos Kirim
+                        @if($adaEkstraVolume)
+                        <div class="text-info mt-1" style="font-size: 0.7rem; line-height: 1.2;">
+                            <i class="bi bi-info-circle"></i> Termasuk tambahan biaya<br>kapasitas barang banyak.
+                        </div>
+                        @endif
+                    </span>
                     <span class="text-dark fw-medium">
                         @if($isDataComplete)
                         Rp {{ number_format(($totalSemuaOngkirSetelahDiskon + $totalSemuaPotonganOngkir), 0, ',', '.') }}
@@ -344,9 +363,8 @@
                 </div>
                 @endif
 
-                {{-- 🌟 MENAMPILKAN BIAYA LAYANAN DARI CONTROLLER 🌟 --}}
                 <div class="d-flex justify-content-between mb-3 text-secondary small">
-                    <span>Biaya Layanan Aplikasi <i class="bi bi-info-circle ms-1" title="Biaya operasional platform E-Food" style="cursor:help;"></i></span>
+                    <span>Biaya Layanan Aplikasi</span>
                     <span class="text-dark fw-medium">Rp {{ number_format($biayaLayanan ?? 0, 0, ',', '.') }}</span>
                 </div>
 
@@ -354,7 +372,6 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <span class="fw-bold text-dark small">Total Pembayaran</span>
-                    {{-- 🌟 MENGHITUNG TOTAL BARU (PRODUK + ONGKIR + BIAYA LAYANAN) 🌟 --}}
                     <h5 class="fw-bold text-danger mb-0">Rp {{ number_format(($totalSemuaProduk + $totalSemuaOngkirSetelahDiskon + ($biayaLayanan ?? 0)), 0, ',', '.') }}</h5>
                 </div>
 
@@ -385,7 +402,6 @@
     </div>
 </div>
 
-{{-- AJAX ENGINE & POP-UP SNAP HANDLER --}}
 <script>
     document.getElementById('payButton').addEventListener('click', function(e) {
         e.preventDefault();
@@ -394,7 +410,6 @@
         button.disabled = true;
         button.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan...`;
 
-        // Ambil payload data
         const formData = {
             _token: "{{ csrf_token() }}",
             item_ids: document.getElementById('item_ids').value,
@@ -403,7 +418,6 @@
             catatan: document.getElementById('catatan').value
         };
 
-        // Kirim request checkout ke server via Fetch API
         fetch("{{ route('checkout.process') }}", {
                 method: "POST",
                 headers: {

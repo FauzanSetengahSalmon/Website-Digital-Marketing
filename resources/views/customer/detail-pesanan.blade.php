@@ -73,9 +73,7 @@
         top: 20px;
     }
 
-    /* ========================================================
-       PREMIUM HORIZONTAL TIMELINE 5 STEPS STYLING
-       ======================================================== */
+    /* PREMIUM HORIZONTAL TIMELINE */
     .tracking-timeline {
         background: #ffffff;
         border-radius: 16px;
@@ -278,9 +276,7 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
         {{-- LEFT SIDE --}}
         <div class="col-lg-7">
 
-            {{-- ==========================================
-                 TRACKING TIMELINE (5 STEPS TERKONEKSI BUKTI FOTO)
-                 ========================================== --}}
+            {{-- TRACKING TIMELINE --}}
             <div class="card-modern mb-4">
                 <h6 class="fw-bold mb-4"><i class="bi bi-truck-flatbed text-success me-2"></i>Status Lacak Pesanan</h6>
 
@@ -293,7 +289,8 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
                                 <i class="bi bi-file-earmark-text"></i>
                             </div>
                             <div class="timeline-text">Dipesan</div>
-                            <small class="timeline-time">{{ $order->created_at->format('d M') }}</small>
+                            {{-- 🌟 DITAMBAHKAN FORMAT TAHUN (Y) PADA TIMELINE 🌟 --}}
+                            <small class="timeline-time">{{ $order->created_at->timezone('Asia/Jakarta')->format('d M Y') }}</small>
                         </div>
 
                         {{-- STEP 2: Verifikasi KWT --}}
@@ -331,14 +328,13 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
                             </small>
                         </div>
 
-                        {{-- STEP 4: Diantar Kurir (Terkoneksi dengan Bukti Foto) --}}
+                        {{-- STEP 4: Diantar Kurir --}}
                         <div class="timeline-step {{ $order->status == 'selesai' || ($order->status == 'diantar' && $order->bukti_sampai) ? 'completed' : ($order->status == 'diantar' && !$order->bukti_sampai ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-truck"></i>
                             </div>
                             <div class="timeline-text">Diantar</div>
                             <small class="timeline-time {{ $order->status == 'diantar' ? 'text-success fw-bold' : '' }}">
-
                                 @if(in_array($order->status, ['menunggu', 'diproses']))
                                 Menunggu kurir
                                 @elseif($order->status == 'diantar')
@@ -353,7 +349,7 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
                             </small>
                         </div>
 
-                        {{-- STEP 5: Selesai (Aktif saat foto bukti diunggah) --}}
+                        {{-- STEP 5: Selesai --}}
                         <div class="timeline-step {{ $order->status == 'selesai' ? 'completed' : ($order->status == 'diantar' && $order->bukti_sampai ? 'active' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bi bi-house-check"></i>
@@ -362,7 +358,8 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
                             <small class="timeline-time">
                                 @if($order->status == 'selesai')
                                 Pesanan telah sampai pada tanggal:
-                                <span class="text-success fw-bold">{{ $order->updated_at->format('d M') }}</span>
+                                {{-- 🌟 DITAMBAHKAN FORMAT TAHUN (Y) PADA TIMELINE 🌟 --}}
+                                <span class="text-success fw-bold">{{ $order->updated_at->timezone('Asia/Jakarta')->format('d M Y') }}</span>
                                 @elseif($order->status == 'diantar' && $order->bukti_sampai)
                                 Konfirmasi yuk!
                                 @else
@@ -417,7 +414,6 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
 
                         $detailKendaraan = count($kurirParts) > 1 ? implode(' - ', array_slice($kurirParts, 1)) : '';
 
-                        // Cek dari database sebagai fallback
                         if(!$detailKendaraan) {
                         $dataKurir = \App\Models\Kurir::where('nama', $order->kurir)->first();
                         $detailKendaraan = $dataKurir ? $dataKurir->kendaraan : '';
@@ -591,9 +587,7 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
                 </div>
                 @endif
 
-                {{-- ===============================================
-                     KARTU KONFIRMASI SELESAI (TERGANTUNG FOTO KURIR)
-                     =============================================== --}}
+                {{-- KARTU KONFIRMASI SELESAI --}}
                 @if($order->status == 'diantar')
                 <div class="card-modern mb-4 border {{ $order->bukti_sampai ? 'border-success' : 'border-warning' }} bg-white shadow-sm">
                     <h5 class="fw-bold {{ $order->bukti_sampai ? 'text-success' : 'text-warning' }} mb-2">
@@ -665,19 +659,35 @@ $pesanAdminSistem = rawurlencode("Halo Admin E-Food, saya ingin bertanya terkait
                 </div>
                 @endif
 
-                {{-- RINGKASAN PEMBAYARAN --}}
+                {{-- =====================================
+                     RINGKASAN PEMBAYARAN (DIPERBAIKI)
+                     ===================================== --}}
                 <div class="card-modern">
                     <h5 class="fw-bold mb-4">Ringkasan Pembayaran</h5>
 
+                    @php
+                    // Hitung harga asli produk untuk mengatasi pesanan lama yang biaya layanannya 0 di DB
+                    $subtotalKWT = $order->details->sum(fn($d) => $d->jumlah * $d->harga_saat_ini);
+                    $biayaPlatformAsli = $order->total_harga - $order->ongkir - $subtotalKWT;
+                    @endphp
+
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-secondary">Subtotal Produk</span>
-                        <strong class="text-dark">Rp {{ number_format($order->total_harga - $order->ongkir, 0, ',', '.') }}</strong>
+                        <strong class="text-dark">Rp {{ number_format($subtotalKWT, 0, ',', '.') }}</strong>
                     </div>
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-secondary">Ongkos Kirim</span>
+                        <span class="text-secondary">Ongkos Kirim <i class="bi bi-info-circle text-muted" title="Sudah termasuk jarak dan volume barang"></i></span>
                         <strong class="text-success">+ Rp {{ number_format($order->ongkir, 0, ',', '.') }}</strong>
                     </div>
+
+                    {{-- BIAYA LAYANAN HANYA MUNCUL JIKA LEBIH DARI 0 --}}
+                    @if($biayaPlatformAsli > 0)
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-secondary">Biaya Layanan</span>
+                        <strong class="text-success">+ Rp {{ number_format($biayaPlatformAsli, 0, ',', '.') }}</strong>
+                    </div>
+                    @endif
 
                     <hr class="my-3" style="border-top: 1px dashed #cbd5e1;">
 

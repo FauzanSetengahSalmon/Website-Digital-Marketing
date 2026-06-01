@@ -14,5 +14,7 @@ class Setting extends Model
         'minimal_km',
         'maksimal_km',
         'biaya_layanan',
+        'batas_jumlah_barang',
+        'biaya_tambahan_per_barang'
     ];
 }

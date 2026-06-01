@@ -141,7 +141,6 @@
                             @endif
                         </td>
                         <td class="py-3.5 text-secondary fs-7">
-                            {{-- 🌟 PERBAIKAN ZONA WAKTU (WIB / Asia/Jakarta) 🌟 --}}
                             <i class="bi bi-calendar3 me-1 text-muted"></i> {{ $sale->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
                         </td>
                         <td class="py-3.5 text-center pe-4">
@@ -200,10 +199,26 @@
                                 <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Kontak</small>
                                 <span class="fw-semibold text-dark font-monospace">{{ $sale->nomor_hp ?? '-' }}</span>
                             </div>
+
                             <div class="col-12 col-md-4 text-md-end">
                                 <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5">Total Pembayaran</small>
-                                <span class="fw-bold text-success fs-5">Rp {{ number_format($sale->total_harga, 0, ',', '.') }}</span>
+                                <span class="fw-bold text-success fs-5 d-block mb-1">Rp {{ number_format($sale->total_harga, 0, ',', '.') }}</span>
+
+                                @php
+                                // Hitung mutlak harga sayur/produk KWT dari keranjang
+                                $subtotalKWT = $sale->details->sum(fn($d) => $d->jumlah * $d->harga_saat_ini);
+
+                                // Sisa uangnya dipastikan adalah biaya platform (mengatasi data lama yang di DB-nya masih 0)
+                                $biayaPlatformAsli = $sale->total_harga - $sale->ongkir - $subtotalKWT;
+                                @endphp
+
+                                <div class="text-start text-md-end text-secondary fs-8 lh-sm">
+                                    <div>Subtotal KWT: Rp {{ number_format($subtotalKWT, 0, ',', '.') }}</div>
+                                    <div class="text-info fw-medium mt-1" title="Termasuk jarak & kapasitas kurir">Ongkir Kurir: +Rp {{ number_format($sale->ongkir, 0, ',', '.') }}</div>
+                                    <div class="text-warning fw-medium mt-1">Biaya Platform: +Rp {{ number_format($biayaPlatformAsli, 0, ',', '.') }}</div>
+                                </div>
                             </div>
+
                             <div class="col-12 border-top pt-2 mt-2">
                                 <small class="text-muted d-block text-uppercase fs-8 fw-semibold mb-0.5"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Alamat Pengiriman</small>
                                 <span class="small text-dark fw-medium lh-base">{{ $sale->alamat ?? 'Alamat tidak terisi lengkap' }}</span>

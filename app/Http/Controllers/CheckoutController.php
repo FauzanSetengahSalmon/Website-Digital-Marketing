@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderDetail;
-use App\Models\Setting; // 🌟 DITAMBAHKAN: Memanggil Model Setting
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +17,6 @@ class CheckoutController extends Controller
     public function __construct()
     {
         Config::$serverKey = trim(env('MIDTRANS_SERVER_KEY'));
-
         Config::$isProduction = env('MIDTRANS_IS_PRODUCTION') == 'true' || env('MIDTRANS_IS_PRODUCTION') == true;
         Config::$isSanitized = true;
         Config::$is3ds = true;
@@ -44,6 +43,7 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $cartItems->sum(fn($item) => $item->jumlah * $item->product->harga);
+        $totalQtyBarang = $cartItems->sum('jumlah'); // Hitung total item fisik
         $user = Auth::user();
 
         $alamatCustomer = trim(($user->address ?? '') . ', ' . ($user->district ?? '') . ', ' . ($user->city ?? '') . ', ' . ($user->province ?? ''));
@@ -54,20 +54,20 @@ class CheckoutController extends Controller
         $jarak = 0;
         $ongkir = 0;
 
-        // 🌟 AMBIL PENGATURAN DARI DATABASE 🌟
-        // Jika tabel settings kosong, gunakan nilai default ini
         $setting = Setting::first() ?? new Setting([
             'tarif_per_km' => 2000,
             'minimal_km' => 1,
             'maksimal_km' => 15,
-            'biaya_layanan' => 2000
+            'biaya_layanan' => 2000,
+            'batas_jumlah_barang' => 0,
+            'biaya_tambahan_per_barang' => 0
         ]);
 
-        $biayaLayanan = $setting->biaya_layanan;
+        $biayaLayanan = $setting->biaya_layanan; // Murni Biaya Admin
 
-        // HITUNG JARAK BERDASARKAN LATITUDE & LONGITUDE USER (Rumus Haversine)
+        // HITUNG JARAK BERDASARKAN LATITUDE & LONGITUDE USER
         if (!empty($user->latitude) && !empty($user->longitude)) {
-            $earthRadius = 6371; // Radius bumi dalam kilometer
+            $earthRadius = 6371;
 
             $latDelta = deg2rad($user->latitude - $latAsal);
             $lonDelta = deg2rad($user->longitude - $lonAsal);
@@ -77,25 +77,25 @@ class CheckoutController extends Controller
                 sin($lonDelta / 2) * sin($lonDelta / 2);
 
             $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-            // Jarak dalam KM
             $jarak = round($earthRadius * $c, 1);
 
-            // 🌟 VALIDASI MAKSIMAL JARAK PENGIRIMAN 🌟
             if ($jarak > $setting->maksimal_km) {
                 return redirect()->route('cart.index')->with('error', 'Maaf, lokasi pengiriman Anda terlalu jauh (Maksimal ' . $setting->maksimal_km . ' KM dari Pusat KWT).');
             }
 
-            // 🌟 VALIDASI MINIMAL JARAK PENGIRIMAN 🌟
             if ($jarak < $setting->minimal_km) {
                 $jarak = $setting->minimal_km;
             }
 
-            // 🌟 TARIF DINAMIS BERDASARKAN DATABASE 🌟
             $ongkir = $jarak * $setting->tarif_per_km;
-
-            // Pembulatan ke atas agar tidak ada angka receh ke kelipatan 500
             $ongkir = ceil($ongkir / 500) * 500;
+
+            // 🌟 LOGIKA BIAYA TAMBAHAN VOLUME BARANG (MASUK KE ONGKIR KURIR) 🌟
+            if ($setting->batas_jumlah_barang > 0 && $totalQtyBarang > $setting->batas_jumlah_barang) {
+                $kelipatan = ceil($totalQtyBarang / $setting->batas_jumlah_barang) - 1;
+                $biayaEkstraKurir = $kelipatan * $setting->biaya_tambahan_per_barang;
+                $ongkir += $biayaEkstraKurir;
+            }
         }
 
         $dataWilayah = [
@@ -169,9 +169,9 @@ class CheckoutController extends Controller
         return view('customer.checkout', [
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
-            'ongkir' => $ongkir,
-            'biayaLayanan' => $biayaLayanan, // 🌟 Mengirim biaya layanan ke View Checkout
-            'totalBayar' => $subtotal + $ongkir + $biayaLayanan, // 🌟 Total Keseluruhan
+            'ongkir' => $ongkir, // Ongkir sudah termasuk biaya ekstra volume
+            'biayaLayanan' => $biayaLayanan,
+            'totalBayar' => $subtotal + $ongkir + $biayaLayanan,
             'jarak' => $jarak,
             'alamatCustomer' => $alamatCustomer,
             'dataWilayah' => $dataWilayah,
@@ -181,7 +181,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Memproses pesanan ke database dan memicu pembuatan Token Snap Midtrans ( AJAX JSON )
+     * Memproses pesanan ke database dan memicu pembuatan Token Snap Midtrans
      */
     public function process(Request $request)
     {
@@ -191,7 +191,6 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Lengkapi nomor HP di profil Anda!'], 400);
         }
 
-        // Ambil payload dari form AJAX
         $ids = explode(',', $request->item_ids);
         $cartItems = Cart::with('product')->whereIn('id', $ids)->where('user_id', $user->id)->get();
 
@@ -199,38 +198,36 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang belanja Anda kosong!'], 400);
         }
 
-        // 🌟 MENGAMBIL BIAYA LAYANAN DARI DATABASE SAAT PROSES 🌟
-        $setting = Setting::first() ?? new Setting(['biaya_layanan' => 2000]);
-        $biaya_layanan = $setting->biaya_layanan;
+        $setting = Setting::first() ?? new Setting([
+            'biaya_layanan' => 2000,
+            'batas_jumlah_barang' => 0,
+            'biaya_tambahan_per_barang' => 0
+        ]);
 
-        // Hitung akumulasi belanjaan murni barang
+        $biaya_layanan = $setting->biaya_layanan; // Murni milik admin
         $subtotal = $cartItems->sum(fn($i) => $i->jumlah * $i->product->harga);
+
+        // Ongkir yang dikirim dari form frontend sudah termasuk biaya tambahan volume kurir
         $ongkir = (int) $request->input('ongkir', 0);
 
-        // 🌟 TOTAL PEMBAYARAN: Subtotal + Ongkir + Biaya Layanan 🌟
         $totalPembayaran = $subtotal + $ongkir + $biaya_layanan;
 
-        // LANGSUNG AMBIL DARI TABLE USER (Anti Kosong & Akurat)
         $alamatFinal = $user->address;
-
-        // Satukan komponen wilayah pendukung dari table users jika kolomnya terisi
         $rtRw = (!empty($user->rt) && !empty($user->rw)) ? ' RT.' . $user->rt . ' / RW.' . $user->rw : '';
         $kecamatan = !empty($user->district) ? ', Kecamatan ' . $user->district : '';
         $kota = !empty($user->city) ? ', ' . $user->city : '';
         $provinsi = !empty($user->province) ? ', ' . $user->province : ', Jawa Barat';
 
-        // Hasil alamat gabungan final untuk disimpan ke table orders
         $alamatFinal = $alamatFinal . $rtRw . $kecamatan . $kota . $provinsi;
 
         DB::beginTransaction();
         try {
-            // 1. Simpan Transaksi Utama ke database induk 'orders'
             $order = Order::create([
                 'user_id' => $user->id,
                 'total_harga' => $totalPembayaran,
-                'ongkir' => $ongkir,
-                'biaya_layanan' => $biaya_layanan, // 🌟 MENYIMPAN BIAYA LAYANAN KE DATABASE ORDERS
-                'status' => 'menunggu', // default berstatus menunggu bayar
+                'ongkir' => $ongkir, // Uang ekstra barang tersimpan di sini (hak kurir)
+                'biaya_layanan' => $biaya_layanan,
+                'status' => 'menunggu',
                 'catatan' => $request->catatan,
                 'alamat' => $alamatFinal,
                 'nomor_hp' => $user->phone_number,
@@ -238,7 +235,6 @@ class CheckoutController extends Controller
                 'no_hp_kurir' => '-'
             ]);
 
-            // 2. Simpan ke data order detail & kurangi stok & susun data struk Midtrans
             $itemDetailsMidtrans = [];
             foreach ($cartItems as $item) {
                 OrderDetail::create([
@@ -248,10 +244,8 @@ class CheckoutController extends Controller
                     'harga_saat_ini' => $item->product->harga,
                 ]);
 
-                // Kurangi stok barang
                 $item->product->decrement('stok', $item->jumlah);
 
-                // Format item untuk struk invoice Midtrans
                 $itemDetailsMidtrans[] = [
                     'id' => 'PROD-' . $item->product_id,
                     'price' => (int) $item->product->harga,
@@ -260,17 +254,15 @@ class CheckoutController extends Controller
                 ];
             }
 
-            // Masukkan komponen biaya kirim ke invoice Midtrans
             if ($ongkir > 0) {
                 $itemDetailsMidtrans[] = [
                     'id' => 'ONGKIR',
                     'price' => $ongkir,
                     'quantity' => 1,
-                    'name' => 'Ongkos Kirim Kurir KWT',
+                    'name' => 'Ongkos Kirim Kurir (Termasuk Vol)', // Diperjelas di struk Midtrans
                 ];
             }
 
-            // 🌟 TAMBAHKAN BIAYA LAYANAN APLIKASI KE STRUK INVOICE MIDTRANS 🌟
             if ($biaya_layanan > 0) {
                 $itemDetailsMidtrans[] = [
                     'id' => 'LAYANAN',
@@ -280,10 +272,9 @@ class CheckoutController extends Controller
                 ];
             }
 
-            // 3. Susun Parameter Data Sesuai Regulasi API Midtrans Snap
             $midtransParams = [
                 'transaction_details' => [
-                    'order_id' => 'EF-ORD-' . $order->id . '-' . time(), // ID unik anti bentrok
+                    'order_id' => 'EF-ORD-' . $order->id . '-' . time(),
                     'gross_amount' => (int) $totalPembayaran,
                 ],
                 'item_details' => $itemDetailsMidtrans,
@@ -294,18 +285,12 @@ class CheckoutController extends Controller
                 ]
             ];
 
-            // 4. Tembak ke server Midtrans untuk meminta Token Pembayaran Snap
             $snapToken = Snap::getSnapToken($midtransParams);
-
-            // Simpan token yang berhasil digenerate ke kolom database
             $order->update(['snap_token' => $snapToken]);
-
-            // 5. Bersihkan keranjang belanja item yang sudah sukses checkout
             Cart::whereIn('id', $ids)->where('user_id', $user->id)->delete();
 
             DB::commit();
 
-            // Kembalikan respons sukses berupa JSON untuk dibaca oleh JavaScript di frontend
             return response()->json([
                 'success' => true,
                 'snap_token' => $snapToken,
@@ -320,19 +305,14 @@ class CheckoutController extends Controller
         }
     }
 
-    /**
-     * Webhook Callback otomatis dari server Midtrans untuk sinkronisasi status lunas (Lewat Ngrok)
-     */
     public function callback(Request $request)
     {
-        // Validasi keaslian signature key kiriman server Midtrans
         $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . env('MIDTRANS_SERVER_KEY'));
 
         if ($hashed !== $request->signature_key) {
             return response()->json(['message' => 'Invalid signature key'], 403);
         }
 
-        // Pecah string unik order ID 'EF-ORD-{id}-{timestamp}' untuk mendapat ID baris asli
         $parts = explode('-', $request->order_id);
         $orderId = $parts[2] ?? null;
 
@@ -343,7 +323,6 @@ class CheckoutController extends Controller
 
         $transactionStatus = $request->transaction_status;
 
-        // Proses sinkronisasi otomatis status order di DB lokal kamu
         if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
             $order->update(['status' => 'menunggu']);
         } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
