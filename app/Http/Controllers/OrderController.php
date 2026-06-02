@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Exports\KwtTransactionExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon; // 🌟 TAMBAHAN: Untuk mengecek waktu 1x24 Jam
 
 class OrderController extends Controller
 {
@@ -282,7 +283,14 @@ class OrderController extends Controller
 
         if ($request->hasFile('bukti_pengiriman')) {
             $path = $request->file('bukti_pengiriman')->store('bukti_kirim', 'public');
-            $order->update(['bukti_pengiriman' => $path]);
+
+            // 🌟 PERBAIKAN: Gunakan nama kolom 'bukti_sampai' (sesuai database)
+            // Dan ubah status jadi 'diantar' agar tombol selesaikan muncul di customer
+            $order->update([
+                'bukti_sampai' => $path,
+                'status' => 'diantar'
+            ]);
+
             return back()->with('success', 'Bukti pengiriman berhasil diunggah, kurir siap mengantar hasil panen KWT!');
         }
 
@@ -305,6 +313,13 @@ class OrderController extends Controller
      */
     public function history()
     {
+        // 🌟 SISTEM OTOMATIS: ACC PESANAN 1 HARI (24 JAM) JIKA LUPA DIKLIK
+        Order::where('status', 'diantar')
+            ->whereNotNull('bukti_sampai')
+            ->where('updated_at', '<=', Carbon::now()->subDay()) // Lewat 1x24 Jam
+            ->update(['status' => 'selesai']);
+        // ==============================================================
+
         $orders = Order::with(['details.product.user', 'reports'])
             ->where('user_id', Auth::id())
             ->latest()
@@ -318,6 +333,13 @@ class OrderController extends Controller
      */
     public function show($id)
     {
+        // 🌟 SISTEM OTOMATIS: ACC PESANAN 1 HARI (24 JAM) JIKA LUPA DIKLIK
+        Order::where('status', 'diantar')
+            ->whereNotNull('bukti_sampai')
+            ->where('updated_at', '<=', Carbon::now()->subDay()) // Lewat 1x24 Jam
+            ->update(['status' => 'selesai']);
+        // ==============================================================
+
         $order = Order::with(['details.product.user', 'reports'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);

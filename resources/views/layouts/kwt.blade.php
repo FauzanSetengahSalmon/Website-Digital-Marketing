@@ -68,6 +68,13 @@
             font-weight: 600;
         }
 
+        .profile-info small {
+            color: #4ade80;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
         /* Navigasi */
         .nav-list {
             padding: 15px 0;
@@ -168,7 +175,7 @@
 
                 <div class="profile-info">
                     <h6>{{ Auth::user()->name }}</h6>
-                    <small style="color: #4ade80; font-size: 0.7rem;">Admin KWT</small>
+                    <small>{{ Auth::user()->email }}</small>
                 </div>
             </div>
         </div>

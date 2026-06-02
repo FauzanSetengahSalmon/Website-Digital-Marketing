@@ -20,11 +20,12 @@ class KurirController extends Controller
 
         $path = $request->file('bukti_sampai')->store('bukti_pesanan', 'public');
 
+        // 🌟 PERBAIKAN: Ubah status jadi 'diantar', jangan langsung 'selesai'
         $order->update([
-            'status' => 'selesai',
+            'status' => 'diantar',
             'bukti_sampai' => $path
         ]);
 
-        return "Pesanan #$id berhasil diselesaikan. Terima kasih!";
+        return "Bukti pengiriman berhasil diupload. Pesanan #$id sedang menunggu konfirmasi Customer. Terima kasih!";
     }
 }

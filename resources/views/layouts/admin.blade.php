@@ -92,7 +92,6 @@
             color: #4ade80;
             font-size: 0.75rem;
             font-weight: 700;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
@@ -228,7 +227,7 @@
                     </div>
                     <div class="profile-info">
                         <h6>{{ Auth::user()->name }}</h6>
-                        <small>Super Admin</small>
+                        <small>{{ Auth::user()->email }}</small>
                     </div>
                 </div>
             </div>
