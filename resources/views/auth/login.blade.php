@@ -359,9 +359,8 @@
                     @enderror
                 </div>
 
-                <!-- FORGOT -->
                 <div class="forgot-pw">
-                    <a href="#">Lupa Password?</a>
+                    <a href="{{ route('password.request') }}">Lupa Password?</a>
                 </div>
 
                 <!-- LOGIN BUTTON -->
