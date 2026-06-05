@@ -148,6 +148,13 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/kurir/delete/{id}', [AdminController::class, 'destroyKurir'])
                 ->name('kurir.destroy');
 
+            Route::post('/kwt/{id}/anggota', [AdminController::class, 'storeAnggota'])->name('kwt.anggota.store');
+            Route::delete('/kwt/anggota/{id}', [AdminController::class, 'destroyAnggota'])->name('kwt.anggota.destroy');
+
+
+            Route::post('/kurir/{id}/kendaraan', [AdminController::class, 'storeKendaraan'])->name('kurir.kendaraan.store');
+            Route::delete('/kurir/kendaraan/{id}', [AdminController::class, 'destroyKendaraan'])->name('kurir.kendaraan.destroy');
+            
             /*
             |--------------------------------------------------------------------------
             | PENCAIRAN KURIR

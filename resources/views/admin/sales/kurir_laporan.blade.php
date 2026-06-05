@@ -7,13 +7,13 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 no-print">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
-                <a href="{{ route('admin.kurir.index') }}" class="btn btn-sm btn-light rounded-circle shadow-sm">
+                <a href="{{ route('admin.kurir.pencairan') }}" class="btn btn-sm btn-light rounded-circle shadow-sm">
                     <i class="bi bi-arrow-left"></i>
                 </a>
-                <h3 class="fw-bold text-dark mb-0">Laporan Penghasilan Kurir</h3>
+                <h3 class="fw-bold text-dark mb-0">Laporan Penghasilan Kurir <strong>{{ $kurir->nama }}</strong>.</h3>
             </div>
             <p class="text-muted small mb-0">
-                Pantau rincian pengiriman dan pendapatan bersih dari kurir <strong>{{ $kurir->nama }}</strong>.
+                Pantau rincian pengiriman dan pendapatan bersih
             </p>
         </div>
     </div>

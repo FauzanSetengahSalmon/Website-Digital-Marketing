@@ -16,7 +16,10 @@ class Kurir extends Model
     protected $fillable = [
         'nama',
         'no_hp',
-        'kendaraan',
         'status',
     ];
+    public function kendaraans()
+    {
+        return $this->hasMany(KendaraanKurir::class, 'kurir_id');
+    }
 }

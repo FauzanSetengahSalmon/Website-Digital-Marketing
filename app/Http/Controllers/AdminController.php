@@ -7,8 +7,9 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Kurir;
 use App\Models\OrderDetail;
-use App\Models\Kwt;
 use App\Models\KurirPencairan;
+use App\Models\AnggotaKwt; // Model Baru
+use App\Models\KendaraanKurir; // Model Baru
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,6 @@ class AdminController extends Controller
         $penjualanPerKwt = User::where('role', 'kwt')
             ->get()
             ->map(function ($kwt) {
-                // Total omzet keseluruhan (semua status selesai)
                 $omzet = OrderDetail::whereHas('product', function ($q) use ($kwt) {
                     $q->where('user_id', $kwt->id);
                 })
@@ -46,7 +46,6 @@ class AdminController extends Controller
                     })
                     ->sum(DB::raw('harga_saat_ini * jumlah'));
 
-                // Total yang SUDAH dicairkan (is_cair_kwt = true)
                 $sudahDicairkan = OrderDetail::whereHas('product', function ($q) use ($kwt) {
                     $q->where('user_id', $kwt->id);
                 })
@@ -100,7 +99,8 @@ class AdminController extends Controller
     public function allSales()
     {
         $sales = Order::with(['user', 'details.product.user'])->latest()->get();
-        $list_kurir = Kurir::where('status', 'aktif')->get();
+        // Membawa relasi kendaraan untuk dipilih saat assign pesanan
+        $list_kurir = Kurir::with('kendaraans')->where('status', 'aktif')->get();
         return view('admin.sales.index', compact('sales', 'list_kurir'));
     }
 
@@ -130,25 +130,31 @@ class AdminController extends Controller
             $request->validate([
                 'kurir' => 'required|string|max:255',
                 'no_hp_kurir' => 'required|string|max:20',
-                'jadwal_pengiriman' => 'required|date|after_or_equal:today'
+                'jadwal_pengiriman' => 'required|date|after_or_equal:today',
+                'kendaraan_pengantar' => 'nullable|string|max:255' // Menyimpan info kendaraan yang dipakai
             ]);
 
             $order->update([
                 'status' => 'diproses',
                 'kurir' => $request->input('kurir'),
                 'no_hp_kurir' => $request->input('no_hp_kurir'),
-                'jadwal_pengiriman' => $request->input('jadwal_pengiriman')
+                'jadwal_pengiriman' => $request->input('jadwal_pengiriman'),
+                'kendaraan_pengantar' => $request->input('kendaraan_pengantar')
             ]);
 
-            return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dijadwalkan!');
+            return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil dijadwalkan ke Kurir!');
         }
 
         return redirect()->back()->with('error', 'Status tidak dikenali.');
     }
 
+    // ----------------------------------------------------
+    // MANAJEMEN KWT & ANGGOTA
+    // ----------------------------------------------------
     public function kwtIndex()
     {
-        $kwt = User::where('role', 'kwt')->latest()->get();
+        // Pastikan relasi 'anggota' terpanggil agar tampil di dropdown/modal
+        $kwt = User::with('anggota')->where('role', 'kwt')->latest()->get();
         return view('admin.kwt.index', compact('kwt'));
     }
 
@@ -176,10 +182,7 @@ class AdminController extends Controller
     public function verifyKwt($id)
     {
         $user = User::findOrFail($id);
-        $user->update([
-            'email_verified_at' => now()
-        ]);
-
+        $user->update(['email_verified_at' => now()]);
         return back()->with('success', 'Akun KWT ' . $user->name . ' berhasil diverifikasi!');
     }
 
@@ -206,9 +209,38 @@ class AdminController extends Controller
         return back()->with('success', 'Akun KWT dihapus.');
     }
 
+    // --- FITUR BARU: TAMBAH IBU ANGGOTA KWT ---
+    public function storeAnggota(Request $request, $kwt_id)
+    {
+        $request->validate([
+            'nama_anggota' => 'required|string|max:255',
+            'no_hp' => 'nullable|string|max:20'
+        ]);
+
+        AnggotaKwt::create([
+            'kwt_id' => $kwt_id,
+            'nama_anggota' => $request->nama_anggota,
+            'no_hp' => $request->no_hp
+        ]);
+
+        return back()->with('success', 'Data ibu anggota berhasil ditambahkan ke dalam KWT ini!');
+    }
+
+    // --- FITUR BARU: HAPUS IBU ANGGOTA KWT ---
+    public function destroyAnggota($id)
+    {
+        AnggotaKwt::findOrFail($id)->delete();
+        return back()->with('success', 'Data anggota berhasil dihapus dari KWT!');
+    }
+
+
+    // ----------------------------------------------------
+    // MANAJEMEN KURIR & KENDARAAN (GARASI)
+    // ----------------------------------------------------
     public function adminKurirIndex()
     {
-        $kurirs = Kurir::latest()->get();
+        // Panggil relasi 'kendaraans' agar mobil/motor kurir tampil di modal
+        $kurirs = Kurir::with('kendaraans')->latest()->get();
         foreach ($kurirs as $kurir) {
             $totalOngkir = Order::where('kurir', $kurir->nama)->where('status', 'selesai')->sum('ongkir');
             $kurir->total_ongkir = $totalOngkir;
@@ -237,6 +269,36 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Kurir dihapus!');
     }
 
+    // --- FITUR BARU: TAMBAH KENDARAAN KE GARASI KURIR ---
+    public function storeKendaraan(Request $request, $kurir_id)
+    {
+        $request->validate([
+            'jenis_kendaraan' => 'required|string',
+            'merk_kendaraan' => 'required|string',
+            'plat_nomor' => 'required|string'
+        ]);
+
+        KendaraanKurir::create([
+            'kurir_id' => $kurir_id,
+            'jenis_kendaraan' => $request->jenis_kendaraan,
+            'merk_kendaraan' => $request->merk_kendaraan,
+            'plat_nomor' => $request->plat_nomor
+        ]);
+
+        return back()->with('success', 'Kendaraan berhasil ditambahkan ke garasi Kurir!');
+    }
+
+    // --- FITUR BARU: HAPUS KENDARAAN ---
+    public function destroyKendaraan($id)
+    {
+        KendaraanKurir::findOrFail($id)->delete();
+        return back()->with('success', 'Kendaraan berhasil dihapus dari garasi!');
+    }
+
+
+    // ----------------------------------------------------
+    // INVOICE & PENCAIRAN (KWT & KURIR)
+    // ----------------------------------------------------
     public function printInvoiceKwt($id)
     {
         $sale = Order::with(['user', 'details.product.user'])->findOrFail($id);
@@ -262,7 +324,6 @@ class AdminController extends Controller
                 'grouped' => $sale->details->groupBy(fn($d) => $d->product->user->name ?? 'KWT Umum')
             ];
         }
-
         return view('admin.sales.invoice_kwt_batch', compact('allGrouped'));
     }
 
@@ -270,7 +331,6 @@ class AdminController extends Controller
     {
         $ids = explode(',', $request->query('ids', ''));
         $sales = Order::with('user')->whereIn('id', $ids)->get();
-
         return view('admin.sales.invoice_kurir_batch', compact('sales'));
     }
 
@@ -286,7 +346,6 @@ class AdminController extends Controller
             ->get();
 
         $totalOngkir = $orders->where('status', 'selesai')->sum('ongkir');
-
         $potonganAdmin = 0;
         $pendapatanBersih = $totalOngkir;
 
@@ -311,7 +370,6 @@ class AdminController extends Controller
             'nama_penerima.required' => 'Nama penerima dana tidak boleh kosong!'
         ]);
 
-        // PERBAIKAN: Proses ubah is_cair_kwt menjadi TRUE dan SIMPAN nama penerima ke database
         OrderDetail::whereIn('order_id', $request->order_ids)
             ->whereHas('product', function ($query) use ($id) {
                 $query->where('user_id', $id);
@@ -332,11 +390,7 @@ class AdminController extends Controller
     {
         $pencairan = KurirPencairan::latest()->get();
         $list_kurir = Kurir::where('status', 'aktif')->get();
-
-        return view('admin.kurir.pencairan', compact(
-            'pencairan',
-            'list_kurir'
-        ));
+        return view('admin.kurir.pencairan', compact('pencairan', 'list_kurir'));
     }
 
     public function storePencairanKurir(Request $request)
@@ -348,7 +402,6 @@ class AdminController extends Controller
 
     public function cairkanKurir(Request $request, $id)
     {
-        // Validasi wajib pilih minimal 1 data
         $request->validate([
             'order_ids' => 'required|array'
         ], [
@@ -356,18 +409,14 @@ class AdminController extends Controller
         ]);
 
         $kurir = Kurir::findOrFail($id);
-
-        // Hitung total ongkir khusus untuk order yang dicentang
         $totalCair = Order::whereIn('id', $request->order_ids)->sum('ongkir');
 
-        // Catat ke riwayat pencairan
         KurirPencairan::create([
             'nama_kurir' => $kurir->nama,
             'nama_penerima' => $kurir->nama,
             'total_cair' => $totalCair
         ]);
 
-        // Update HANYA order yang dipilih jadi "Sudah Cair"
         Order::whereIn('id', $request->order_ids)->update(['is_paid_out' => true]);
 
         return back()->with([
@@ -378,7 +427,8 @@ class AdminController extends Controller
 
     public function reportKwt(Request $request, $id)
     {
-        $kwt = User::where('id', $id)->where('role', 'kwt')->firstOrFail();
+        // Menggunakan relasi 'anggota' agar siap dipakai di dropdown pencairan
+        $kwt = User::with('anggota')->where('id', $id)->where('role', 'kwt')->firstOrFail();
         $month = $request->query('month', date('m'));
         $year = $request->query('year', date('Y'));
 
@@ -401,6 +451,9 @@ class AdminController extends Controller
         return view('admin.kwt.laporan', compact('kwt', 'orders', 'totalPendapatan', 'month', 'year'));
     }
 
+    // ----------------------------------------------------
+    // REFUND (PENGEMBALIAN DANA CUSTOMER)
+    // ----------------------------------------------------
     public function prosesRefund(Request $request, $id)
     {
         $request->validate([
@@ -432,8 +485,7 @@ class AdminController extends Controller
                         Mail::raw(
                             "Halo {$order->user->name},\n\nPengajuan Refund (Pengembalian Dana) Anda untuk pesanan #ORD-{$order->id} telah DISETUJUI oleh Admin.\n\nDetail Pengajuan Anda:\n- Alasan Komplain: \"{$order->alasan_refund}\"\n\nTotal Dana yang Dikembalikan: Rp {$total_rp}\nCatatan Admin: \"{$catatan}\"\n\nDana Anda akan segera diproses. Terima kasih.",
                             function ($message) use ($order) {
-                                $message->to($order->user->email)
-                                    ->subject("Refund Disetujui: Pesanan #ORD-{$order->id}");
+                                $message->to($order->user->email)->subject("Refund Disetujui: Pesanan #ORD-{$order->id}");
                             }
                         );
                     }
@@ -450,12 +502,10 @@ class AdminController extends Controller
             try {
                 if ($order->user && $order->user->email) {
                     $catatan = $request->catatan_admin_refund ?? 'Bukti yang dilampirkan tidak memenuhi syarat pengembalian.';
-
                     Mail::raw(
                         "Halo {$order->user->name},\n\nMohon maaf, Pengajuan Refund (Pengembalian Dana) Anda untuk pesanan #ORD-{$order->id} DITOLAK oleh Admin.\n\nDetail Pengajuan Anda:\n- Alasan Komplain: \"{$order->alasan_refund}\"\n\nCatatan Admin: \"{$catatan}\"\n\nJika ada pertanyaan lebih lanjut, silakan hubungi layanan pelanggan kami.",
                         function ($message) use ($order) {
-                            $message->to($order->user->email)
-                                ->subject("Refund Ditolak: Pesanan #ORD-{$order->id}");
+                            $message->to($order->user->email)->subject("Refund Ditolak: Pesanan #ORD-{$order->id}");
                         }
                     );
                 }

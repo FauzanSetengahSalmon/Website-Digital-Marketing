@@ -366,38 +366,42 @@
                     @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal' && $sale->status_refund != 'diajukan')
                     <div class="border-top pt-3 section-kurir-wrapper">
                         <h6 class="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wider text-secondary"><i class="bi bi-truck text-success me-2"></i>Penugasan Armada & Logistik</h6>
+
                         <div class="row g-3">
-                            <div class="col-12 col-md-4">
-                                <label class="form-label fw-bold text-dark small mb-1">Pilih Personel Armada</label>
-                                <select name="kurir" class="form-select select-kurir-admin rounded-3 py-2 fs-7 border-secondary-subtle" required>
+                            <div class="col-12 col-md-5">
+                                <label class="form-label fw-bold text-dark small mb-1">Personel Armada</label>
+                                {{-- 🌟 PERBAIKAN: MENGGUNAKAN data-phone SESUAI JAVASCRIPT 🌟 --}}
+                                <select id="kurir-select-{{ $sale->id }}" class="form-select rounded-3 py-2 fs-7 border-secondary-subtle" onchange="updateKendaraanDanHp(this, '{{ $sale->id }}')" required>
                                     <option value="">-- Hubungkan Kurir --</option>
                                     @foreach($list_kurir as $k)
-                                    <option value="{{ $k->nama }}" data-phone="{{ $k->no_hp }}" {{ $sale->kurir == $k->nama ? 'selected' : '' }}>
-                                        {{ $k->nama }} {{ $k->kendaraan ? '['.$k->kendaraan.']' : '' }}
+                                    <option value="{{ $k->nama }}"
+                                        data-phone="{{ $k->no_hp }}"
+                                        data-kendaraan="{{ json_encode($k->kendaraans) }}">
+                                        {{ $k->nama }}
                                     </option>
                                     @endforeach
                                 </select>
+                                <input type="hidden" name="kurir" id="kurir-hidden-{{ $sale->id }}">
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label fw-bold text-dark small mb-1">Nomor HP Aktif Kurir</label>
-                                <input type="text"
-                                    name="no_hp_kurir"
-                                    class="form-control input-phone-admin rounded-3 py-2 fs-7 bg-light border-secondary-subtle font-monospace"
-                                    value="{{ $sale->no_hp_kurir ?? '' }}"
-                                    placeholder="Terisi otomatis..."
-                                    readonly>
+                                <label class="form-label fw-bold text-dark small mb-1">Kendaraan Operasional</label>
+                                <select name="kendaraan_pengantar" id="kendaraan-select-{{ $sale->id }}" class="form-select rounded-3 py-2 fs-7 border-secondary-subtle" required>
+                                    <option value="">-- Pilih Kurir Dulu --</option>
+                                </select>
                             </div>
 
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-3">
+                                <label class="form-label fw-bold text-dark small mb-1">No. HP Kurir</label>
+                                <input type="text" name="no_hp_kurir" id="nohp-kurir-{{ $sale->id }}" class="form-control rounded-3 py-2 fs-7 bg-light border-secondary-subtle font-monospace" placeholder="Otomatis..." readonly required>
+                            </div>
+
+                            <div class="col-12 mt-2">
                                 <label class="form-label fw-bold text-dark small mb-1">Jadwal Pengiriman</label>
-                                <input type="date"
-                                    name="jadwal_pengiriman"
-                                    class="form-control rounded-3 py-2 fs-7 border-secondary-subtle"
-                                    min="{{ date('Y-m-d') }}"
-                                    required>
+                                <input type="date" name="jadwal_pengiriman" class="form-control rounded-3 py-2 fs-7 border-secondary-subtle" min="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
+
                     </div>
                     @else
                     <div class="border-top pt-3 p-3 bg-light rounded-3 border">
@@ -405,9 +409,6 @@
                             <i class="bi bi-shield-check text-success me-2"></i>
                             Status Logistik Terkunci
                         </h6>
-                        @php
-                        $kurirData = \App\Models\Kurir::where('nama', $sale->kurir)->first();
-                        @endphp
                         <div class="row small g-3 text-dark">
                             <div class="col-12 col-md-4">
                                 <div class="fw-semibold text-muted mb-1">Kurir Pengantar</div>
@@ -418,8 +419,8 @@
                                 <div class="fw-bold">{{ $sale->no_hp_kurir ?? '-' }}</div>
                             </div>
                             <div class="col-12 col-md-4">
-                                <div class="fw-semibold text-muted mb-1">Kendaraan</div>
-                                <div class="fw-bold text-success">{{ $kurirData->kendaraan ?? '-' }}</div>
+                                <div class="fw-semibold text-muted mb-1">Kendaraan Operasional</div>
+                                <div class="fw-bold text-success">{{ $sale->kendaraan_pengantar ?? '-' }}</div>
                             </div>
                         </div>
                     </div>
@@ -428,17 +429,14 @@
 
                 {{-- FOOTER MODAL: Diatur responsif menggunakan d-grid di HP dan flex di Desktop --}}
                 <div class="modal-footer border-0 px-3 px-md-4 pb-4 bg-light bg-opacity-25 d-flex flex-column flex-md-row justify-content-md-between gap-3">
-                    <div class="w-100 w-md-auto">
+                    {{-- SISI KANAN: TOMBOL AKSI --}}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end w-100 w-md-auto">
                         @if(($sale->status == 'menunggu' || $sale->status == 'diproses') && $sale->status_refund != 'diajukan')
-                        <button type="button" class="btn btn-outline-danger rounded-pill px-3 fw-bold w-100"
+                        <button type="button" class="btn btn-outline-danger rounded-pill px-3 fw-bold w-10"
                             data-bs-toggle="modal" data-bs-target="#modalTolakPesanan{{ $sale->id }}">
                             <i class="bi bi-x-circle me-1"></i> Tolak Pesanan
                         </button>
                         @endif
-                    </div>
-
-                    {{-- SISI KANAN: TOMBOL AKSI --}}
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end w-100 w-md-auto">
                         <button type="button" class="btn btn-light border rounded-pill px-4" data-bs-dismiss="modal">Kembali</button>
 
                         {{-- JIKA ADA PENGAJUAN REFUND, TOMBOL BIASA HILANG, GANTI DENGAN TOMBOL TINJAU REFUND --}}
@@ -532,7 +530,6 @@
                         <small class="text-muted" style="font-size: 0.7rem;">*Catatan dan notifikasi ini akan otomatis dikirim via Email ke Customer.</small>
                     </div>
                 </div>
-                {{-- D-GRID untuk Mobile --}}
                 <div class="modal-footer border-top-0 p-3 p-md-4 pt-0 d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="button" class="btn btn-light border rounded-pill px-4 fw-bold small" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modalProsesAdmin{{ $sale->id }}">Kembali ke Detail</button>
                     <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
@@ -633,27 +630,36 @@
 </style>
 
 <script>
-    document.querySelectorAll('.select-kurir-admin').forEach(selectElement => {
+    function updateKendaraanDanHp(selectElement, orderId) {
+        const noHpInput = document.getElementById('nohp-kurir-' + orderId);
+        const kendaraanSelect = document.getElementById('kendaraan-select-' + orderId);
+        const kurirHiddenInput = document.getElementById('kurir-hidden-' + orderId);
 
-        function updateKurirInfo(select) {
-            const selectedOption = select.options[select.selectedIndex];
-            const phone = selectedOption.getAttribute('data-phone');
-            const kendaraan = selectedOption.getAttribute('data-kendaraan');
-            const wrapper = select.closest('.section-kurir-wrapper');
-            const phoneInput = wrapper.querySelector('.input-phone-admin');
-            const kendaraanInput = wrapper.querySelector('.input-kendaraan-admin');
-            if (phoneInput) {
-                phoneInput.value = phone ? phone : '';
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+        kendaraanSelect.innerHTML = '<option value="">-- Pilih Kendaraan --</option>';
+
+        if (selectedOption.value !== "") {
+            noHpInput.value = selectedOption.getAttribute('data-phone');
+            kurirHiddenInput.value = selectedOption.value;
+
+            const kendaraans = JSON.parse(selectedOption.getAttribute('data-kendaraan') || '[]');
+
+            if (kendaraans.length > 0) {
+                kendaraans.forEach(function(kdr) {
+                    const teksKendaraan = kdr.jenis_kendaraan + ' - ' + kdr.merk_kendaraan + ' (' + kdr.plat_nomor + ')';
+                    const option = new Option(teksKendaraan, teksKendaraan);
+                    kendaraanSelect.add(option);
+                });
+            } else {
+                kendaraanSelect.innerHTML = '<option value="">-- Garasi Kurir Kosong! --</option>';
             }
-            if (kendaraanInput) {
-                kendaraanInput.value = kendaraan ? kendaraan : '';
-            }
+        } else {
+            noHpInput.value = "";
+            kurirHiddenInput.value = "";
+            kendaraanSelect.innerHTML = '<option value="">-- Pilih Kurir Dulu --</option>';
         }
-        selectElement.addEventListener('change', function() {
-            updateKurirInfo(this);
-        });
-        updateKurirInfo(selectElement);
-    });
+    }
 
     let sortDirection = {
         id: false,

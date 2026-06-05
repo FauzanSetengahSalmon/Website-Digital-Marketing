@@ -7,13 +7,13 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
-                <a href="{{ route('admin.kwt') }}" class="btn btn-sm btn-light rounded-circle shadow-sm">
+                <a href="{{ route('admin.sales.index') }}" class="btn btn-sm btn-light rounded-circle shadow-sm">
                     <i class="bi bi-arrow-left"></i>
                 </a>
-                <h3 class="fw-bold text-dark mb-0">Laporan Keuangan KWT</h3>
+                <h3 class="fw-bold text-dark mb-0">Laporan Keuangan <strong>{{ $kwt->name }}</strong>.</h3>
             </div>
             <p class="text-muted small mb-0">
-                Laporan penjualan hasil panen dan komoditas tani untuk kelompok <strong>{{ $kwt->name }}</strong>.
+                Laporan penjualan hasil panen dan komoditas tani
             </p>
         </div>
     </div>
@@ -153,7 +153,7 @@
                 </div>
             </div>
 
-            {{-- MODAL KONFIRMASI --}}
+            {{-- 🌟 MODAL KONFIRMASI DENGAN DROPDOWN ANGGOTA 🌟 --}}
             <div class="modal fade" id="modalCairkan" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -162,16 +162,33 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body p-4">
-                            <label class="form-label fw-semibold text-dark">Nama Perwakilan Penerima Dana:</label>
-                            <input type="text" name="nama_penerima" class="form-control form-control-lg bg-light rounded-3" required placeholder="Contoh: Ibu Ani / Pengurus KWT">
-                            <div class="alert alert-success bg-success-subtle mt-3 border-0 rounded-3 small mb-0 text-dark">
+                            <label class="form-label fw-semibold text-dark">Pilih Perwakilan Penerima Dana (Anggota KWT):</label>
+
+                            @if(isset($kwt->anggota) && $kwt->anggota->count() > 0)
+                            <select name="nama_penerima" class="form-select form-select-lg bg-light rounded-3" required style="cursor: pointer; border: 2px solid #dee2e6;">
+                                <option value="" disabled selected>-- Klik untuk Memilih Penerima --</option>
+                                @foreach($kwt->anggota as $anggota)
+                                <option value="{{ $anggota->nama_anggota }} {{ $anggota->no_hp ? '('.$anggota->no_hp.')' : '' }}">
+                                    {{ $anggota->nama_anggota }} {{ $anggota->no_hp ? ' - ' . $anggota->no_hp : '' }}
+                                </option>
+                                @endforeach
+                            </select>
+                            @else
+                            <input type="text" class="form-control form-control-lg bg-light rounded-3 text-danger fw-bold" value="Belum ada anggota terdaftar!" disabled>
+                            <input type="hidden" name="nama_penerima" value="{{ $kwt->name }}">
+                            <small class="text-danger mt-2 d-block">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Harap tambahkan nama anggota ibu-ibu di menu <b>Manajemen KWT</b> terlebih dahulu agar bisa dipilih!
+                            </small>
+                            @endif
+
+                            <div class="alert alert-success bg-success-subtle mt-4 border-0 rounded-3 small mb-0 text-dark">
                                 <i class="bi bi-info-circle-fill text-success me-1"></i>
-                                Data akan ditandai <strong>Sudah Cair</strong> di database dan Bukti Pencairan akan otomatis dicetak.
+                                Data akan ditandai <strong>Sudah Cair</strong> di database dan Bukti Pencairan akan otomatis dicetak dengan nama perwakilan di atas.
                             </div>
                         </div>
                         <div class="modal-footer border-0 p-4 pt-0">
                             <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-success rounded-pill fw-bold px-4 shadow-sm">Simpan & Cetak PDF</button>
+                            <button type="submit" class="btn btn-success rounded-pill fw-bold px-4 shadow-sm" {{ (!isset($kwt->anggota) || $kwt->anggota->count() == 0) ? 'disabled' : '' }}>Simpan & Cetak PDF</button>
                         </div>
                     </div>
                 </div>
@@ -179,7 +196,6 @@
 
             <div class="card-body p-0 mt-3">
                 <div class="table-responsive">
-                    {{-- PENAMBAHAN CLASS text-nowrap --}}
                     <table class="table align-middle mb-0 table-hover text-nowrap" id="interactive-table">
                         <thead class="table-light text-uppercase tracking-wider fs-7">
                             <tr>
@@ -224,7 +240,7 @@
                                 <td class="py-3">
                                     <div class="fw-semibold {{ $isCair ? 'text-muted' : 'text-dark' }}">{{ $order->user->name ?? 'Masyarakat' }}</div>
                                 </td>
-                                <td class="py-3" style="white-space: normal; min-width: 200px;"> {{-- Memaksa rincian produk bisa wrap agar tabel tidak terlalu panjang ke samping --}}
+                                <td class="py-3" style="white-space: normal; min-width: 200px;">
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach($kwtDetails as $d)
                                         <span class="badge bg-white {{ $isCair ? 'text-muted border-secondary' : 'text-dark border-secondary-subtle' }} border px-2 py-1 rounded small">
@@ -272,7 +288,7 @@
     </form>
 </div>
 
-{{-- AREA CETAKAN (Tetap sama) --}}
+{{-- AREA CETAKAN --}}
 <div class="print-only">
     <div class="print-header d-flex justify-content-between align-items-center pb-4 mb-4 border-bottom border-2 border-dark">
         <div>
@@ -425,7 +441,6 @@
         background-color: rgba(5, 150, 105, 0.02) !important;
     }
 
-    /* Penambahan CSS Custom Scrollbar untuk Mobile */
     .table-responsive::-webkit-scrollbar {
         height: 6px;
     }
@@ -550,7 +565,6 @@
                 let totalTerjualCount = 0;
                 let totalTripCount = 0;
 
-                // Membaca SEMUA checkbox termasuk yang sudah disabled
                 document.querySelectorAll('.order-checkbox, .order-checkbox-disabled').forEach(cb => {
                     const orderId = parseInt(cb.value, 10);
                     const printRow = document.querySelector(`.print-order-row[data-print-order-id="${orderId}"]`);

@@ -81,6 +81,20 @@
         transform: translateY(-1px);
     }
 
+    /* 🌟 TOMBOL BARU: ANGGOTA KWT 🌟 */
+    .btn-action-member {
+        background-color: #f3e8ff;
+        color: #9333ea;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-member:hover {
+        background-color: #9333ea;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
     /* Modal Form Premium Styling */
     .modal-premium .modal-content {
         border: none !important;
@@ -160,7 +174,6 @@
 </style>
 
 <div class="container-fluid py-4 px-3">
-    {{-- Penambahan flex-column flex-md-row dan gap-3 agar rapi di HP --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
             <h2 class="fw-bold text-dark mb-0">Manajemen Akun KWT</h2>
@@ -180,10 +193,8 @@
     </div>
     @endif
 
-    {{-- Mengubah padding card (p-3 p-md-4) agar tidak terlalu lebar/kosong di HP --}}
     <div class="card border-0 rounded-4 shadow-sm p-3 p-md-4">
         <div class="table-responsive">
-            {{-- Penambahan text-nowrap agar tabel rapi digeser menyamping --}}
             <table class="table custom-table table-hover align-middle mb-0 text-nowrap">
                 <thead class="table-light">
                     <tr>
@@ -192,7 +203,7 @@
                         <th>No. Telepon</th>
                         <th class="text-center">Status Login</th>
                         <th>Tanggal Terdaftar</th>
-                        <th class="text-center" style="width: 150px;">Aksi</th>
+                        <th class="text-center" style="width: 180px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -200,7 +211,6 @@
                     <tr>
                         <td class="fw-bold text-dark px-3">
                             <div class="d-flex align-items-center">
-                                {{-- Penambahan flex-shrink: 0 pada seluruh elemen foto --}}
                                 @if($item->photo && file_exists(public_path('storage/' . $item->photo)))
                                 <img src="{{ asset('storage/' . $item->photo) }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px; flex-shrink: 0;">
                                 @elseif($item->photo && (str_contains($item->photo, 'http://') || str_contains($item->photo, 'https://')))
@@ -224,13 +234,11 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            {{-- PENGECEKAN STATUS DIUBAH MENJADI LEBIH KETAT --}}
                             @if($item->email_verified_at !== null)
                             <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill small fw-medium">Terverifikasi</span>
                             @else
                             <div class="d-flex flex-column align-items-center gap-1">
                                 <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill small fw-medium">Perlu Verifikasi</span>
-                                {{-- TOMBOL VERIFIKASI INSTAN --}}
                                 <form action="{{ route('admin.kwt.verify', $item->id) }}" method="POST" class="m-0">
                                     @csrf @method('PATCH')
                                     <button type="submit" class="btn btn-link text-success p-0 fs-7 fw-semibold text-decoration-none" title="Klik untuk verifikasi instan">
@@ -243,6 +251,12 @@
                         <td class="text-secondary">{{ $item->created_at->format('d M Y') }}</td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center align-items-center gap-2">
+                                {{-- 🌟 TOMBOL BARU: ANGGOTA 🌟 --}}
+                                <button type="button" class="btn btn-sm btn-action-member rounded-pill px-3 fw-medium"
+                                    data-bs-toggle="modal" data-bs-target="#modalAnggota{{ $item->id }}" title="Kelola Anggota KWT">
+                                    <i class="bi bi-people-fill"></i> Anggota
+                                </button>
+
                                 {{-- Tombol Edit --}}
                                 <button type="button" class="btn btn-sm btn-action-edit rounded-pill px-3 fw-medium"
                                     data-bs-toggle="modal"
@@ -274,6 +288,84 @@
         </div>
     </div>
 </div>
+
+{{-- 🌟 MODAL DAFTAR ANGGOTA (DI-LOOPING UNTUK SETIAP KWT) 🌟 --}}
+@foreach($kwt as $item)
+<div class="modal fade" id="modalAnggota{{ $item->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0 mt-2 mx-2">
+                <h5 class="fw-bold text-dark"><i class="bi bi-people-fill text-purple me-2" style="color: #9333ea;"></i>Data Ibu-Ibu - {{ $item->name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                {{-- Form Tambah Anggota --}}
+                <div class="p-3 bg-light rounded-4 mb-4 border border-light-subtle shadow-sm">
+                    <h6 class="fw-bold small mb-3 text-secondary">Tambah Data Ibu Baru</h6>
+                    <form action="{{ route('admin.kwt.anggota.store', $item->id) }}" method="POST" class="row g-2 align-items-end">
+                        @csrf
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold mb-1">Nama Lengkap Ibu</label>
+                            <input type="text" name="nama_anggota" class="form-control" placeholder="Contoh: Ibu Siti" required style="border-radius: 10px;">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold mb-1">No. Telepon / WA (Opsional)</label>
+                            <input type="text" name="no_hp" class="form-control" placeholder="0812xxxx" style="border-radius: 10px;">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn text-white w-100 fw-bold" style="background-color: #9333ea; border-radius: 10px; height: 38px;">
+                                <i class="bi bi-person-plus-fill me-1"></i> Tambah
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- Tabel Daftar Anggota --}}
+                <h6 class="fw-bold small mb-2 text-dark">Daftar Anggota Saat Ini ({{ isset($item->anggota) ? $item->anggota->count() : 0 }} Orang)</h6>
+                <div class="table-responsive border rounded-3">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-2 ps-3">Nama Anggota</th>
+                                <th class="py-2">No. Telepon / WA</th>
+                                <th class="py-2 text-center" style="width: 100px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($item->anggota ?? [] as $anggota)
+                            <tr>
+                                <td class="py-2 ps-3 fw-medium text-dark">{{ $anggota->nama_anggota }}</td>
+                                <td class="py-2">
+                                    @if($anggota->no_hp)
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $anggota->no_hp) }}" target="_blank" class="text-decoration-none text-success small fw-medium">
+                                        <i class="bi bi-whatsapp"></i> {{ $anggota->no_hp }}
+                                    </a>
+                                    @else
+                                    <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
+                                <td class="py-2 text-center">
+                                    <form action="{{ route('admin.kwt.anggota.destroy', $anggota->id) }}" method="POST" onsubmit="return confirm('Hapus nama ibu ini dari daftar?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-2 rounded-2"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-muted small py-4">Belum ada data ibu-ibu yang ditambahkan ke KWT ini.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
 
 {{-- MODAL TAMBAH KWT --}}
 <div class="modal fade" id="modalTambahKwt" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">

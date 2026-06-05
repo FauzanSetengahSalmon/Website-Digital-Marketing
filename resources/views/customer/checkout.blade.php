@@ -284,7 +284,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="fw-bold text-dark ms-auto ms-md-0" style="font-size: 0.95rem;">
+                    <div class="fw-bold text-dark ms-auto ms-md-0 text-nowrap" style="font-size: 0.95rem;">
                         Rp {{ number_format($item->jumlah * $item->product->harga, 0, ',', '.') }}
                     </div>
                 </div>

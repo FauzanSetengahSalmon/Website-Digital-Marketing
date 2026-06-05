@@ -8,18 +8,34 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     :root {
+        --green-dark: #2d7a22;
         --green-primary: #4caf50;
-        --green-hover: #1e5217;
+        --green-light: #d6f0c2;
         --green-bg: #e8f5e9;
-        --text-main: #1e293b;
-        --text-muted: #64748b;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
         --border-soft: #f1f5f9;
     }
 
     body {
-        background-color: #f8faf9;
+        background-color: #fafbfc;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-main);
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* Filter & Search Section */
@@ -53,7 +69,7 @@
         background: #f8fafc;
         font-size: 0.95rem;
         transition: all 0.3s ease;
-        color: var(--text-main);
+        color: var(--text-dark);
     }
 
     .form-input-clean:focus {
@@ -70,7 +86,7 @@
     }
 
     .btn-search-clean {
-        background: var(--green-primary);
+        background: var(--green-dark);
         color: white;
         border: none;
         border-radius: 14px;
@@ -78,62 +94,57 @@
         font-size: 0.95rem;
         font-weight: 700;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        box-shadow: 0 4px 12px rgba(45, 122, 34, 0.2);
     }
 
     .btn-search-clean:hover {
-        background: var(--green-hover);
+        background: var(--green-primary);
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(30, 82, 23, 0.25);
+        box-shadow: 0 6px 16px rgba(76, 175, 80, 0.25);
     }
 
-    /* Product Card Styling */
+    /* Product Card Styling (Disamakan dengan Home) */
     .product-card {
-        background: #ffffff;
-        border-radius: 24px;
-        border: 1px solid var(--border-soft);
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid #f0f0f0;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: 0.3s ease;
+        background: white;
         height: 100%;
         display: flex;
         flex-direction: column;
         position: relative;
-        overflow: hidden;
     }
 
     .product-card:hover {
-        border-color: transparent;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
-        transform: translateY(-6px);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        border-color: var(--green-light);
     }
 
     .badge-stock {
         position: absolute;
-        top: 14px;
-        right: 14px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.75rem;
+        top: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.65rem;
         font-weight: 700;
         z-index: 2;
-        letter-spacing: 0.3px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .stock-available {
-        background: rgba(255, 255, 255, 0.95);
-        color: #1e5217;
-        border: 1px solid rgba(76, 175, 80, 0.2);
+        color: var(--green-dark);
     }
 
     .stock-empty {
-        background: rgba(255, 255, 255, 0.95);
         color: #dc3545;
-        border: 1px solid rgba(220, 53, 69, 0.2);
     }
 
     .img-container {
-        height: 200px;
+        height: 160px;
         overflow: hidden;
         background: #f8fafc;
         position: relative;
@@ -151,72 +162,71 @@
     }
 
     .content-body {
-        padding: 20px;
+        padding: 16px;
         flex-grow: 1;
         display: flex;
         flex-direction: column;
     }
 
     .kwt-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--green-hover);
-        background: var(--green-bg);
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-weight: 800;
+        background-color: #f0fdf4;
+        color: #2d7a22;
+        border-radius: 5px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        width: fit-content;
+        padding: 4px 8px;
         display: inline-flex;
         align-items: center;
-        margin-bottom: 12px;
-        align-self: flex-start;
+        margin-bottom: 8px;
+        text-transform: uppercase;
     }
 
     .product-name {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: var(--text-main);
-        line-height: 1.3;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1.4;
         margin-bottom: 8px;
-        letter-spacing: -0.3px;
     }
 
     .desc-container {
         background: #fdfdfd;
-        padding: 4px 0 4px 12px;
-        margin-bottom: 16px;
-        border-left: 3px solid #c8e6c9;
+        padding: 2px 0px 2px 10px;
+        margin-top: 4px;
+        margin-bottom: 10px;
+        border-left: 2px solid #a7f3d0;
     }
 
     .product-description-text {
-        font-size: 0.85rem;
-        color: var(--text-muted);
+        font-size: 0.76rem;
+        color: #64748b;
         margin-bottom: 0;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        line-height: 1.5;
+        line-height: 1.4;
+        font-style: italic;
     }
 
     .product-info {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-bottom: 16px;
-        font-weight: 500;
+        font-size: 0.75rem;
+        color: var(--text-light);
+        margin-bottom: 12px;
     }
 
-    /* Buttons */
+    /* Buttons (Disamakan dengan Home) */
     .btn-buy-now {
         background: var(--green-primary);
         color: white;
         border: none;
-        border-radius: 12px;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-        font-weight: 700;
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
         flex: 1;
-        transition: all 0.3s ease;
+        transition: 0.2s;
         text-align: center;
         text-decoration: none;
         display: flex;
@@ -225,30 +235,27 @@
     }
 
     .btn-buy-now:hover:not(:disabled) {
-        background: var(--green-hover);
+        background: #2e7d32;
         color: white;
-        transform: translateY(-2px);
     }
 
     .btn-cart-outline {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
         background: white;
-        color: var(--text-muted);
+        color: #636e72;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
-        font-size: 1.1rem;
+        transition: 0.2s;
     }
 
     .btn-cart-outline:hover:not(:disabled) {
         border-color: var(--green-primary);
         color: var(--green-primary);
-        background: var(--green-bg);
-        transform: translateY(-2px);
+        background: #f2f8f2;
     }
 
     .btn-cart-outline:disabled,
@@ -271,7 +278,7 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div class="container py-5">
+<div class="container py-5 fade-in-up">
     <div class="row justify-content-center mb-4">
         <div class="col-lg-10">
             <div class="filter-wrapper">
@@ -296,32 +303,34 @@
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-3">
         @forelse ($products as $product)
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="product-card">
-                <div class="badge-stock {{ $product->stok > 0 ? 'stock-available' : 'stock-empty' }}">
-                    <i class="bi {{ $product->stok > 0 ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }} me-1"></i>
-                    {{ $product->stok > 0 ? 'Tersedia' : 'Habis' }}
-                </div>
+        <div class="col-lg-3 col-md-4 col-6">
+            <div class="product-card border-0 shadow-sm">
 
-                <div class="img-container">
-                    @if($product->foto_produk)
-                    <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
-                    @else
-                    <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100 bg-light text-muted opacity-50">
-                        <i class="bi bi-image" style="font-size: 2.5rem;"></i>
-                        <small class="fw-medium mt-2">Belum Ada Gambar</small>
+                <div class="position-relative">
+                    <div class="badge-stock {{ $product->stok > 0 ? 'stock-available' : 'stock-empty' }}">
+                        {{ $product->stok > 0 ? 'Tersedia' : 'Habis' }}
                     </div>
-                    @endif
+
+                    <div class="img-container">
+                        @if($product->foto_produk)
+                        <img src="{{ asset('storage/'.$product->foto_produk) }}" alt="{{ $product->nama_produk }}">
+                        @else
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100 bg-light text-muted opacity-50">
+                            <i class="bi bi-image" style="font-size: 2.5rem;"></i>
+                            <small class="fw-medium mt-2">Belum Ada Gambar</small>
+                        </div>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="content-body">
                     <span class="kwt-label">
-                        <i class="bi bi-shop me-1"></i> {{ $product->user->name }}
+                        <i class="bi bi-shop me-1"></i> {{ $product->user->name ?? 'KETUA KWT' }}
                     </span>
 
-                    <h3 class="product-name">{{ $product->nama_produk }}</h3>
+                    <h6 class="product-name">{{ $product->nama_produk }}</h6>
 
                     <div class="desc-container">
                         <p class="product-description-text">
@@ -329,13 +338,12 @@
                         </p>
                     </div>
 
-                    <p class="product-info">Sisa stok: <strong>{{ $product->stok }} {{ $product->satuan }}</strong></p>
+                    <p class="product-info m-0">Tersedia {{ $product->stok }} {{ $product->satuan }}</p>
 
-                    <!-- mt-auto memastikan bagian harga dan tombol selalu menempel di bawah -->
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-baseline mb-3 pt-3 border-top border-light">
-                            <span class="fw-bold" style="color: #1e5217; font-size: 1.25rem;">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
-                            <span class="text-secondary ms-1" style="font-size: 0.85rem;">/ {{ $product->satuan }}</span>
+                    <div class="mt-auto pt-2">
+                        <div class="mb-2">
+                            <span class="fw-bold" style="color: #2d7a22; font-size: 1.05rem;">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                            <span class="text-secondary ms-1" style="font-size: 0.8rem;">/ {{ $product->satuan }}</span>
                         </div>
 
                         <div class="d-flex gap-2">
@@ -350,7 +358,10 @@
                                 <i class="bi bi-cart-plus"></i>
                             </button>
                             @else
-                            <button class="btn-buy-now w-100 bg-secondary" disabled>Stok Habis</button>
+                            <button class="btn-buy-now w-100 bg-secondary" disabled>Habis</button>
+                            <button class="btn-cart-outline" disabled>
+                                <i class="bi bi-cart-x"></i>
+                            </button>
                             @endif
                         </div>
                     </div>
@@ -400,19 +411,18 @@
                     })
                     .then(data => {
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-check2"></i>'; // Ubah icon sejenak
+                        this.innerHTML = '<i class="bi bi-check2"></i>';
 
                         setTimeout(() => {
-                            this.innerHTML = originalContent; // Kembalikan ke icon keranjang
+                            this.innerHTML = originalContent;
                         }, 2000);
 
-                        // Fallback jika library SweetAlert2 (Swal) tersedia
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'success',
-                                title: `1x ${productName} ditambahkan!`,
+                                title: `${productName} ditambahkan!`,
                                 showConfirmButton: false,
                                 timer: 2500,
                                 timerProgressBar: true
@@ -421,13 +431,10 @@
                             alert(`${productName} berhasil dimasukkan ke keranjang!`);
                         }
 
-                        // Update Badge Keranjang
                         const cartBadge = document.getElementById('cart-badge');
                         if (cartBadge) {
                             cartBadge.innerText = data.cartCount;
                             cartBadge.classList.remove('d-none');
-
-                            // Tambahkan animasi kecil pada badge saat terupdate
                             cartBadge.classList.add('animate__animated', 'animate__bounceIn');
                             setTimeout(() => {
                                 cartBadge.classList.remove('animate__animated', 'animate__bounceIn');

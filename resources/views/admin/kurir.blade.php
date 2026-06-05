@@ -79,18 +79,6 @@
         flex-shrink: 0;
     }
 
-    .kendaraan-badge {
-        background: #ecfdf5;
-        color: #047857;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-size: 0.76rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
     .income-box {
         background: #f0fdf4;
         border: 1px solid #dcfce7;
@@ -122,6 +110,47 @@
         border-color: #059669;
     }
 
+    /* Action Buttons Styling */
+    .btn-action-edit {
+        background-color: #eff6ff;
+        color: #2563eb;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-edit:hover {
+        background-color: #2563eb;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .btn-action-delete {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-delete:hover {
+        background-color: #dc2626;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    /* 🌟 TOMBOL BARU: GARASI KENDARAAN 🌟 */
+    .btn-action-garage {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-garage:hover {
+        background-color: #0284c7;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
     .custom-scrollbar::-webkit-scrollbar {
         height: 6px;
     }
@@ -135,14 +164,12 @@
 <div class="container-fluid py-4">
 
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-
         <div>
             <h2 class="fw-bold text-dark mb-1">
                 Manajemen Kurir Internal
             </h2>
-
             <p class="text-muted mb-0">
-                Kelola data kurir, kendaraan operasional, dan pendapatan distribusi.
+                Kelola data kurir, garasi kendaraan operasional, dan pendapatan distribusi.
             </p>
         </div>
 
@@ -150,9 +177,7 @@
             class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-semibold w-10 w-md-auto"
             data-bs-toggle="modal"
             data-bs-target="#modalTambahKurir">
-
-            <i class="bi bi-plus-lg me-2"></i>
-            Tambah Kurir Baru
+            <i class="bi bi-plus-lg me-2"></i> Tambah Kurir Baru
         </button>
     </div>
 
@@ -160,92 +185,45 @@
     <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4">
         <i class="bi bi-check-circle-fill me-2"></i>
         {{ session('success') }}
-
-        <button type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
     <div class="page-card shadow-sm p-3 p-md-4">
-
         <div class="table-responsive custom-scrollbar">
-
             <table class="table align-middle table-hover mb-0 text-nowrap">
-
                 <thead>
                     <tr>
                         <th class="px-3 py-3">Kurir</th>
-                        <th>Kendaraan</th>
                         <th>No. WhatsApp</th>
                         <th>Pendapatan</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center" style="width: 150px;">Aksi</th>
+                        <th class="text-center" style="width: 220px;">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
-
                     @forelse($kurirs as $kurir)
-
                     <tr>
-
                         <td class="px-3 py-3">
-
                             <div class="d-flex align-items-center gap-3">
-
                                 <div class="kurir-avatar">
-                                    <i class="bi bi-person text-secondary"></i>
+                                    <span class="fw-bold text-secondary">{{ strtoupper(substr($kurir->nama, 0, 1)) }}</span>
                                 </div>
-
                                 <div>
-                                    <div class="fw-bold text-dark">
-                                        {{ $kurir->nama }}
-                                    </div>
-
+                                    <div class="fw-bold text-dark">{{ $kurir->nama }}</div>
                                     <small class="text-muted">
-                                        Kurir Internal
+                                        {{ isset($kurir->kendaraans) ? $kurir->kendaraans->count() : 0 }} Kendaraan Terdaftar
                                     </small>
                                 </div>
-
                             </div>
-
                         </td>
 
                         <td class="py-3">
-
-                            @php
-                            $kendaraan = strtolower($kurir->kendaraan ?? '');
-                            @endphp
-
-                            <span class="kendaraan-badge shadow-sm border border-success border-opacity-10">
-
-                                @if(str_contains($kendaraan, 'mobil') || str_contains($kendaraan, 'carry'))
-                                <i class="bi bi-car-front-fill me-1"></i>
-                                @elseif(str_contains($kendaraan, 'motor') || str_contains($kendaraan, 'beat') || str_contains($kendaraan, 'vario'))
-                                <i class="bi bi-bicycle me-1"></i>
-                                @else
-                                <i class="bi bi-truck me-1"></i>
-                                @endif
-
-                                {{ $kurir->kendaraan ?? '-' }}
-
-                            </span>
-
-                        </td>
-
-                        <td class="py-3">
-
                             <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $kurir->no_hp) }}"
-                                target="_blank"
-                                class="text-decoration-none text-secondary fw-medium">
-
+                                target="_blank" class="text-decoration-none text-secondary fw-medium">
                                 <i class="bi bi-whatsapp text-success me-1"></i>
-
                                 {{ $kurir->no_hp }}
-
                             </a>
-
                         </td>
 
                         <td class="py-3">
@@ -260,296 +238,169 @@
                         </td>
 
                         <td class="text-center py-3">
-
                             @if($kurir->status == 'aktif')
-
-                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
-                                Aktif
-                            </span>
-
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">Aktif</span>
                             @else
-
-                            <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
-                                Nonaktif
-                            </span>
-
+                            <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">Nonaktif</span>
                             @endif
-
                         </td>
 
                         <td class="text-center px-3 py-3">
-
                             <div class="d-flex justify-content-center gap-2">
+                                {{-- Tombol Garasi Kendaraan --}}
+                                <button type="button" class="btn btn-sm btn-action-garage rounded-pill px-3 fw-medium shadow-sm"
+                                    data-bs-toggle="modal" data-bs-target="#modalKendaraan{{ $kurir->id }}">
+                                    <i class="bi bi-car-front-fill me-1"></i> Garasi
+                                </button>
 
-                                <button class="btn btn-sm btn-outline-primary rounded-3"
+                                {{-- Tombol Edit --}}
+                                <button class="btn btn-sm btn-action-edit rounded-circle" style="width: 32px; height: 32px;"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#modalEditKurir{{ $kurir->id }}">
-
+                                    data-bs-target="#modalEditKurir"
+                                    data-id="{{ $kurir->id }}"
+                                    data-nama="{{ $kurir->nama }}"
+                                    data-nohp="{{ $kurir->no_hp }}"
+                                    data-status="{{ $kurir->status }}">
                                     <i class="bi bi-pencil"></i>
                                 </button>
 
-                                <form action="{{ route('admin.kurir.destroy', $kurir->id) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Hapus data kurir ini?')">
-
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit"
-                                        class="btn btn-sm btn-outline-danger rounded-3">
-
+                                {{-- Tombol Hapus --}}
+                                <form action="{{ route('admin.kurir.destroy', $kurir->id) }}" method="POST" class="m-0" onsubmit="return confirm('Hapus data kurir ini?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-action-delete rounded-circle" style="width: 32px; height: 32px;">
                                         <i class="bi bi-trash"></i>
                                     </button>
-
                                 </form>
-
                             </div>
-
                         </td>
-
                     </tr>
-
-                    <div class="modal fade"
-                        id="modalEditKurir{{ $kurir->id }}"
-                        tabindex="-1"
-                        data-bs-backdrop="static">
-
-                        <div class="modal-dialog modal-dialog-centered"
-                            style="max-width: 540px;">
-
-                            <div class="modal-content border-0 shadow-lg">
-
-                                <div class="modal-header border-0 p-3 p-md-4 pb-2">
-
-                                    <div>
-                                        <h5 class="fw-bold mb-1">
-                                            <i class="bi bi-pencil-square text-primary me-2"></i>
-                                            Edit Data Kurir
-                                        </h5>
-
-                                        <small class="text-muted">
-                                            Perbarui informasi kurir internal.
-                                        </small>
-                                    </div>
-
-                                    <button type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"></button>
-                                </div>
-
-                                <form action="{{ route('admin.kurir.update', $kurir->id) }}"
-                                    method="POST">
-
-                                    @csrf
-                                    @method('PUT')
-
-                                    <div class="modal-body p-3 p-md-4 pt-2">
-
-                                        <div class="mb-3">
-                                            <label class="form-label-bold">
-                                                Nama Kurir
-                                            </label>
-
-                                            <div class="input-group">
-                                                <span class="input-group-text input-group-text-custom">
-                                                    <i class="bi bi-person"></i>
-                                                </span>
-
-                                                <input type="text"
-                                                    name="nama"
-                                                    class="form-control input-clean input-clean-group"
-                                                    value="{{ $kurir->nama }}"
-                                                    required>
-                                            </div>
-                                        </div>
-
-                                        <div class="row g-3">
-
-                                            <div class="col-12 col-md-6 mb-1">
-
-                                                <label class="form-label-bold">
-                                                    No. WhatsApp
-                                                </label>
-
-                                                <div class="input-group">
-                                                    <span class="input-group-text input-group-text-custom">
-                                                        <i class="bi bi-phone"></i>
-                                                    </span>
-
-                                                    <input type="text"
-                                                        name="no_hp"
-                                                        class="form-control input-clean input-clean-group"
-                                                        value="{{ $kurir->no_hp }}"
-                                                        required>
-                                                </div>
-
-                                            </div>
-
-                                            <div class="col-12 col-md-6 mb-1">
-
-                                                <label class="form-label-bold">
-                                                    Status
-                                                </label>
-
-                                                <select name="status"
-                                                    class="form-select input-clean">
-
-                                                    <option value="aktif" {{ $kurir->status == 'aktif' ? 'selected' : '' }}>
-                                                        Aktif
-                                                    </option>
-
-                                                    <option value="nonaktif" {{ $kurir->status == 'nonaktif' ? 'selected' : '' }}>
-                                                        Nonaktif
-                                                    </option>
-
-                                                </select>
-
-                                            </div>
-
-                                        </div>
-
-                                        @php
-                                        $dbKendaraan = $kurir->kendaraan ?? '';
-                                        $isMobil = str_contains(strtolower($dbKendaraan), 'mobil');
-
-                                        $parts = explode(' - ', $dbKendaraan, 2);
-                                        if (count($parts) == 2) {
-                                        $platValue = $parts[1];
-                                        } else {
-                                        $platValue = trim(str_ireplace(['motor', 'mobil', '-'], '', $dbKendaraan));
-                                        }
-                                        @endphp
-
-                                        <div class="mb-2 mt-3">
-
-                                            <label class="form-label-bold">
-                                                Tipe Kendaraan & Detail
-                                            </label>
-
-                                            <div class="input-group">
-                                                <select id="jenis_edit_{{ $kurir->id }}" class="form-select input-clean" style="max-width: 130px; border-radius: 12px 0 0 12px; background-color: #f8fafc; font-weight: 600;" onchange="updateKendaraanEdit('{{ $kurir->id }}')">
-                                                    <option value="Motor" {{ !$isMobil ? 'selected' : '' }}>🏍️ Motor</option>
-                                                    <option value="Mobil" {{ $isMobil ? 'selected' : '' }}>🚗 Mobil</option>
-                                                </select>
-
-                                                <input type="text"
-                                                    id="plat_edit_{{ $kurir->id }}"
-                                                    class="form-control input-clean input-clean-group"
-                                                    value="{{ $platValue }}"
-                                                    placeholder="Cth: Beat - D 1234 XYZ"
-                                                    oninput="updateKendaraanEdit('{{ $kurir->id }}')"
-                                                    required>
-                                            </div>
-
-                                            <input type="hidden" name="kendaraan" id="hasil_kendaraan_edit_{{ $kurir->id }}" value="{{ $dbKendaraan }}">
-
-                                            <small class="petunjuk-admin">
-                                                Format akan digabung jadi "Motor - Beat D 1234 XYZ" untuk dilihat oleh pelanggan.
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="modal-footer border-0 p-3 p-md-4 pt-0 d-grid gap-2 d-sm-flex justify-content-sm-end">
-
-                                        <button type="button"
-                                            class="btn btn-light border rounded-pill px-4 w-100 w-sm-auto"
-                                            data-bs-dismiss="modal">
-                                            Batal
-                                        </button>
-
-                                        <button type="submit"
-                                            class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
-                                            <i class="bi bi-check-lg me-1"></i>
-                                            Simpan
-                                        </button>
-
-                                    </div>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
                     @empty
-
                     <tr>
-                        <td colspan="6"
-                            class="text-center text-muted py-5">
-                            Belum ada kurir terdaftar.
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <div class="py-4">
+                                <i class="bi bi-truck fs-1 text-muted opacity-50 mb-2 d-block"></i>
+                                Belum ada kurir terdaftar.
+                            </div>
                         </td>
                     </tr>
-
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-<div class="modal fade"
-    id="modalTambahKurir"
-    tabindex="-1"
-    data-bs-backdrop="static">
+{{-- 🌟 MODAL GARASI KENDARAAN (DI-LOOPING) 🌟 --}}
+@foreach($kurirs as $kurir)
+<div class="modal fade" id="modalKendaraan{{ $kurir->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0 mt-2 mx-2">
+                <h5 class="fw-bold text-dark"><i class="bi bi-car-front-fill text-primary me-2"></i>Garasi Kendaraan - {{ $kurir->nama }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
 
-    <div class="modal-dialog modal-dialog-centered"
-        style="max-width: 540px;">
-
-        <div class="modal-content border-0 shadow-lg">
-
-            <div class="modal-header border-0 p-3 p-md-4 pb-2">
-
-                <div>
-                    <h5 class="fw-bold mb-1">
-                        <i class="bi bi-plus-circle-fill text-success me-2"></i>
-                        Tambah Kurir Baru
-                    </h5>
-
-                    <small class="text-muted">
-                        Tambahkan data kurir internal baru.
-                    </small>
+                {{-- Form Tambah Kendaraan --}}
+                <div class="p-3 bg-light rounded-4 mb-4 border border-light-subtle shadow-sm">
+                    <h6 class="fw-bold small mb-3 text-secondary">Daftarkan Kendaraan Baru</h6>
+                    <form action="{{ route('admin.kurir.kendaraan.store', $kurir->id) }}" method="POST" class="row g-2 align-items-end">
+                        @csrf
+                        <div class="col-md-3">
+                            <label class="form-label-bold">Jenis</label>
+                            <select name="jenis_kendaraan" class="form-select input-clean" required>
+                                <option value="">Pilih...</option>
+                                <option value="Motor">🏍️ Motor</option>
+                                <option value="Mobil">🚗 Mobil</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-bold">Merk Kendaraan</label>
+                            <input type="text" name="merk_kendaraan" class="form-control input-clean" placeholder="Msl: Honda Beat" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-bold">Plat Nomor</label>
+                            <input type="text" name="plat_nomor" class="form-control input-clean font-monospace text-uppercase" placeholder="D 1234 ABC" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold" style="border-radius: 12px; height: 44px;" title="Tambahkan">
+                                <i class="bi bi-plus-lg"></i> Tambah
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
-                <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"></button>
-            </div>
+                {{-- Tabel Daftar Kendaraan --}}
+                <h6 class="fw-bold small mb-2 text-dark">Daftar Kendaraan Aktif ({{ isset($kurir->kendaraans) ? $kurir->kendaraans->count() : 0 }} Unit)</h6>
+                <div class="table-responsive border rounded-3">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-2 ps-3">Jenis</th>
+                                <th class="py-2">Merk Kendaraan</th>
+                                <th class="py-2">Plat Nomor</th>
+                                <th class="py-2 text-center" style="width: 100px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($kurir->kendaraans ?? [] as $kdr)
+                            <tr>
+                                <td class="py-2 ps-3 fw-bold">
+                                    <i class="bi {{ $kdr->jenis_kendaraan == 'Motor' ? 'bi-bicycle' : 'bi-car-front-fill' }} text-primary me-1"></i> {{ $kdr->jenis_kendaraan }}
+                                </td>
+                                <td class="py-2">{{ $kdr->merk_kendaraan }}</td>
+                                <td class="py-2"><span class="badge bg-secondary font-monospace">{{ $kdr->plat_nomor }}</span></td>
+                                <td class="py-2 text-center">
+                                    <form action="{{ route('admin.kurir.kendaraan.destroy', $kdr->id) }}" method="POST" onsubmit="return confirm('Hapus kendaraan ini dari garasi?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-2 rounded-2"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-muted small py-4">Belum ada kendaraan yang terdaftar di garasi ini.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
+{{-- MODAL TAMBAH KURIR --}}
+<div class="modal fade" id="modalTambahKurir" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 p-3 p-md-4 pb-2">
+                <div>
+                    <h5 class="fw-bold mb-1"><i class="bi bi-person-plus-fill text-success me-2"></i>Tambah Kurir Baru</h5>
+                    <small class="text-muted">Daftarkan akun kurir internal baru.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
             <form action="{{ route('admin.kurir.store') }}" method="POST">
                 @csrf
-
                 <div class="modal-body p-3 p-md-4 pt-2">
-
                     <div class="mb-3">
                         <label class="form-label-bold">Nama Lengkap Kurir</label>
                         <div class="input-group">
-                            <span class="input-group-text input-group-text-custom">
-                                <i class="bi bi-person"></i>
-                            </span>
-                            <input type="text" name="nama" class="form-control input-clean input-clean-group" placeholder="Masukkan nama kurir..." required>
+                            <span class="input-group-text input-group-text-custom"><i class="bi bi-person"></i></span>
+                            <input type="text" name="nama" class="form-control input-clean input-clean-group" placeholder="Masukkan nama..." required>
                         </div>
                     </div>
-
                     <div class="row g-3">
                         <div class="col-12 col-md-6 mb-1">
                             <label class="form-label-bold">No. WhatsApp</label>
                             <div class="input-group">
-                                <span class="input-group-text input-group-text-custom">
-                                    <i class="bi bi-phone"></i>
-                                </span>
+                                <span class="input-group-text input-group-text-custom"><i class="bi bi-phone"></i></span>
                                 <input type="text" name="no_hp" class="form-control input-clean input-clean-group" placeholder="08xxxxxxxxxx" required>
                             </div>
                         </div>
-
                         <div class="col-12 col-md-6 mb-1">
                             <label class="form-label-bold">Status Awal</label>
                             <select name="status" class="form-select input-clean">
@@ -559,59 +410,86 @@
                         </div>
                     </div>
 
-                    <div class="mb-2 mt-3">
-                        <label class="form-label-bold">Tipe Kendaraan & Detail</label>
-
-                        <div class="input-group">
-                            <select id="jenis_tambah" class="form-select input-clean" style="max-width: 130px; border-radius: 12px 0 0 12px; background-color: #f8fafc; font-weight: 600;" onchange="updateKendaraanTambah()">
-                                <option value="Motor">🏍️ Motor</option>
-                                <option value="Mobil">🚗 Mobil</option>
-                            </select>
-
-                            <input type="text" id="plat_tambah" class="form-control input-clean input-clean-group" placeholder="Cth: Beat - D 1234 XYZ" oninput="updateKendaraanTambah()" required>
-                        </div>
-
-                        <input type="hidden" name="kendaraan" id="hasil_kendaraan_tambah" value="Motor - ">
-
-                        <small class="petunjuk-admin mt-1">
-                            Isi dengan model kendaraan dan plat nomor (seperti Gojek/Grab) untuk ditunjukkan ke pelanggan.
-                        </small>
+                    <div class="alert alert-info border-0 bg-primary bg-opacity-10 mt-4 mb-0 rounded-3 small text-dark">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                        Setelah kurir dibuat, Anda bisa menambahkan Motor / Mobil di tombol <strong>Garasi</strong>.
                     </div>
-
                 </div>
-
-                <div class="modal-footer border-0 p-3 p-md-4 pt-0 d-grid gap-2 d-sm-flex justify-content-sm-end">
-                    <button type="button" class="btn btn-light border rounded-pill px-4 w-100 w-sm-auto" data-bs-dismiss="modal">
-                        Batal
-                    </button>
-
-                    <button type="submit" class="btn btn-success rounded-pill px-4 w-100 w-sm-auto">
-                        <i class="bi bi-check-lg me-1"></i>
-                        Simpan Kurir
-                    </button>
+                <div class="modal-footer border-top-0 p-3 p-md-4 pt-0 d-grid gap-2 d-sm-flex justify-content-sm-end">
+                    <button type="button" class="btn btn-light border rounded-pill px-4 w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 w-100 w-sm-auto"><i class="bi bi-check-lg me-1"></i>Simpan Kurir</button>
                 </div>
-
             </form>
-
         </div>
-
     </div>
-
 </div>
 
+{{-- MODAL EDIT KURIR --}}
+<div class="modal fade" id="modalEditKurir" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 p-3 p-md-4 pb-2">
+                <div>
+                    <h5 class="fw-bold mb-1"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Data Kurir</h5>
+                    <small class="text-muted">Perbarui informasi dasar kurir.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditKurir" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body p-3 p-md-4 pt-2">
+                    <div class="mb-3">
+                        <label class="form-label-bold">Nama Kurir</label>
+                        <div class="input-group">
+                            <span class="input-group-text input-group-text-custom"><i class="bi bi-person"></i></span>
+                            <input type="text" name="nama" id="edit-nama" class="form-control input-clean input-clean-group" required>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 mb-1">
+                            <label class="form-label-bold">No. WhatsApp</label>
+                            <div class="input-group">
+                                <span class="input-group-text input-group-text-custom"><i class="bi bi-phone"></i></span>
+                                <input type="text" name="no_hp" id="edit-nohp" class="form-control input-clean input-clean-group" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-1">
+                            <label class="form-label-bold">Status</label>
+                            <select name="status" id="edit-status" class="form-select input-clean">
+                                <option value="aktif">Aktif</option>
+                                <option value="nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 p-3 p-md-4 pt-0 d-grid gap-2 d-sm-flex justify-content-sm-end">
+                    <button type="button" class="btn btn-light border rounded-pill px-4 w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto"><i class="bi bi-check-lg me-1"></i>Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
 <script>
-    function updateKendaraanTambah() {
-        let jenis = document.getElementById('jenis_tambah').value;
-        let plat = document.getElementById('plat_tambah').value;
+    // Hanya mengatur data Kurir (Nama, HP, Status). Kendaraan diatur di Modal Garasi.
+    const modalEditKurir = document.getElementById('modalEditKurir');
+    if (modalEditKurir) {
+        modalEditKurir.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+            const nama = button.getAttribute('data-nama');
+            const nohp = button.getAttribute('data-nohp');
+            const status = button.getAttribute('data-status');
 
-        document.getElementById('hasil_kendaraan_tambah').value = jenis + ' - ' + plat;
-    }
-
-    function updateKendaraanEdit(id) {
-        let jenis = document.getElementById('jenis_edit_' + id).value;
-        let plat = document.getElementById('plat_edit_' + id).value;
-
-        document.getElementById('hasil_kendaraan_edit_' + id).value = jenis + ' - ' + plat;
+            document.getElementById('edit-nama').value = nama;
+            document.getElementById('edit-nohp').value = nohp;
+            document.getElementById('edit-status').value = status;
+            document.getElementById('formEditKurir').action = `/admin/kurir/update/${id}`;
+        });
     }
 </script>
+@endpush
 @endsection
