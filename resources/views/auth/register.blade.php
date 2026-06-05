@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Tani Cibiru - Premium Quality</title>
+    <title>Daftar Tani Cibiru</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -268,18 +268,57 @@
             }
         }
 
+        /* Responsive Tablet & Small Desktop */
         @media(max-width:900px) {
-
             .visual-side {
                 display: none;
             }
 
             .container {
                 max-width: 500px;
+                min-height: auto;
             }
 
             .form-side {
-                padding: 35px 25px;
+                padding: 40px 30px;
+            }
+        }
+
+        /* Responsive Mobile Phones */
+        @media(max-width:480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                border-radius: 20px;
+            }
+
+            .form-side {
+                padding: 30px 20px;
+            }
+
+            .form-header h2 {
+                font-size: 24px;
+            }
+
+            .form-header p {
+                font-size: 13px;
+            }
+
+            .input-field input {
+                padding: 12px 14px 12px 42px;
+                font-size: 13px;
+            }
+
+            .input-field i {
+                left: 14px;
+            }
+
+            .btn-main,
+            .btn-google {
+                padding: 12px;
+                font-size: 14px;
             }
         }
     </style>

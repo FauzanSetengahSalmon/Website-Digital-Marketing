@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'EFood - Produk Fresh dari Tangan Petani Local')
+@section('title', 'Tani Cibiru - Produk Fresh dari Tangan Petani Local')
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -214,6 +214,74 @@
         font-weight: 800;
     }
 </style>
+
+<style id="extra-responsive-fix">
+    @media (max-width: 991.98px) {
+
+        .hero-content,
+        .about-wrapper {
+            padding: 32px !important;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+
+        .hero-section,
+        .about-hero {
+            min-height: auto !important;
+            border-radius: 18px !important;
+        }
+
+        .hero-content,
+        .about-wrapper {
+            padding: 24px 18px !important;
+            text-align: center !important;
+        }
+
+        .hero-title,
+        .about-title {
+            font-size: 2rem !important;
+        }
+
+        .about-sub {
+            font-size: 1.2rem !important;
+        }
+
+        .section-title {
+            font-size: 1.6rem !important;
+        }
+
+        .cta-section {
+            padding: 24px !important;
+        }
+
+        .d-flex.gap-3 {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+
+        .hero-title,
+        .about-title {
+            font-size: 1.7rem !important;
+        }
+
+        .btn-green,
+        .btn-outline-green {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .col-6,
+        .col-md-3,
+        .col-md-4,
+        .col-lg-3 {
+            margin-bottom: .75rem;
+        }
+    }
+</style>
+
 @endpush
 
 @section('content')
@@ -222,7 +290,7 @@
 
 <div class="container fade-in-up">
 
-    {{-- HERO --}}
+
     <section class="hero-section shadow-sm">
         <div class="hero-content">
             <h1 class="hero-title">
@@ -247,7 +315,7 @@
         </div>
     </section>
 
-    {{-- PRODUK --}}
+
     <section class="py-4" id="produk">
 
         <div class="text-center mb-4">
@@ -264,7 +332,7 @@
             <div class="col-lg-3 col-md-4 col-6">
                 <div class="product-card border-0 shadow-sm">
 
-                    {{-- GAMBAR --}}
+
                     <div class="position-relative">
                         @if($product->foto_produk)
                         <img
@@ -283,10 +351,10 @@
                         </span>
                     </div>
 
-                    {{-- CONTENT --}}
+
                     <div class="p-3 d-flex flex-column flex-grow-1">
 
-                        {{-- KWT --}}
+
                         <div
                             class="d-inline-flex align-items-center gap-1 px-2 py-1 mb-1"
                             style="background-color:#f0fdf4; color:#2d7a22; border-radius:5px; font-size:0.65rem; font-weight:700; width: fit-content;">
@@ -296,24 +364,24 @@
                             </span>
                         </div>
 
-                        {{-- NAMA --}}
+
                         <h6 class="fw-bold text-dark mb-0 mt-1" style="font-size:0.9rem; line-height:1.4;">
                             {{ $product->nama_produk }}
                         </h6>
 
-                        {{-- 🌟 PERBAIKAN: Kotak Deskripsi Produk Elegan Terpisah --}}
+
                         <div class="desc-container">
                             <p class="product-description-text">
                                 {{ $product->deskripsi ?? 'Tidak ada deskripsi produk.' }}
                             </p>
                         </div>
 
-                        {{-- STOK --}}
+
                         <p class="text-secondary mb-2" style="font-size:0.75rem;">
                             Tersedia {{ $product->stok }} {{ $product->satuan }}
                         </p>
 
-                        {{-- HARGA --}}
+
                         <div class="mt-auto mb-2">
                             <span class="fw-bold" style="color:#2d7a22; font-size:1.05rem;">
                                 Rp. {{ number_format($product->harga, 0, ',', '.') }}
@@ -323,10 +391,10 @@
                             </span>
                         </div>
 
-                        {{-- BUTTON --}}
+
                         <div class="d-flex gap-2 mt-2">
                             @if($product->stok > 0)
-                            {{-- BELI --}}
+
                             <button
                                 type="button"
                                 class="btn-buy-now handle-cart"
@@ -336,7 +404,7 @@
                                 Beli
                             </button>
 
-                            {{-- CART --}}
+
                             <button
                                 type="button"
                                 class="btn-cart-outline handle-cart"
@@ -369,7 +437,7 @@
 
     </section>
 
-    {{-- CTA --}}
+
     <section class="py-5">
         <div class="container">
             <div class="cta-section text-center p-5 shadow">
@@ -394,7 +462,7 @@
 
 </div>
 
-{{-- SCRIPT --}}
+
 <script>
     document.querySelectorAll('.handle-cart').forEach(button => {
         button.addEventListener('click', function() {

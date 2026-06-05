@@ -174,25 +174,24 @@ default => 'bg-primary-subtle text-primary'
     </div>
     @endif
 
-    <div class="row">
+    <div class="row g-4">
 
         {{-- FORM PROFILE --}}
-        <div class="col-xl-8">
+        <div class="col-12 col-lg-8">
 
-            <div class="profile-card shadow-sm mb-4">
+            <div class="profile-card shadow-sm mb-0">
 
                 <div class="profile-header-kwt text-white">
+                    <div class="d-flex flex-column flex-sm-row align-items-center gap-3 text-center text-sm-start">
 
-                    <div class="d-flex align-items-center gap-3">
-
-                        <div class="bg-white rounded-3 d-flex align-items-center justify-content-center"
+                        <div class="bg-white rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
                             style="width: 50px; height: 50px;">
 
                             <i class="bi bi-person-vcard text-success fs-4"></i>
                         </div>
 
                         <div>
-                            <h5 class="fw-bold mb-0">
+                            <h5 class="fw-bold mb-1">
                                 Informasi Akun
                             </h5>
 
@@ -213,7 +212,7 @@ default => 'bg-primary-subtle text-primary'
                         <div class="row g-3">
 
                             {{-- NAME --}}
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Nama
                                 </label>
@@ -231,8 +230,9 @@ default => 'bg-primary-subtle text-primary'
                                     *Nama sesuai dengan KWTnya, agar mudah dikenali pelanggan
                                 </small>
                             </div>
+
                             {{-- EMAIL --}}
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Email
                                 </label>
@@ -251,7 +251,7 @@ default => 'bg-primary-subtle text-primary'
                             </div>
 
                             {{-- PHONE --}}
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Nomor WhatsApp
                                 </label>
@@ -272,9 +272,9 @@ default => 'bg-primary-subtle text-primary'
                         </div>
 
                         {{-- BUTTON --}}
-                        <div class="mt-4">
+                        <div class="mt-4 d-grid d-md-block">
                             <button type="submit"
-                                class="btn-thin btn-update shadow-sm">
+                                class="btn-thin btn-update shadow-sm py-2">
 
                                 <i class="bi bi-save me-1"></i>
                                 Simpan Profil
@@ -288,7 +288,7 @@ default => 'bg-primary-subtle text-primary'
         </div>
 
         {{-- SIDEBAR --}}
-        <div class="col-xl-4">
+        <div class="col-12 col-lg-4">
 
             <div class="profile-card shadow-sm p-4 text-center">
 
@@ -360,14 +360,11 @@ default => 'bg-primary-subtle text-primary'
 
                     <p class="mb-2">
                         <i class="bi bi-calendar-check me-2 text-success"></i>
-
-                        Bergabung:
-                        {{ Auth::user()->created_at->format('d M Y') }}
+                        Bergabung: {{ Auth::user()->created_at->format('d M Y') }}
                     </p>
 
-                    <p class="mb-0">
+                    <p class="mb-0 text-break">
                         <i class="bi bi-envelope me-2 text-success"></i>
-
                         {{ Auth::user()->email }}
                     </p>
 
@@ -376,12 +373,9 @@ default => 'bg-primary-subtle text-primary'
             </div>
 
             {{-- INFO --}}
-            <div class="mt-3 p-3 bg-warning-subtle text-warning-emphasis small rounded-3 border border-warning-subtle">
-
+            <div class="mt-3 p-3 bg-warning-subtle text-warning-emphasis small rounded-3 border border-warning-subtle text-center text-md-start">
                 <i class="bi bi-info-circle-fill me-2"></i>
-
                 Klik foto atau ikon kamera untuk mengganti foto profil Anda.
-
             </div>
 
         </div>

@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-    /* Style tetap sama */
     .kwt-card {
         transition: transform 0.2s;
         border: none;
@@ -91,75 +90,73 @@
 </style>
 
 <div class="container-fluid py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
             <div class="kwt-name-badge shadow-sm text-uppercase">
                 <i class="bi bi-house-heart me-1"></i> {{ Auth::user()->name }}
             </div>
-            <h2 class="fw-bold text-dark mb-0">Selamat Pagi!</h2>
-            <p class="text-muted mb-0">Berikut adalah laporan usaha kita hari ini.</p>
+            <h2 class="fw-bold text-dark mb-0 fs-3 fs-md-2">Selamat Pagi!</h2>
+            <p class="text-muted mb-0 small md-base">Berikut adalah laporan usaha kita hari ini.</p>
         </div>
-        <div class="text-md-end">
-            <span class="badge bg-white text-success border border-success px-3 py-2 rounded-pill shadow-sm">
+        <div class="text-start text-md-end w-100 w-md-auto">
+            <span class="badge bg-white text-success border border-success px-3 py-2 rounded-pill shadow-sm d-inline-block">
                 <i class="bi bi-check-circle-fill me-1"></i> Sistem Aktif
             </span>
             <div class="small text-muted mt-1"><i class="bi bi-calendar3 me-1"></i> {{ date('d F Y') }}</div>
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-green p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
+    <div class="row g-3 g-md-4 mb-5">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-green p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div class="text-break">
                         <small class="text-sm-custom fw-bold text-uppercase opacity-75">Hasil Penjualan</small>
-                        <h3 class="fw-bold mb-0 mt-1">Rp {{ number_format($stats['total_received'], 0, ',', '.') }}</h3>
+                        <h3 class="fw-bold mb-0 mt-1 fs-4 fs-xl-3">Rp {{ number_format($stats['total_received'], 0, ',', '.') }}</h3>
                     </div>
-                    <div class="icon-shape shadow-sm"><i class="bi bi-wallet2 text-white"></i></div>
+                    <div class="icon-shape shadow-sm flex-shrink-0"><i class="bi bi-wallet2 text-white"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-blue p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-blue p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div class="text-break">
                         <small class="text-sm-custom fw-bold text-uppercase opacity-75">Produk Terjual</small>
-                        <h3 class="fw-bold mb-0 mt-1">{{ $stats['sold_count'] }} <span class="fs-6 fw-normal">Item</span></h3>
+                        <h3 class="fw-bold mb-0 mt-1 fs-4 fs-xl-3">{{ $stats['sold_count'] }} <span class="fs-6 fw-normal">Item</span></h3>
                     </div>
-                    <div class="icon-shape shadow-sm"><i class="bi bi-cart-check text-white"></i></div>
+                    <div class="icon-shape shadow-sm flex-shrink-0"><i class="bi bi-cart-check text-white"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-purple p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-purple p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div class="text-break">
                         <small class="text-sm-custom fw-bold text-uppercase opacity-75">Total Produk</small>
-                        <h3 class="fw-bold mb-0 mt-1">{{ $stats['total_products'] }} <span class="fs-6 fw-normal">Jenis</span></h3>
+                        <h3 class="fw-bold mb-0 mt-1 fs-4 fs-xl-3">{{ $stats['total_products'] }} <span class="fs-6 fw-normal">Jenis</span></h3>
                     </div>
-                    <div class="icon-shape shadow-sm"><i class="bi bi-box-seam text-white"></i></div>
+                    <div class="icon-shape shadow-sm flex-shrink-0"><i class="bi bi-box-seam text-white"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-orange p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card kwt-card shadow-sm rounded-4 bg-gradient-orange p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div class="text-break">
                         <small class="text-sm-custom fw-bold text-uppercase opacity-75">Pesanan Masuk</small>
-                        <h3 class="fw-bold mb-0 mt-1">{{ $stats['pending_orders'] }} <span class="fs-6 fw-normal">Baru</span></h3>
+                        <h3 class="fw-bold mb-0 mt-1 fs-4 fs-xl-3">{{ $stats['pending_orders'] }} <span class="fs-6 fw-normal">Baru</span></h3>
                     </div>
-                    <div class="icon-shape shadow-sm"><i class="bi bi-bell-fill text-white"></i></div>
+                    <div class="icon-shape shadow-sm flex-shrink-0"><i class="bi bi-bell-fill text-white"></i></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row align-items-center bg-white mx-1 rounded-4 shadow-sm p-4 border-top border-success border-4 overflow-hidden">
-
-        <!-- ILUSTRASI -->
         <div class="col-md-4 text-center">
             <div class="illustration-wrapper">
                 <img
@@ -169,27 +166,24 @@
             </div>
         </div>
 
-        <!-- TEXT -->
         <div class="col-md-8 text-center text-md-start mt-4 mt-md-0">
-            <h4 class="fw-bold text-dark">
+            <h4 class="fw-bold text-dark text-break">
                 Laporan Bisnis {{ Auth::user()->name }}
             </h4>
 
-            <p class="text-muted small mb-3">
+            <p class="text-muted small mb-3 text-break">
                 Semua data di atas adalah hasil kerja keras kelompok kita.
                 Mari terus menjaga kualitas produk dan meningkatkan penjualan setiap harinya.
             </p>
 
             <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
                 <a href="{{ route('kwt.orders') }}"
-                    class="btn btn-success rounded-pill px-4 shadow-sm">
-
+                    class="btn btn-success rounded-pill px-4 shadow-sm w-100 w-sm-auto">
                     <i class="bi bi-receipt me-2"></i>
                     Periksa Pesanan
                 </a>
             </div>
         </div>
-
     </div>
 </div>
 @endsection

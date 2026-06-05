@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - EFood Premium</title>
+    <title>Masuk - Tani Cibiru</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,7 +49,6 @@
             animation: slideUp 0.6s ease-out;
         }
 
-        /* --- Left Side: Form --- */
         .form-side {
             flex: 1;
             padding: 60px;
@@ -75,7 +74,6 @@
             margin-top: 8px;
         }
 
-        /* Input Styling */
         .input-group {
             margin-bottom: 20px;
         }
@@ -133,11 +131,6 @@
             animation: fadeIn 0.3s ease;
         }
 
-        .input-error i {
-            font-size: 14px;
-        }
-
-        /* Forgot Password */
         .forgot-pw {
             text-align: right;
             margin-top: -10px;
@@ -151,7 +144,6 @@
             font-weight: 600;
         }
 
-        /* Buttons */
         .btn-login {
             width: 100%;
             background: var(--primary);
@@ -219,23 +211,14 @@
             border-color: #d1d5db;
         }
 
-        /* --- Right Side: Image --- */
         .image-side {
             flex: 1.2;
-            background:
-                linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
-                url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200') center/cover;
+            background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200') center/cover;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             padding: 50px;
             color: white;
-        }
-
-        .image-text h3 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
         }
 
         .footer {
@@ -249,6 +232,18 @@
             color: var(--primary);
             text-decoration: none;
             font-weight: 700;
+        }
+
+        .success-alert {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         @keyframes slideUp {
@@ -288,22 +283,28 @@
                 padding: 40px 30px;
             }
         }
+
+        @media (max-width: 480px) {
+            .header h2 {
+                font-size: 26px;
+            }
+
+            .form-side {
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <div class="container">
-
-        <!-- FORM SIDE -->
         <div class="form-side">
-
             <div class="header">
                 <h2>Selamat Datang!</h2>
                 <p>Masuk untuk melanjutkan belanja sehat Anda.</p>
             </div>
 
-            {{-- SUCCESS MESSAGE --}}
             @if (session('success'))
             <div class="success-alert">
                 <i class="fa-solid fa-circle-check"></i>
@@ -313,22 +314,12 @@
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf
-
-                <!-- EMAIL -->
                 <div class="input-group">
                     <label class="label">Alamat Email</label>
-
                     <div class="input-box">
                         <i class="fa-regular fa-envelope"></i>
-
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="nama@email.com"
-                            value="{{ old('email') }}"
-                            required>
+                        <input type="email" name="email" placeholder="nama@email.com" value="{{ old('email') }}" required>
                     </div>
-
                     @error('email')
                     <div class="input-error">
                         <i class="fa-solid fa-circle-exclamation"></i>
@@ -337,20 +328,12 @@
                     @enderror
                 </div>
 
-                <!-- PASSWORD -->
                 <div class="input-group">
                     <label class="label">Password</label>
-
                     <div class="input-box">
                         <i class="fa-solid fa-lock-open"></i>
-
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="••••••••"
-                            required>
+                        <input type="password" name="password" placeholder="••••••••" required>
                     </div>
-
                     @error('password')
                     <div class="input-error">
                         <i class="fa-solid fa-circle-exclamation"></i>
@@ -363,42 +346,28 @@
                     <a href="{{ route('password.request') }}">Lupa Password?</a>
                 </div>
 
-                <!-- LOGIN BUTTON -->
-                <button type="submit" class="btn-login">
-                    Masuk Sekarang
-                </button>
+                <button type="submit" class="btn-login">Masuk Sekarang</button>
 
                 <div class="divider">Atau masuk dengan</div>
 
-                <!-- GOOGLE LOGIN -->
                 <a href="/auth/google" class="btn-google">
                     <img src="image/google.png" width="20" alt="Google">
                     Akun Google
                 </a>
-
             </form>
 
             <div class="footer">
-                Belum bergabung?
-                <a href="/register">Buat akun baru</a>
+                Belum bergabung? <a href="/register">Buat akun baru</a>
             </div>
-
         </div>
 
-        <!-- IMAGE SIDE -->
         <div class="image-side">
             <div class="image-text">
                 <h3>Segar & Organik</h3>
-
-                <p>
-                    Membawa hasil tani terbaik langsung ke pintu rumah Anda
-                    dengan kasih sayang.
-                </p>
+                <p>Membawa hasil tani terbaik langsung ke pintu rumah Anda dengan kasih sayang.</p>
             </div>
         </div>
-
     </div>
-
 </body>
 
 </html>

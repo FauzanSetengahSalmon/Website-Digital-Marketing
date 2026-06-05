@@ -31,13 +31,13 @@
 
         <div class="row g-3">
             @forelse($list_kurir as $kurir)
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-sm-4 col-md-3">
                 <a href="{{ route('admin.kurir.laporan', $kurir->id) }}"
                     class="text-decoration-none">
 
-                    <div class="card border-0 shadow-sm rounded-4 kwt-card transition-all overflow-hidden">
+                    <div class="card border-0 shadow-sm rounded-4 kwt-card transition-all overflow-hidden h-100">
 
-                        <div class="card-body p-3 text-center">
+                        <div class="card-body p-3 text-center d-flex flex-column justify-content-center">
 
                             <div class="avatar-lg bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold fs-4"
                                 style="width: 55px; height: 55px;">
@@ -48,11 +48,11 @@
                                 {{ $kurir->nama }}
                             </h6>
 
-                            <small class="text-muted d-block mb-2">
+                            <small class="text-muted d-block mb-2 text-truncate">
                                 {{ $kurir->kendaraan ?? 'Kurir Pengiriman' }}
                             </small>
 
-                            <small class="text-primary fw-semibold">
+                            <small class="text-primary fw-semibold mt-auto">
                                 Lihat Laporan &raquo;
                             </small>
 
@@ -82,7 +82,6 @@
     <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4">
         <i class="bi bi-check-circle-fill me-2"></i>
         {{ session('success') }}
-
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
@@ -104,118 +103,122 @@
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle mb-0 table-hover">
+        <div class="card-body p-0 mt-3">
+            <div class="table-responsive">
+                {{-- Penambahan text-nowrap agar tabel rapi saat digeser di HP --}}
+                <table class="table align-middle mb-0 table-hover text-nowrap">
 
-                <thead class="bg-light border-bottom text-uppercase tracking-wider fs-8 fw-bold text-secondary">
-                    <tr>
-                        <th class="ps-4 py-3">Kurir</th>
-                        <th class="py-3">Kendaraan</th>
-                        <th class="py-3">Kontak WhatsApp</th>
-                        <th class="py-3 text-end">Total Pendapatan <i class="bi bi-info-circle ms-1" title="Termasuk tarif jarak & tambahan kapasitas bawaan" style="cursor:help;"></i></th>
-                        <th class="py-3 text-center">Status Aktivitas</th>
-                        <th class="py-3">Tanggal Gabung</th>
-                    </tr>
-                </thead>
+                    <thead class="bg-light border-bottom text-uppercase tracking-wider fs-8 fw-bold text-secondary">
+                        <tr>
+                            <th class="ps-4 py-3">Kurir</th>
+                            <th class="py-3">Kendaraan</th>
+                            <th class="py-3">Kontak WhatsApp</th>
+                            <th class="py-3 text-end">Total Pendapatan <i class="bi bi-info-circle ms-1" title="Termasuk tarif jarak & tambahan kapasitas bawaan" style="cursor:help;"></i></th>
+                            <th class="py-3 text-center">Status Aktivitas</th>
+                            <th class="py-3 pe-4">Tanggal Gabung</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
+                    <tbody>
 
-                    @forelse($list_kurir as $kurir)
-                    @php
-                    // Menghitung pendapatan langsung dari tabel orders yang sudah selesai[cite: 1]
-                    $pendapatan = \App\Models\Order::where('kurir', $kurir->nama)
-                    ->where('status', 'selesai')
-                    ->sum('ongkir');
-                    @endphp
-                    <tr class="border-bottom border-light">
+                        @forelse($list_kurir as $kurir)
+                        @php
+                        // Menghitung pendapatan langsung dari tabel orders yang sudah selesai
+                        $pendapatan = \App\Models\Order::where('kurir', $kurir->nama)
+                        ->where('status', 'selesai')
+                        ->sum('ongkir');
+                        @endphp
+                        <tr class="border-bottom border-light">
 
-                        {{-- KURIR --}}
-                        <td class="ps-4 py-3">
-                            <div class="d-flex align-items-center gap-2">
+                            {{-- KURIR --}}
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-2">
 
-                                <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                                    style="width: 40px; height: 40px;">
-                                    {{ substr($kurir->nama, 0, 1) }}
+                                    <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                        style="width: 40px; height: 40px; flex-shrink: 0;">
+                                        {{ substr($kurir->nama, 0, 1) }}
+                                    </div>
+
+                                    <div>
+                                        <span class="fw-bold text-dark d-block">
+                                            {{ $kurir->nama }}
+                                        </span>
+
+                                        <small class="text-muted">
+                                            Armada Kurir
+                                        </small>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            {{-- KENDARAAN --}}
+                            <td class="py-3">
+                                {{-- Mengubah py-1.5 menjadi py-1 karena 1.5 tidak valid di Bootstrap --}}
+                                <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-1 fw-semibold fs-8">
+                                    {{ $kurir->kendaraan ?? 'Belum Diatur' }}
+                                </span>
+                            </td>
+
+                            {{-- KONTAK --}}
+                            <td class="py-3">
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $kurir->no_hp) }}" target="_blank" class="text-decoration-none font-monospace small text-secondary">
+                                    <i class="bi bi-whatsapp text-success me-1"></i> {{ $kurir->no_hp ?? '-' }}
+                                </a>
+                            </td>
+
+                            {{-- TOTAL PENDAPATAN (RINCIAN VOLUME) --}}
+                            <td class="py-3 text-end">
+                                <span class="fw-bold text-success fs-6">
+                                    Rp {{ number_format($pendapatan, 0, ',', '.') }}
+                                </span>
+                                <small class="d-block text-muted mt-1" style="font-size: 0.7rem;">(Jarak + Volume)</small>
+                            </td>
+
+                            {{-- STATUS --}}
+                            <td class="py-3 text-center">
+                                @if($kurir->status == 'aktif')
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Aktif
+                                </span>
+                                @else
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8">
+                                    <i class="bi bi-x-circle-fill me-1"></i> Nonaktif
+                                </span>
+                                @endif
+                            </td>
+
+                            {{-- TANGGAL GABUNG --}}
+                            <td class="py-3 pe-4 text-secondary fs-7">
+                                <i class="bi bi-calendar3 me-1 text-muted"></i>
+                                {{ $kurir->created_at ? $kurir->created_at->format('d M Y') : '-' }}
+                            </td>
+
+                        </tr>
+
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+
+                                <div class="py-4">
+                                    <i class="bi bi-inbox fs-1 opacity-50 d-block mb-3"></i>
+
+                                    <h6 class="fw-bold text-dark">
+                                        Belum Ada Data Kurir
+                                    </h6>
+
+                                    <p class="small text-muted mb-0">
+                                        Daftar armada kurir yang ditambahkan akan muncul di sini.
+                                    </p>
                                 </div>
 
-                                <div>
-                                    <span class="fw-bold text-dark d-block">
-                                        {{ $kurir->nama }}
-                                    </span>
+                            </td>
+                        </tr>
+                        @endforelse
 
-                                    <small class="text-muted">
-                                        Armada Kurir
-                                    </small>
-                                </div>
-
-                            </div>
-                        </td>
-
-                        {{-- KENDARAAN --}}
-                        <td class="py-3">
-                            <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-1.5 fw-semibold fs-8">
-                                {{ $kurir->kendaraan ?? 'Belum Diatur' }}
-                            </span>
-                        </td>
-
-                        {{-- KONTAK --}}
-                        <td class="py-3">
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $kurir->no_hp) }}" target="_blank" class="text-decoration-none font-monospace small text-secondary">
-                                <i class="bi bi-whatsapp text-success me-1"></i> {{ $kurir->no_hp ?? '-' }}
-                            </a>
-                        </td>
-
-                        {{-- TOTAL PENDAPATAN (RINCIAN VOLUME) --}}
-                        <td class="py-3 text-end">
-                            <span class="fw-bold text-success fs-6">
-                                Rp {{ number_format($pendapatan, 0, ',', '.') }}
-                            </span>
-                            <small class="d-block text-muted mt-1" style="font-size: 0.7rem;">(Jarak + Volume Barang)</small>
-                        </td>
-
-                        {{-- STATUS --}}
-                        <td class="py-3 text-center">
-                            @if($kurir->status == 'aktif')
-                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8">
-                                <i class="bi bi-check-circle-fill me-1"></i> Aktif
-                            </span>
-                            @else
-                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-bold text-uppercase fs-8">
-                                <i class="bi bi-x-circle-fill me-1"></i> Nonaktif
-                            </span>
-                            @endif
-                        </td>
-
-                        {{-- TANGGAL GABUNG --}}
-                        <td class="py-3 text-secondary fs-7">
-                            <i class="bi bi-calendar3 me-1 text-muted"></i>
-                            {{ $kurir->created_at ? $kurir->created_at->format('d M Y') : '-' }}
-                        </td>
-
-                    </tr>
-
-                    @empty
-                    <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-
-                            <div class="py-4">
-                                <i class="bi bi-inbox fs-1 opacity-50 d-block mb-3"></i>
-
-                                <h6 class="fw-bold text-dark">
-                                    Belum Ada Data Kurir
-                                </h6>
-
-                                <p class="small text-muted mb-0">
-                                    Daftar armada kurir yang ditambahkan akan muncul di sini.
-                                </p>
-                            </div>
-
-                        </td>
-                    </tr>
-                    @endforelse
-
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -253,6 +256,16 @@
 
     .table-hover tbody tr:hover {
         background-color: #fcfdfe !important;
+    }
+
+    /* Tambahan agar scrollbar tabel di HP tidak terlalu memakan tempat */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
     }
 </style>
 @endsection

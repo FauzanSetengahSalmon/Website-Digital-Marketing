@@ -296,6 +296,13 @@
             .brand-logo-wrap {
                 font-size: 18px;
             }
+
+            /* Penyesuaian agar tombol auth tidak kepanjangan di layar sangat kecil */
+            .btn-masuk,
+            .btn-daftar {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -307,7 +314,7 @@
     <nav class="navbar-efood">
         <div class="container">
 
-            <div class="navbar-inner">
+            <div class="navbar-inner w-100">
 
                 {{-- BRAND --}}
                 <a href="{{ route('home') }}" class="brand-logo-wrap text-decoration-none d-flex align-items-center" style="gap: 10px;">
@@ -387,11 +394,11 @@
 
                     <div class="dropdown">
 
-                        <button class="btn-daftar dropdown-toggle"
+                        <button class="btn-daftar dropdown-toggle d-flex align-items-center gap-1"
                             data-bs-toggle="dropdown">
 
-                            <i class="bi bi-person-circle me-1"></i>
-                            {{ Auth::user()->name }}
+                            <i class="bi bi-person-circle"></i>
+                            <span class="d-none d-sm-inline">{{ Auth::user()->name }}</span>
 
                         </button>
 
@@ -448,12 +455,55 @@
 
                     @endauth
 
+                    {{-- TOMBOL TOGGLE UNTUK MOBILE --}}
+                    <button class="btn btn-cart d-lg-none border-success text-success bg-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+
                 </div>
 
             </div>
 
         </div>
     </nav>
+
+    {{-- ================= OFFCANVAS MOBILE MENU ================= --}}
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header border-bottom border-success-subtle">
+            <h5 class="offcanvas-title fw-bold text-success d-flex align-items-center gap-2" id="mobileMenuLabel">
+                <i class="bi bi-leaf"></i> Tani Cibiru
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="nav flex-column gap-2 mt-2">
+                <li>
+                    <a class="nav-link-efood d-block w-100 {{ request()->is('/') ? 'active' : '' }}"
+                        href="{{ route('home') }}">
+                        <i class="bi bi-house-door me-2"></i> Beranda
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link-efood d-block w-100 {{ request()->is('katalog*') ? 'active' : '' }}"
+                        href="{{ route('customer.katalog') }}">
+                        <i class="bi bi-shop me-2"></i> Katalog
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link-efood d-block w-100 {{ request()->is('riwayat-pesanan*') ? 'active' : '' }}"
+                        href="{{ route('orders.history') }}">
+                        <i class="bi bi-clock-history me-2"></i> Riwayat
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link-efood d-block w-100 {{ request()->is('tentang-kami') ? 'active' : '' }}"
+                        href="{{ route('about') }}">
+                        <i class="bi bi-info-circle me-2"></i> Tentang Kami
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
     {{-- ================= CONTENT ================= --}}
 
@@ -492,7 +542,8 @@
                         </div>
                     </a> -->
                     {{-- BRAND --}}
-                    <div class="col-12 col-md-4">
+                    {{-- Tambahan kelas mb-4 mb-md-0 untuk mencegah elemen menempel di layar HP --}}
+                    <div class="col-12 col-md-4 mb-4 mb-md-0">
                         <div class="footer-brand-wrap">
                             {{-- Container Logo --}}
                             <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -522,7 +573,7 @@
 
                     </div>
                     {{-- BUG --}}
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-4 mb-4 mb-md-0">
                         <p class="footer-heading">Laporkan Bug</p>
 
                         <form action="{{ route('bug.report') }}" method="POST">
@@ -551,7 +602,7 @@
                         </p>
                     </div>
                     {{-- LINK --}}
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-2 mb-3 mb-md-0">
 
                         <p class="footer-heading">
                             Navigasi
@@ -575,7 +626,7 @@
                     </div>
 
                     {{-- QUICK --}}
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-2 mb-3 mb-md-0">
 
                         <p class="footer-heading">
                             Cepat

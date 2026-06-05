@@ -99,7 +99,7 @@
             <h5 class="fw-bold text-dark mb-3"><i class="bi bi-funnel text-success me-2"></i>Filter Laporan KWT</h5>
             <form action="{{ route('admin.kwt.laporan', $kwt->id) }}" method="GET">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-5">
+                    <div class="col-12 col-md-5">
                         <label class="form-label small fw-semibold text-muted mb-2">Bulan</label>
                         <select name="month" class="form-select rounded-3 border-secondary-subtle py-2">
                             @for($m=1; $m<=12; $m++)
@@ -108,7 +108,7 @@
                                 @endfor
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Tahun</label>
                         <select name="year" class="form-select rounded-3 border-secondary-subtle py-2">
                             @for($y=2024; $y<=max(2024, date('Y')); $y++)
@@ -116,7 +116,7 @@
                                 @endfor
                         </select>
                     </div>
-                    <div class="col-md-3 d-flex gap-2">
+                    <div class="col-12 col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-success rounded-3 w-100 py-2 fw-semibold shadow-sm"><i class="bi bi-filter me-1"></i> Terapkan</button>
                         <a href="{{ route('admin.kwt.laporan', $kwt->id) }}" class="btn btn-outline-secondary rounded-3 py-2 px-3"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
@@ -138,17 +138,17 @@
     <form id="formCairkan" action="{{ route('admin.kwt.cairkan', $kwt->id) }}" method="POST">
         @csrf
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
-            <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <h5 class="fw-bold text-dark mb-0">
                     <i class="bi bi-shop text-success me-2"></i>Riwayat Transaksi Hasil Tani
                 </h5>
 
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <button type="button" id="btn-cetak-terpilih" class="btn btn-warning btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalCairkan" disabled>
-                        <i class="bi bi-wallet2"></i> Cairkan & Cetak Pilihan
+                <div class="d-flex align-items-center gap-2 flex-wrap w-100 w-md-auto">
+                    <button type="button" id="btn-cetak-terpilih" class="btn btn-warning btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold flex-grow-1 flex-md-grow-0 justify-content-center" data-bs-toggle="modal" data-bs-target="#modalCairkan" disabled>
+                        <i class="bi bi-wallet2"></i> Cetak Pilihan
                     </button>
-                    <button type="button" id="btn-cetak-semua" class="btn btn-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" {{ $pendingCount == 0 ? 'disabled' : '' }}>
-                        <i class="bi bi-cash-coin"></i> Cairkan & Cetak Semua
+                    <button type="button" id="btn-cetak-semua" class="btn btn-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold flex-grow-1 flex-md-grow-0 justify-content-center" {{ $pendingCount == 0 ? 'disabled' : '' }}>
+                        <i class="bi bi-cash-coin"></i> Cetak Semua
                     </button>
                 </div>
             </div>
@@ -179,7 +179,8 @@
 
             <div class="card-body p-0 mt-3">
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0 table-hover" id="interactive-table">
+                    {{-- PENAMBAHAN CLASS text-nowrap --}}
+                    <table class="table align-middle mb-0 table-hover text-nowrap" id="interactive-table">
                         <thead class="table-light text-uppercase tracking-wider fs-7">
                             <tr>
                                 <th class="ps-4 py-3" style="width: 40px;" title="Pilih Semua yang Belum Cair">
@@ -212,7 +213,6 @@
                             <tr class="data-row {{ $rowClass }}" data-id="{{ $order->id }}" data-date="{{ $order->created_at->timestamp }}" data-status-text="{{ $order->status }}" data-subtotal="{{ $subtotalKwt }}">
                                 <td class="ps-4 py-3">
                                     @if($isCair)
-                                    {{-- PERBAIKAN: Menambahkan value dan data attributes agar Javascript tetap bisa membaca data ini saat dicetak otomatis --}}
                                     <input type="checkbox" class="form-check-input bg-secondary border-secondary shadow-none order-checkbox-disabled" value="{{ $order->id }}" data-subtotal-kwt="{{ $subtotalKwt }}" data-items-count="{{ $kwtDetails->sum('jumlah') }}" disabled checked style="cursor: not-allowed;">
                                     @else
                                     <input type="checkbox" name="order_ids[]" class="form-check-input order-checkbox shadow-sm border-secondary" value="{{ $order->id }}" data-subtotal-kwt="{{ $subtotalKwt }}" data-items-count="{{ $kwtDetails->sum('jumlah') }}" {{ $order->status == 'selesai' ? '' : 'disabled' }} style="cursor: pointer;">
@@ -224,7 +224,7 @@
                                 <td class="py-3">
                                     <div class="fw-semibold {{ $isCair ? 'text-muted' : 'text-dark' }}">{{ $order->user->name ?? 'Masyarakat' }}</div>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3" style="white-space: normal; min-width: 200px;"> {{-- Memaksa rincian produk bisa wrap agar tabel tidak terlalu panjang ke samping --}}
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach($kwtDetails as $d)
                                         <span class="badge bg-white {{ $isCair ? 'text-muted border-secondary' : 'text-dark border-secondary-subtle' }} border px-2 py-1 rounded small">
@@ -272,7 +272,7 @@
     </form>
 </div>
 
-{{-- AREA CETAKAN --}}
+{{-- AREA CETAKAN (Tetap sama) --}}
 <div class="print-only">
     <div class="print-header d-flex justify-content-between align-items-center pb-4 mb-4 border-bottom border-2 border-dark">
         <div>
@@ -423,6 +423,16 @@
 
     .table tbody tr:hover {
         background-color: rgba(5, 150, 105, 0.02) !important;
+    }
+
+    /* Penambahan CSS Custom Scrollbar untuk Mobile */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
     }
 
     .print-only {

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
@@ -9,101 +9,106 @@
 <style>
     body {
         font-family: 'Inter', sans-serif;
-        background: #f4f4f4;
+        background-color: #f8faf9;
         color: #334155;
     }
 
-    .checkout-title-main {
-        font-weight: 700;
-        color: #0f172a;
-        font-size: 1.25rem;
+    .text-success-kwt {
+        color: #1e5217 !important;
+        letter-spacing: -0.5px;
+        font-weight: 800;
+        font-size: 1.4rem;
     }
 
     .checkout-card {
         background: #ffffff;
-        border-radius: 4px;
-        padding: 20px;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-        border-top: 4px solid #10b981;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.03);
     }
 
     .shop-group-card {
         background: #ffffff;
-        border-radius: 3px;
-        padding: 20px;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.03);
     }
 
     .shop-header {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding-bottom: 12px;
+        padding-bottom: 16px;
+        border-bottom: 1px dashed #f1f5f9;
+        margin-bottom: 16px;
     }
 
     .shop-badge {
-        background: #10b981;
-        color: white;
-        font-size: 0.68rem;
-        padding: 2px 6px;
-        border-radius: 2px;
+        background: #e8f5e9;
+        color: #1e5217;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 6px;
         font-weight: 700;
+        border: 1px solid #c8e6c9;
     }
 
     .shop-name {
-        font-size: 0.93rem;
-        font-weight: 600;
-        color: #222;
-    }
-
-    .checkout-table-header {
-        font-size: 0.85rem;
-        color: black;
-        padding: 10px 0;
-        border-bottom: 1px solid #f4f4f4;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
     }
 
     .product-row {
-        padding: 15px 0;
-        border-bottom: 1px solid #f4f4f4;
+        padding: 16px 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+    .product-row:last-child {
+        border-bottom: none;
     }
 
     .product-img {
-        width: 55px;
-        height: 55px;
+        width: 64px;
+        height: 64px;
         object-fit: cover;
-        border: 1px solid #e8e8e8;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        padding: 2px;
     }
 
     .shipping-section {
-        background: #fafdff;
-        border-top: 1px dashed #cae2f5;
-        border-bottom: 1px dashed #cae2f5;
-        padding: 15px 20px;
-        margin-top: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-top: 16px;
     }
 
     .shipping-title {
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: #10b981;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #4caf50;
     }
 
     .summary-side {
         background: #ffffff;
-        border-radius: 3px;
-        padding: 20px;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        border-radius: 20px;
+        padding: 28px;
         position: sticky;
-        top: 20px;
+        top: 24px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.02);
     }
 
     .input-catatan-kwt {
         border: 1px solid #e2e8f0;
         background-color: #f8fafc;
-        border-radius: 6px;
-        padding: 8px 10px;
-        font-size: 0.8rem;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 0.85rem;
         color: #334155;
         transition: all 0.2s ease-in-out;
         resize: none;
@@ -111,71 +116,94 @@
 
     .input-catatan-kwt::placeholder {
         color: #94a3b8;
-        font-size: 0.78rem;
     }
 
     .input-catatan-kwt:focus {
         background-color: #ffffff;
-        border-color: #10b981;
-        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+        border-color: #4caf50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         outline: none;
     }
 
-    .btn-confirm-kwt {
-        background: #10b981;
-        color: white;
-        padding: 10px 14px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.88rem;
-        width: 100%;
+    .btn-main {
+        background: #4caf50;
         border: none;
+        color: white;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15);
-        transition: all 0.2s ease;
+        gap: 8px;
     }
 
-    .btn-confirm-kwt:hover:not(:disabled) {
-        background: #059669;
-        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+    .btn-main:hover:not(:disabled) {
+        background: #1e5217;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(30, 82, 23, 0.25);
     }
 
-    .btn-confirm-kwt:active:not(:disabled) {
-        transform: scale(0.985);
+    .btn-main:active:not(:disabled) {
+        transform: scale(0.98);
     }
 
-    .btn-confirm-kwt:disabled {
-        background: #cbd5e1;
+    .btn-main:disabled {
+        background: #e2e8f0;
         color: #94a3b8;
         box-shadow: none;
         cursor: not-allowed;
     }
 
     .info-label {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Penyesuaian Mobile */
+    @media (max-width: 768px) {
+
+        .checkout-card,
+        .shop-group-card {
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .summary-side {
+            padding: 20px;
+            position: static;
+            margin-top: 10px;
+            border-radius: 16px;
+        }
+
+        .product-img {
+            width: 56px;
+            height: 56px;
+        }
     }
 </style>
 
-<div class="container py-4">
-    <div class="row g-3">
+<div class="container py-4 py-md-5">
+    <div class="row g-4">
 
         {{-- SEKTOR KIRI: DETAIL ALAMAT & ITEM PER TOKO --}}
-        <div class="col-lg-8">
-            <div class="mb-3">
-                <h2 class="checkout-title-main m-0"><i class="bi bi-cart-check text-success me-2"></i>Checkout</h2>
+        <div class="col-lg-7">
+            <div class="d-flex align-items-center mb-4 pb-2 border-bottom border-light">
+                <i class="bi bi-cart-check-fill fs-3 text-success me-3"></i>
+                <h4 class="text-success-kwt mb-0">Checkout</h4>
             </div>
 
             {{-- 1. BLOK ALAMAT PENGIRIMAN --}}
-            <div class="checkout-card mb-3">
+            <div class="checkout-card mb-4">
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <i class="bi bi-geo-alt-fill text-success fs-5"></i>
-                    <h6 class="section-heading m-0" style="color: #10b981; font-size: 1rem;">Alamat Pengiriman</h6>
+                    <h6 class="m-0 fw-bold" style="color: #0f172a; font-size: 1.05rem;">Alamat Pengiriman</h6>
                 </div>
 
                 @php
@@ -193,28 +221,28 @@
                 @endphp
 
                 @if($isDataComplete)
-                <div class="row g-1 small">
+                <div class="row g-2 text-sm" style="font-size: 0.95rem;">
                     <div class="col-md-3 fw-bold text-dark">
                         {{ $user->name }} <br>
-                        <span class="text-secondary fw-normal">{{ $user->phone_number }}</span>
+                        <span class="text-secondary fw-medium" style="font-size: 0.85rem;">{{ $user->phone_number }}</span>
                     </div>
-                    <div class="col-md-9 text-secondary">
-                        <span class="text-dark">{{ $user->address }}</span> <br>
+                    <div class="col-md-9 text-slate-600">
+                        <span class="text-dark fw-medium">{{ $user->address }}</span> <br>
                         Kec. {{ $user->district ?? '-' }}, {{ $user->city ?? '-' }}, {{ $user->province ?? '-' }}
-                        <div class="mt-1">
-                            <span class="badge bg-light text-dark border">RT/RW: {{ $user->rt ?? '0' }}/{{ $user->rw ?? '0' }}</span>
-                            <span class="badge bg-light text-dark border">Patokan: {{ $user->address_detail ?? '-' }}</span>
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark border px-2 py-1">RT/RW: {{ $user->rt ?? '0' }}/{{ $user->rw ?? '0' }}</span>
+                            <span class="badge bg-light text-dark border px-2 py-1">Patokan: {{ $user->address_detail ?? '-' }}</span>
                         </div>
                     </div>
                 </div>
                 @else
-                <div class="alert bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-3 p-3">
+                <div class="alert bg-danger-subtle border-0 rounded-3 p-3 mb-0">
                     <div class="d-flex align-items-center gap-2 text-danger mb-2">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
                         <span class="fw-bold">Alamat Utama Belum Lengkap</span>
                     </div>
-                    <p class="small text-muted mb-2">Harap lengkapi Nama, WhatsApp, dan detail alamat pengiriman Anda pada halaman profil.</p>
-                    <a href="{{ route('profile.edit') }}" class="btn btn-danger btn-sm fw-bold">Lengkapi Profil <i class="bi bi-arrow-right"></i></a>
+                    <p class="small text-danger opacity-75 mb-3">Harap lengkapi Nama, WhatsApp, dan detail alamat pengiriman Anda pada halaman profil agar kami dapat mengirimkan pesanan.</p>
+                    <a href="{{ route('profile.edit') }}" class="btn btn-danger btn-sm fw-bold px-3 py-2 rounded-2 shadow-sm">Lengkapi Profil <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
                 @endif
             </div>
@@ -239,64 +267,51 @@
             $totalSemuaPotonganOngkir += $potonganOngkirPerToko;
             @endphp
 
-            <div class="shop-group-card mb-3">
+            <div class="shop-group-card mb-4">
                 <div class="shop-header">
-                    <span class="shop-badge">KWT</span>
+                    <span class="shop-badge"><i class="bi bi-shop me-1"></i> KWT</span>
                     <span class="shop-name">{{ $shop->name ?? 'Kelompok Wanita Tani' }}</span>
                 </div>
 
-                <div class="row checkout-table-header d-none d-md-flex">
-                    <div class="col-md-6 fw-bold">Produk Dipesan</div>
-                    <div class="col-md-2 text-center fw-bold">Harga Satuan</div>
-                    <div class="col-md-2 text-center fw-bold">Jumlah</div>
-                    <div class="col-md-2 text-end fw-bold">Subtotal Produk</div>
-                </div>
-
                 @foreach($items as $item)
-                <div class="row product-row align-items-center">
-                    <div class="col-md-6 col-12 mb-2 mb-md-0">
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="{{ asset('storage/'.$item->product->foto_produk) }}" class="product-img rounded">
-                            <div>
-                                <div class="fw-bold text-dark small">{{ $item->product->nama_produk }}</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Satuan: {{ $item->product->satuan }}</div>
+                <div class="product-row d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                    <div class="d-flex align-items-center gap-3 w-100 w-md-auto">
+                        <img src="{{ asset('storage/'.$item->product->foto_produk) }}" class="product-img shadow-sm">
+                        <div>
+                            <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ $item->product->nama_produk }}</div>
+                            <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                                {{ $item->jumlah }} {{ $item->product->satuan }} x Rp {{ number_format($item->product->harga, 0, ',', '.') }}
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-2 col-4 text-start text-md-center small text-secondary">
-                        <span class="d-inline d-md-none">Harga: </span>Rp {{ number_format($item->product->harga, 0, ',', '.') }}
-                    </div>
-                    <div class="col-md-2 col-4 text-start text-md-center small text-secondary">
-                        <span class="d-inline d-md-none">Jumlah: </span>{{ $item->jumlah }}
-                    </div>
-                    <div class="col-md-2 col-4 text-end small fw-bold text-dark">
+                    <div class="fw-bold text-dark ms-auto ms-md-0" style="font-size: 0.95rem;">
                         Rp {{ number_format($item->jumlah * $item->product->harga, 0, ',', '.') }}
                     </div>
                 </div>
                 @endforeach
 
-                <div class="shipping-section rounded">
-                    <div class="row align-items-center g-2">
-                        <div class="col-md-4 col-12">
-                            <span class="shipping-title"><i class="bi bi-truck me-2"></i>Opsi Pengiriman:</span>
-                            <div class="small text-dark fw-semibold mt-1">Kurir Lokal KWT</div>
-                            <div class="text-muted xsmall" style="font-size: 0.75rem;">Jarak Toko ke Rumah: {{ $jarak ?? 0 }} km</div>
+                <div class="shipping-section shadow-sm">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-5 col-12">
+                            <span class="shipping-title d-block mb-1"><i class="bi bi-truck me-2"></i>Opsi Pengiriman</span>
+                            <div class="small text-dark fw-semibold">Kurir Lokal KWT</div>
+                            <div class="text-muted mt-1" style="font-size: 0.75rem;">Jarak ke rumah: {{ $jarak ?? 0 }} km</div>
                         </div>
-                        <div class="col-md-8 col-12 text-md-end text-start">
+                        <div class="col-md-7 col-12 text-md-end text-start">
                             <div class="small">
-                                <span class="text-secondary">Ongkos Kirim Toko:</span>
+                                <span class="text-secondary d-block d-md-inline mb-1 mb-md-0 me-md-2">Ongkos Kirim:</span>
                                 @if($potonganOngkirPerToko > 0)
-                                <span class="text-decoration-line-through text-muted me-1 small">
+                                <span class="text-decoration-line-through text-muted me-2" style="font-size: 0.85rem;">
                                     Rp {{ number_format($ongkirAsliPerToko, 0, ',', '.') }}
                                 </span>
-                                <span class="fw-bold text-success">
+                                <span class="fw-bold text-success fs-6">
                                     Rp {{ number_format($ongkirFinalPerToko, 0, ',', '.') }}
                                 </span>
-                                <div class="text-success fw-medium" style="font-size: 0.75rem;">
-                                    <i class="bi bi-tags-fill me-1"></i> Diskon Multi-Toko (Bagi {{ $jumlahToko }}) -Rp {{ number_format($potonganOngkirPerToko, 0, ',', '.') }}
+                                <div class="text-success fw-medium mt-1 bg-success-subtle d-inline-block px-2 py-1 rounded" style="font-size: 0.75rem;">
+                                    <i class="bi bi-tags-fill me-1"></i> Diskon Multi-Toko -Rp {{ number_format($potonganOngkirPerToko, 0, ',', '.') }}
                                 </div>
                                 @else
-                                <span class="fw-bold text-dark">
+                                <span class="fw-bold text-dark fs-6">
                                     Rp {{ number_format($ongkirFinalPerToko, 0, ',', '.') }}
                                 </span>
                                 @endif
@@ -305,74 +320,66 @@
                     </div>
                 </div>
 
-                <div class="text-end mt-3">
-                    <span class="text-secondary small">Total Pesanan ({{ count($items) }} Produk): </span>
-                    <span class="fw-bold text-danger fs-6">Rp {{ number_format(($subtotalShop + $ongkirFinalPerToko), 0, ',', '.') }}</span>
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-light">
+                    <span class="text-slate-600 fw-medium" style="font-size: 0.95rem;">Subtotal Toko</span>
+                    <span class="fw-bold text-success fs-5">Rp {{ number_format(($subtotalShop + $ongkirFinalPerToko), 0, ',', '.') }}</span>
                 </div>
             </div>
             @endforeach
         </div>
 
         {{-- SEKTOR KANAN: RINGKASAN PEMBAYARAN KASIR --}}
-        <div class="col-lg-4">
+        <div class="col-lg-5">
             <div class="summary-side">
-                <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2">
-                    <i class="bi bi-receipt text-secondary fs-5"></i>
-                    <h6 class="fw-bold m-0 text-dark">Ringkasan Pembayaran</h6>
-                </div>
+                <h6 class="fw-bold mb-4" style="color: #0f172a; font-size: 1.1rem;">Ringkasan Belanja</h6>
 
                 @php
-                // Cek apakah ada biaya ekstra volume untuk ditampilkan teks keterangan
                 $settingData = \App\Models\Setting::first();
                 $batasQty = $settingData->batas_jumlah_barang ?? 0;
-
                 $qtyTotal = $cartItems->sum('jumlah');
-
-                // Kalau belanjaan melebihi batas, maka nilainya TRUE
                 $adaEkstraVolume = ($batasQty > 0 && $qtyTotal > $batasQty);
                 @endphp
 
-                <div class="d-flex justify-content-between mb-2 text-secondary small">
-                    <span>Subtotal Produk</span>
-                    <span class="text-dark fw-medium">Rp {{ number_format($totalSemuaProduk, 0, ',', '.') }}</span>
+                <div class="d-flex justify-content-between mb-3 text-slate-600" style="font-size: 0.95rem;">
+                    <span>Total Harga Produk</span>
+                    <span class="text-dark fw-semibold">Rp {{ number_format($totalSemuaProduk, 0, ',', '.') }}</span>
                 </div>
 
-                {{-- 🌟 ONGKIR GABUNGAN DENGAN LOGIKA TEKS PENJELASAN 🌟 --}}
-                <div class="d-flex justify-content-between mb-2 text-secondary small">
+                <div class="d-flex justify-content-between mb-3 text-slate-600" style="font-size: 0.95rem;">
                     <span>
                         Total Ongkos Kirim
                         @if($adaEkstraVolume)
-                        <div class="text-info mt-1" style="font-size: 0.7rem; line-height: 1.2;">
-                            <i class="bi bi-info-circle"></i> Termasuk tambahan biaya<br>kapasitas barang banyak.
+                        <div class="text-info mt-1" style="font-size: 0.75rem; background: #f0fdf4; padding: 4px 8px; border-radius: 6px;">
+                            <i class="bi bi-info-circle me-1"></i> Termasuk biaya volume besar
                         </div>
                         @endif
                     </span>
-                    <span class="text-dark fw-medium">
+                    <span class="text-dark fw-semibold">
                         @if($isDataComplete)
                         Rp {{ number_format(($totalSemuaOngkirSetelahDiskon + $totalSemuaPotonganOngkir), 0, ',', '.') }}
                         @else
-                        <span class="text-danger">Alamat Kosong</span>
+                        <span class="text-danger small">Menunggu Alamat</span>
                         @endif
                     </span>
                 </div>
 
                 @if($totalSemuaPotonganOngkir > 0)
-                <div class="d-flex justify-content-between mb-2 text-success small fw-medium">
-                    <span><i class="bi bi-patch-check-fill me-1"></i> Total Diskon Ongkir</span>
-                    <span>-Rp {{ number_format($totalSemuaPotonganOngkir, 0, ',', '.') }}</span>
+                <div class="d-flex justify-content-between mb-3 text-success" style="font-size: 0.95rem;">
+                    <span class="fw-medium"><i class="bi bi-patch-check-fill me-1"></i> Diskon Pengiriman</span>
+                    <span class="fw-bold">-Rp {{ number_format($totalSemuaPotonganOngkir, 0, ',', '.') }}</span>
                 </div>
                 @endif
 
-                <div class="d-flex justify-content-between mb-3 text-secondary small">
+                <div class="d-flex justify-content-between mb-4 text-slate-600" style="font-size: 0.95rem;">
                     <span>Biaya Layanan Aplikasi</span>
-                    <span class="text-dark fw-medium">Rp {{ number_format($biayaLayanan ?? 0, 0, ',', '.') }}</span>
+                    <span class="text-dark fw-semibold">Rp {{ number_format($biayaLayanan ?? 0, 0, ',', '.') }}</span>
                 </div>
 
-                <hr class="my-2 text-muted opacity-25">
+                <hr style="border-top: 2px dashed #f1f5f9; margin: 20px 0;">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="fw-bold text-dark small">Total Pembayaran</span>
-                    <h5 class="fw-bold text-danger mb-0">Rp {{ number_format(($totalSemuaProduk + $totalSemuaOngkirSetelahDiskon + ($biayaLayanan ?? 0)), 0, ',', '.') }}</h5>
+                    <span class="fw-bold" style="color: #0f172a;">Total Tagihan</span>
+                    <span class="fw-bold fs-4" style="color: #1e5217;">Rp {{ number_format(($totalSemuaProduk + $totalSemuaOngkirSetelahDiskon + ($biayaLayanan ?? 0)), 0, ',', '.') }}</span>
                 </div>
 
                 <form id="checkoutForm">
@@ -381,21 +388,30 @@
                     <input type="hidden" id="ongkir" value="{{ $totalSemuaOngkirSetelahDiskon }}">
                     <input type="hidden" id="jarak" value="{{ $jarak ?? 0 }}">
 
-                    <div class="mb-3">
-                        <label class="info-label mb-1 text-secondary d-flex align-items-center gap-1" style="font-size: 0.72rem; letter-spacing: 0.3px;">
-                            <i class="bi bi-chat-left-text-fill text-success" style="font-size: 0.8rem;"></i> Catatan Pesanan <span class="text-muted fw-normal lowercase">(opsional)</span>
+                    <div class="mb-4">
+                        <label class="info-label mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-pencil-square text-success"></i> Catatan Pesanan <span class="text-muted fw-normal text-lowercase">(opsional)</span>
                         </label>
-                        <textarea id="catatan" class="form-control input-catatan-kwt" rows="2" placeholder="Titip di satpam, rumah pagar hitam, dll..."></textarea>
+                        <textarea id="catatan" class="form-control input-catatan-kwt" rows="2" placeholder="Cth: Titip di satpam, rumah warna putih pagar hitam, dll..."></textarea>
                     </div>
 
-                    <button type="button" id="payButton" class="btn-confirm-kwt" {{ $isDataComplete ? '' : 'disabled' }}>
+                    <button type="button" id="payButton" class="btn btn-main" {{ $isDataComplete ? '' : 'disabled' }}>
                         @if($isDataComplete)
-                        <i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar
+                        <i class="bi bi-shield-lock-fill"></i> Bayar Sekarang
                         @else
-                        <i class="bi bi-exclamation-circle"></i> Alamat Belum Lengkap
+                        <i class="bi bi-exclamation-circle-fill"></i> Lengkapi Alamat Dulu
                         @endif
                     </button>
                 </form>
+
+                <div class="mt-4 p-3 rounded-3 d-flex gap-3 align-items-start" style="background: #f8fafc; border: 1px solid #f1f5f9;">
+                    <i class="bi bi-award-fill text-success fs-3 lh-1"></i>
+                    <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">
+                        <strong class="text-dark d-block mb-1" style="font-size: 0.85rem;">Panen Hasil Sendiri</strong>
+                        Belanjaanmu langsung dari kebun ibu-ibu KWT. Diproses higienis, aman, dan turut memberdayakan ekonomi lokal!
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -408,7 +424,7 @@
 
         const button = this;
         button.disabled = true;
-        button.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan...`;
+        button.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Memproses Pembayaran...`;
 
         const formData = {
             _token: "{{ csrf_token() }}",
@@ -439,7 +455,7 @@
                         onError: function(result) {
                             alert("Pembayaran gagal! Harap coba kembali.");
                             button.disabled = false;
-                            button.innerHTML = `<i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar`;
+                            button.innerHTML = `<i class="bi bi-shield-lock-fill"></i> Bayar Sekarang`;
                         },
                         onClose: function() {
                             alert('Anda menutup halaman pembayaran sebelum menyelesaikan transaksi.');
@@ -449,14 +465,14 @@
                 } else {
                     alert(data.message || "Gagal memproses pembuatan pesanan.");
                     button.disabled = false;
-                    button.innerHTML = `<i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar`;
+                    button.innerHTML = `<i class="bi bi-shield-lock-fill"></i> Bayar Sekarang`;
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
                 alert("Terjadi kesalahan pada jaringan server.");
                 button.disabled = false;
-                button.innerHTML = `<i class="bi bi-check2-circle" style="font-size: 1.05rem;"></i> Konfirmasi & Bayar`;
+                button.innerHTML = `<i class="bi bi-shield-lock-fill"></i> Bayar Sekarang`;
             });
     });
 </script>

@@ -147,10 +147,21 @@
         background: #065f46 !important;
         transform: translateY(-1px);
     }
+
+    /* Tambahan agar scrollbar tabel di HP tidak memakan tempat */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
 </style>
 
 <div class="container-fluid py-4 px-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- Penambahan flex-column flex-md-row dan gap-3 agar rapi di HP --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
             <h2 class="fw-bold text-dark mb-0">Manajemen Akun KWT</h2>
             <p class="text-muted mb-0">Kelola hak akses dan verifikasi akun Kelompok Wanita Tani.</p>
@@ -169,9 +180,11 @@
     </div>
     @endif
 
-    <div class="card border-0 rounded-4 shadow-sm p-4">
+    {{-- Mengubah padding card (p-3 p-md-4) agar tidak terlalu lebar/kosong di HP --}}
+    <div class="card border-0 rounded-4 shadow-sm p-3 p-md-4">
         <div class="table-responsive">
-            <table class="table custom-table table-hover align-middle mb-0">
+            {{-- Penambahan text-nowrap agar tabel rapi digeser menyamping --}}
+            <table class="table custom-table table-hover align-middle mb-0 text-nowrap">
                 <thead class="table-light">
                     <tr>
                         <th class="ps-4">Nama KWT</th>
@@ -187,12 +200,13 @@
                     <tr>
                         <td class="fw-bold text-dark px-3">
                             <div class="d-flex align-items-center">
+                                {{-- Penambahan flex-shrink: 0 pada seluruh elemen foto --}}
                                 @if($item->photo && file_exists(public_path('storage/' . $item->photo)))
-                                <img src="{{ asset('storage/' . $item->photo) }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px;">
+                                <img src="{{ asset('storage/' . $item->photo) }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px; flex-shrink: 0;">
                                 @elseif($item->photo && (str_contains($item->photo, 'http://') || str_contains($item->photo, 'https://')))
-                                <img src="{{ $item->photo }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px;">
+                                <img src="{{ $item->photo }}" alt="{{ $item->name }}" class="rounded-circle me-3 object-fit-cover" style="width: 38px; height: 38px; flex-shrink: 0;">
                                 @else
-                                <div class="me-3 bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; background-color: #16a34a !important; font-size: 14px;">
+                                <div class="me-3 bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; flex-shrink: 0; background-color: #16a34a !important; font-size: 14px;">
                                     {{ strtoupper(substr($item->name, 0, 1)) }}
                                 </div>
                                 @endif

@@ -76,6 +76,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
     }
 
     .kendaraan-badge {
@@ -120,12 +121,20 @@
         background: #059669;
         border-color: #059669;
     }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
 </style>
 
 <div class="container-fluid py-4">
 
-    {{-- HEADER --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
 
         <div>
             <h2 class="fw-bold text-dark mb-1">
@@ -138,7 +147,7 @@
         </div>
 
         <button type="button"
-            class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-semibold"
+            class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-semibold w-100 w-md-auto"
             data-bs-toggle="modal"
             data-bs-target="#modalTambahKurir">
 
@@ -147,7 +156,6 @@
         </button>
     </div>
 
-    {{-- ALERT --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4">
         <i class="bi bi-check-circle-fill me-2"></i>
@@ -159,12 +167,11 @@
     </div>
     @endif
 
-    {{-- CARD --}}
-    <div class="page-card shadow-sm p-4">
+    <div class="page-card shadow-sm p-3 p-md-4">
 
-        <div class="table-responsive">
+        <div class="table-responsive custom-scrollbar">
 
-            <table class="table align-middle table-hover mb-0">
+            <table class="table align-middle table-hover mb-0 text-nowrap">
 
                 <thead>
                     <tr>
@@ -183,8 +190,7 @@
 
                     <tr>
 
-                        {{-- NAMA --}}
-                        <td class="px-3">
+                        <td class="px-3 py-3">
 
                             <div class="d-flex align-items-center gap-3">
 
@@ -206,8 +212,7 @@
 
                         </td>
 
-                        {{-- KENDARAAN --}}
-                        <td>
+                        <td class="py-3">
 
                             @php
                             $kendaraan = strtolower($kurir->kendaraan ?? '');
@@ -229,8 +234,7 @@
 
                         </td>
 
-                        {{-- WHATSAPP --}}
-                        <td>
+                        <td class="py-3">
 
                             <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $kurir->no_hp) }}"
                                 target="_blank"
@@ -244,8 +248,7 @@
 
                         </td>
 
-                        {{-- PENDAPATAN (REVISI 100% HAK KURIR) --}}
-                        <td>
+                        <td class="py-3">
                             <div class="income-box">
                                 <div class="fw-bold text-success mb-1">
                                     Rp {{ number_format($kurir->total_ongkir ?? 0, 0, ',', '.') }}
@@ -256,8 +259,7 @@
                             </div>
                         </td>
 
-                        {{-- STATUS --}}
-                        <td class="text-center">
+                        <td class="text-center py-3">
 
                             @if($kurir->status == 'aktif')
 
@@ -275,8 +277,7 @@
 
                         </td>
 
-                        {{-- AKSI --}}
-                        <td class="text-center px-3">
+                        <td class="text-center px-3 py-3">
 
                             <div class="d-flex justify-content-center gap-2">
 
@@ -308,7 +309,6 @@
 
                     </tr>
 
-                    {{-- MODAL EDIT --}}
                     <div class="modal fade"
                         id="modalEditKurir{{ $kurir->id }}"
                         tabindex="-1"
@@ -319,7 +319,7 @@
 
                             <div class="modal-content border-0 shadow-lg">
 
-                                <div class="modal-header border-0 p-4 pb-2">
+                                <div class="modal-header border-0 p-3 p-md-4 pb-2">
 
                                     <div>
                                         <h5 class="fw-bold mb-1">
@@ -343,7 +343,7 @@
                                     @csrf
                                     @method('PUT')
 
-                                    <div class="modal-body p-4 pt-2">
+                                    <div class="modal-body p-3 p-md-4 pt-2">
 
                                         <div class="mb-3">
                                             <label class="form-label-bold">
@@ -363,9 +363,9 @@
                                             </div>
                                         </div>
 
-                                        <div class="row">
+                                        <div class="row g-3">
 
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-12 col-md-6 mb-1">
 
                                                 <label class="form-label-bold">
                                                     No. WhatsApp
@@ -385,7 +385,7 @@
 
                                             </div>
 
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-12 col-md-6 mb-1">
 
                                                 <label class="form-label-bold">
                                                     Status
@@ -408,9 +408,7 @@
 
                                         </div>
 
-                                        {{-- PERBAIKAN FITUR KENDARAAN (EDIT) --}}
                                         @php
-                                        // Memecah isi database jadi Jenis & Plat
                                         $dbKendaraan = $kurir->kendaraan ?? '';
                                         $isMobil = str_contains(strtolower($dbKendaraan), 'mobil');
 
@@ -422,20 +420,18 @@
                                         }
                                         @endphp
 
-                                        <div class="mb-2">
+                                        <div class="mb-2 mt-3">
 
                                             <label class="form-label-bold">
                                                 Tipe Kendaraan & Detail
                                             </label>
 
                                             <div class="input-group">
-                                                {{-- DROPDOWN --}}
                                                 <select id="jenis_edit_{{ $kurir->id }}" class="form-select input-clean" style="max-width: 130px; border-radius: 12px 0 0 12px; background-color: #f8fafc; font-weight: 600;" onchange="updateKendaraanEdit('{{ $kurir->id }}')">
                                                     <option value="Motor" {{ !$isMobil ? 'selected' : '' }}>🏍️ Motor</option>
                                                     <option value="Mobil" {{ $isMobil ? 'selected' : '' }}>🚗 Mobil</option>
                                                 </select>
 
-                                                {{-- TEKS DETAIL / PLAT --}}
                                                 <input type="text"
                                                     id="plat_edit_{{ $kurir->id }}"
                                                     class="form-control input-clean input-clean-group"
@@ -445,7 +441,6 @@
                                                     required>
                                             </div>
 
-                                            {{-- HIDDEN INPUT (Ini yang akan disimpan ke database secara otomatis) --}}
                                             <input type="hidden" name="kendaraan" id="hasil_kendaraan_edit_{{ $kurir->id }}" value="{{ $dbKendaraan }}">
 
                                             <small class="petunjuk-admin">
@@ -456,16 +451,16 @@
 
                                     </div>
 
-                                    <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                                    <div class="modal-footer border-0 p-3 p-md-4 pt-0 d-grid gap-2 d-sm-flex justify-content-sm-end">
 
                                         <button type="button"
-                                            class="btn btn-light border rounded-pill px-4"
+                                            class="btn btn-light border rounded-pill px-4 w-100 w-sm-auto"
                                             data-bs-dismiss="modal">
                                             Batal
                                         </button>
 
                                         <button type="submit"
-                                            class="btn btn-primary rounded-pill px-4">
+                                            class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
                                             <i class="bi bi-check-lg me-1"></i>
                                             Simpan
                                         </button>
@@ -501,7 +496,6 @@
 
 </div>
 
-{{-- MODAL TAMBAH --}}
 <div class="modal fade"
     id="modalTambahKurir"
     tabindex="-1"
@@ -512,7 +506,7 @@
 
         <div class="modal-content border-0 shadow-lg">
 
-            <div class="modal-header border-0 p-4 pb-2">
+            <div class="modal-header border-0 p-3 p-md-4 pb-2">
 
                 <div>
                     <h5 class="fw-bold mb-1">
@@ -533,7 +527,7 @@
             <form action="{{ route('admin.kurir.store') }}" method="POST">
                 @csrf
 
-                <div class="modal-body p-4 pt-2">
+                <div class="modal-body p-3 p-md-4 pt-2">
 
                     <div class="mb-3">
                         <label class="form-label-bold">Nama Lengkap Kurir</label>
@@ -545,8 +539,8 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 mb-1">
                             <label class="form-label-bold">No. WhatsApp</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">
@@ -556,7 +550,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-12 col-md-6 mb-1">
                             <label class="form-label-bold">Status Awal</label>
                             <select name="status" class="form-select input-clean">
                                 <option value="aktif">Aktif</option>
@@ -565,22 +559,18 @@
                         </div>
                     </div>
 
-                    {{-- PERBAIKAN FITUR KENDARAAN (TAMBAH) --}}
-                    <div class="mb-2">
+                    <div class="mb-2 mt-3">
                         <label class="form-label-bold">Tipe Kendaraan & Detail</label>
 
                         <div class="input-group">
-                            {{-- DROPDOWN --}}
                             <select id="jenis_tambah" class="form-select input-clean" style="max-width: 130px; border-radius: 12px 0 0 12px; background-color: #f8fafc; font-weight: 600;" onchange="updateKendaraanTambah()">
                                 <option value="Motor">🏍️ Motor</option>
                                 <option value="Mobil">🚗 Mobil</option>
                             </select>
 
-                            {{-- TEKS DETAIL / PLAT --}}
                             <input type="text" id="plat_tambah" class="form-control input-clean input-clean-group" placeholder="Cth: Beat - D 1234 XYZ" oninput="updateKendaraanTambah()" required>
                         </div>
 
-                        {{-- HIDDEN INPUT (Ini yang akan disimpan ke database secara otomatis) --}}
                         <input type="hidden" name="kendaraan" id="hasil_kendaraan_tambah" value="Motor - ">
 
                         <small class="petunjuk-admin mt-1">
@@ -590,12 +580,12 @@
 
                 </div>
 
-                <div class="modal-footer border-0 px-4 pb-4 pt-0">
-                    <button type="button" class="btn btn-light border rounded-pill px-4" data-bs-dismiss="modal">
+                <div class="modal-footer border-0 p-3 p-md-4 pt-0 d-grid gap-2 d-sm-flex justify-content-sm-end">
+                    <button type="button" class="btn btn-light border rounded-pill px-4 w-100 w-sm-auto" data-bs-dismiss="modal">
                         Batal
                     </button>
 
-                    <button type="submit" class="btn btn-success rounded-pill px-4">
+                    <button type="submit" class="btn btn-success rounded-pill px-4 w-100 w-sm-auto">
                         <i class="bi bi-check-lg me-1"></i>
                         Simpan Kurir
                     </button>
@@ -609,9 +599,7 @@
 
 </div>
 
-{{-- SCRIPT PENGGABUNG KENDARAAN & PLAT NOMOR --}}
 <script>
-    // Fungsi untuk Modal Tambah
     function updateKendaraanTambah() {
         let jenis = document.getElementById('jenis_tambah').value;
         let plat = document.getElementById('plat_tambah').value;

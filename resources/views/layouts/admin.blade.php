@@ -27,7 +27,8 @@
             top: 0;
             left: 0;
             background: #064e3b;
-            z-index: 1000;
+            z-index: 1001;
+            /* Dinaikkan sedikit agar selalu di atas backdrop */
             transition: all 0.3s;
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -175,6 +176,20 @@
             border-color: transparent;
         }
 
+        /* Tambahan CSS: Backdrop Penutup otomatis di HP */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
         /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
             .sidebar {
@@ -185,6 +200,11 @@
 
             .sidebar.show {
                 left: 0;
+            }
+
+            /* Memunculkan overlay gelap hanya saat .show aktif di mobile */
+            .sidebar.show+.sidebar-backdrop {
+                display: block;
             }
 
             .main-content {
@@ -217,6 +237,13 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-wrapper">
             <div class="sidebar-header">
+                {{-- Tambahan Tombol Close Khusus Layar HP agar UX mulus --}}
+                <div class="d-flex justify-content-end d-md-none mb-2">
+                    <button class="btn btn-sm text-white-50 p-0 fs-4" onclick="toggleSidebar()">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+
                 <div class="profile-box">
                     <div class="avatar-circle">
                         @if(Auth::user()->profile_photo)
@@ -278,6 +305,9 @@
             </form>
         </div>
     </aside>
+
+    {{-- Tambahan Elemen Backdrop Terintegrasi Sibling Selft-Toggle --}}
+    <div class="sidebar-backdrop" onclick="toggleSidebar()"></div>
 
     {{-- MAIN CONTENT --}}
     <main class="main-content">

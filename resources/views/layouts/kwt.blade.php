@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Pengelola - {{ Auth::user()->name }}</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -16,14 +18,17 @@
             color: #334155;
         }
 
-        /* Sidebar */
+        /* === Sidebar Styles === */
         .sidebar {
             width: 240px;
             height: 100vh;
             position: fixed;
             background: #064e3b;
-            transition: all 0.3s;
-            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1050; /* Di atas elemen lain */
+            top: 0;
+            left: 0;
+            overflow-y: auto; /* Mencegah konten terpotong jika layar pendek */
         }
 
         .sidebar-header {
@@ -75,9 +80,10 @@
             letter-spacing: 0.5px;
         }
 
-        /* Navigasi */
+        /* === Navigation === */
         .nav-list {
             padding: 15px 0;
+            padding-bottom: 80px; /* Space for logout button */
         }
 
         .nav-link {
@@ -118,13 +124,15 @@
             margin: 15px 25px 8px;
             font-weight: 700;
             opacity: 0.7;
-            text-align: left;
         }
 
-        /* Main Content */
-        .main-content {
-            margin-left: 240px;
-            padding: 24px;
+        /* === Logout Button === */
+        .logout-wrapper {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 1rem;
+            background: #064e3b; /* Solid background to mask scrolling content */
         }
 
         .btn-logout {
@@ -144,32 +152,60 @@
             border-color: transparent;
         }
 
+        /* === Main Content & Mobile Responsive === */
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
-                margin-left: -240px;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0;
             }
 
-            .sidebar.show {
-                margin-left: 0;
+            .sidebar-overlay.show {
+                display: block;
+                opacity: 1;
             }
         }
     </style>
 </head>
 
 <body>
+    {{-- OVERLAY UNTUK MOBILE --}}
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     {{-- SIDEBAR --}}
-    <div class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="profile-box">
                 <div class="avatar-circle">
                     @if(Auth::user()->profile_photo)
-                    <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile">
+                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Profile">
                     @else
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                        {{ substr(Auth::user()->name, 0, 1) }}
                     @endif
                 </div>
 
@@ -180,7 +216,7 @@
             </div>
         </div>
 
-        <div class="nav-list">
+        <nav class="nav-list">
             <div class="nav-label">Menu Utama</div>
             <a href="{{ route('kwt.dashboard') }}" class="nav-link {{ request()->routeIs('kwt.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-house-door"></i> Beranda
@@ -191,7 +227,7 @@
                 <i class="bi bi-box-seam"></i> Produk Kita
             </a>
 
-            <a href="{{ route('kwt.orders') }}" class="nav-link {{ request()->routeIs('kwt.orders') || request()->routeIs('kwt.orders.process') || request()->routeIs('kwt.orders.detail') ? 'active' : '' }}">
+            <a href="{{ route('kwt.orders') }}" class="nav-link {{ request()->routeIs('kwt.orders*') ? 'active' : '' }}">
                 <i class="bi bi-cart3"></i> Pesanan
             </a>
 
@@ -207,9 +243,9 @@
             <a href="{{ route('kwt.profile') }}" class="nav-link {{ request()->routeIs('kwt.profile') ? 'active' : '' }}">
                 <i class="bi bi-person-gear"></i> Profil KWT
             </a>
-        </div>
+        </nav>
 
-        <div class="position-absolute bottom-0 w-100 p-3">
+        <div class="logout-wrapper">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn-logout fw-semibold">
@@ -217,24 +253,31 @@
                 </button>
             </form>
         </div>
-    </div>
+    </aside>
 
     {{-- CONTENT --}}
-    <div class="main-content">
-        <div class="d-md-none d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded-3 shadow-sm">
+    <main class="main-content">
+        {{-- Navbar Mobile --}}
+        <div class="d-md-none d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-3 shadow-sm">
             <span class="fw-bold text-success">KWT Digital</span>
-            <button class="btn btn-sm btn-success" onclick="toggleSidebar()">
+            <button class="btn btn-sm btn-success" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
                 <i class="bi bi-list"></i>
             </button>
         </div>
 
         @yield('content')
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+            
+            // Mencegah scroll pada body saat sidebar terbuka di mobile
+            if (window.innerWidth <= 768) {
+                document.body.style.overflow = document.body.style.overflow === 'hidden' ? 'auto' : 'hidden';
+            }
         }
     </script>
 </body>

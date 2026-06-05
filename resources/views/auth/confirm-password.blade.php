@@ -59,11 +59,37 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
         }
+
+        /* Penyesuaian Responsif untuk Layar HP */
+        @media (max-width: 576px) {
+            .efood-input {
+                padding: 12px 14px 12px 42px;
+                font-size: 14px;
+            }
+
+            .efood-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .responsive-heading {
+                font-size: 24px !important;
+            }
+
+            .responsive-text {
+                font-size: 13px !important;
+            }
+
+            .efood-icon {
+                font-size: 16px;
+                left: 14px;
+            }
+        }
     </style>
 
     <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Konfirmasi Keamanan 🔒</h2>
-        <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+        <h2 class="responsive-heading" style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Konfirmasi Keamanan 🔒</h2>
+        <p class="responsive-text" style="font-size: 14px; color: #6b7280; line-height: 1.6;">
             Ini adalah area aman dari aplikasi. Harap konfirmasi password kamu sebelum melanjutkan.
         </p>
     </div>

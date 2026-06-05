@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Riwayat Pesanan - EFood')
+@section('title','Riwayat Pesanan - Tani Cibiru')
 
 @push('styles')
 <style>
@@ -434,12 +434,71 @@
         display: flex;
         justify-content: space-between;
     }
+
+    @media (max-width:768px) {
+
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .order-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .order-footer .btn,
+        .order-footer button,
+        .order-footer a {
+            width: 100%;
+        }
+
+        .item-list {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .item-img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+        }
+
+        .tracking-timeline {
+            overflow-x: auto;
+        }
+
+        .timeline-wrapper {
+            min-width: 700px;
+        }
+
+        .order-body,
+        .order-header,
+        .order-footer {
+            padding: 16px;
+        }
+
+        .tracking-timeline {
+            margin: 10px 16px 16px;
+        }
+
+        .modal-dialog {
+            margin: 10px;
+        }
+    }
 </style>
 @endpush
 
 @php
-// GANTI DENGAN NOMOR WA ADMIN SISTEM ANDA
-$noAdminSistem = '0822222222';
+$noAdminSistem = '';
+
+if(isset($admin) && $admin->phone_number){
+$noAdminSistem = preg_replace('/[^0-9]/', '', $admin->phone_number);
+
+if(substr($noAdminSistem, 0, 1) === '0'){
+$noAdminSistem = '62' . substr($noAdminSistem, 1);
+}
+}
 @endphp
 
 @section('content')

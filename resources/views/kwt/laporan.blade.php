@@ -1,9 +1,8 @@
 @extends('layouts.kwt')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid py-3 py-md-4">
 
-    {{-- HEADER --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold text-dark mb-1">Laporan Transaksi</h3>
@@ -13,7 +12,6 @@
         </div>
     </div>
 
-    {{-- WIDGET --}}
     <div class="row g-3 mb-4">
 
         <div class="col-12 col-sm-6 col-xl-4">
@@ -90,24 +88,20 @@
 
     </div>
 
-    {{-- CARD TABEL --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
 
-        {{-- HEADER --}}
-        <div class="card-header bg-white border-0 px-4 pt-4 pb-0">
+        <div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-0">
             <h5 class="fw-bold text-dark mb-4">
                 Riwayat Penjualan
             </h5>
 
-            {{-- FILTER --}}
             <div class="filter-wrapper mb-4">
 
                 <form action="{{ route('kwt.laporan') }}" method="GET">
 
                     <div class="row g-3 align-items-end">
 
-                        {{-- BULAN --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-12 col-md-4 col-lg-3">
 
                             <label class="form-label small fw-semibold text-muted mb-2">
                                 Bulan
@@ -119,22 +113,17 @@
                                     <i class="bi bi-calendar-event text-success"></i>
                                 </span>
 
-                                <select name="month"
-                                    class="form-select border-0 shadow-none">
-
+                                <select name="month" class="form-select border-0 shadow-none">
                                     @for($m=5; $m<=12; $m++)
-                                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}"
-                                        {{ request('month', date('m')) == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('month', date('m')) == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                         {{ date('F', mktime(0, 0, 0, $m, 1)) }}
                                         </option>
                                         @endfor
-
                                 </select>
                             </div>
                         </div>
 
-                        {{-- TAHUN --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-12 col-md-4 col-lg-3">
 
                             <label class="form-label small fw-semibold text-muted mb-2">
                                 Tahun
@@ -146,32 +135,25 @@
                                     <i class="bi bi-calendar3 text-primary"></i>
                                 </span>
 
-                                <select name="year"
-                                    class="form-select border-0 shadow-none">
-
+                                <select name="year" class="form-select border-0 shadow-none">
                                     @for($y=2026; $y<=max(2026, date('Y')); $y++)
-                                    <option value="{{ $y }}"
-                                        {{ request('year', date('Y')) == $y ? 'selected' : '' }}>
+                                        <option value="{{ $y }}" {{ request('year', date('Y')) == $y ? 'selected' : '' }}>
                                         {{ $y }}
-                                    </option>
-                                    @endfor
-
+                                        </option>
+                                        @endfor
                                 </select>
                             </div>
                         </div>
 
-                        {{-- BUTTON --}}
-                        <div class="col-md-auto">
-                            <button type="submit"
-                                class="btn btn-success filter-btn px-4">
+                        <div class="col-12 col-md-12 col-lg-auto mt-4 mt-md-0">
+                            <button type="submit" class="btn btn-success filter-btn px-4 w-100">
                                 <i class="bi bi-funnel-fill me-1"></i>
                                 Terapkan
                             </button>
                         </div>
 
-                        {{-- TOTAL --}}
-                        <div class="col text-md-end">
-                            <div class="total-badge">
+                        <div class="col-12 col-lg text-lg-end mt-3 mt-lg-0">
+                            <div class="total-badge w-100 w-lg-auto justify-content-center justify-content-lg-start">
                                 <i class="bi bi-receipt-cutoff me-2"></i>
                                 {{ $orders->count() }} Data Transaksi
                             </div>
@@ -184,21 +166,20 @@
             </div>
         </div>
 
-        {{-- TABLE --}}
         <div class="table-responsive">
 
-            <table class="table align-middle mb-0 table-hover">
+            <table class="table align-middle mb-0 table-hover text-nowrap">
 
                 <thead class="table-light">
 
                     <tr>
-                        <th class="ps-4 py-3">Order ID</th>
+                        <th class="ps-3 ps-md-4 py-3">Order ID</th>
                         <th class="py-3">Pembeli</th>
                         <th class="py-3">Total Barang</th>
                         <th class="py-3">Status</th>
                         <th class="py-3">Jadwal Kirim</th>
                         <th class="py-3">Tanggal Order</th>
-                        <th class="py-3 text-center pe-4">Aksi</th>
+                        <th class="py-3 text-center pe-3 pe-md-4">Aksi</th>
                     </tr>
 
                 </thead>
@@ -215,7 +196,7 @@
 
                     <tr data-status="{{ $order->status }}">
 
-                        <td class="ps-4 py-3">
+                        <td class="ps-3 ps-md-4 py-3">
 
                             <span class="fw-bold text-primary">
                                 #ORD-{{ $order->id }}
@@ -227,7 +208,7 @@
 
                             <div class="d-flex align-items-center">
 
-                                <div class="avatar-info me-3">
+                                <div class="avatar-info me-3 flex-shrink-0">
                                     {{ strtoupper(substr($order->user->name ?? 'M', 0, 1)) }}
                                 </div>
 
@@ -247,7 +228,7 @@
 
                         <td class="py-3">
 
-                            <span class="fw-bold text-success">
+                            <span class="fw-bold text-success d-block">
                                 Rp {{ number_format($subtotalKwt, 0, ',', '.') }}
                             </span>
 
@@ -303,13 +284,10 @@
                             {{ $order->created_at->format('d M Y') }}
                         </td>
 
-                        <td class="py-3 text-center pe-4">
+                        <td class="py-3 text-center pe-3 pe-md-4">
 
-                            <a href="{{ route('kwt.orders.detail', $order->id) }}?from=laporan"
-                                class="btn btn-outline-primary btn-sm rounded-pill px-3 link-invoice-item">
-
+                            <a href="{{ route('kwt.orders.detail', $order->id) }}?from=laporan" class="btn btn-outline-primary btn-sm rounded-pill px-3 link-invoice-item">
                                 Detail
-
                             </a>
 
                         </td>
@@ -319,11 +297,8 @@
                     @empty
 
                     <tr>
-                        <td colspan="7"
-                            class="text-center py-5 text-muted">
-
+                        <td colspan="7" class="text-center py-5 text-muted text-wrap">
                             Belum terdapat data transaksi.
-
                         </td>
                     </tr>
 
@@ -338,8 +313,6 @@
     </div>
 
 </div>
-
-
 
 <style>
     body {
@@ -359,6 +332,7 @@
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
+        flex-shrink: 0;
     }
 
     .stat-icon.success {
@@ -471,8 +445,13 @@
         background: #fafcff;
     }
 
-    @media (max-width: 768px) {
+    @media (min-width: 992px) {
+        .w-lg-auto {
+            width: auto !important;
+        }
+    }
 
+    @media (max-width: 768px) {
         .filter-btn {
             width: 100%;
         }
@@ -482,7 +461,6 @@
             justify-content: center;
             margin-top: .5rem;
         }
-
     }
 </style>
 

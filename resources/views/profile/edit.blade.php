@@ -233,12 +233,77 @@
     .suggestion-item:hover {
         background-color: #f1f5f9;
     }
+
+    @media (max-width: 991.98px) {
+        .card-header-green {
+            padding: 20px !important;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .container.py-5 {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+
+        .card-header-green .d-flex {
+            flex-direction: column;
+            align-items: center !important;
+            text-align: center;
+        }
+
+        .header-profile-wrapper {
+            width: 60px;
+            height: 60px;
+        }
+
+        #map {
+            height: 260px !important;
+        }
+
+        .btn-green,
+        .btn-dark {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .custom-card {
+            border-radius: 12px !important;
+        }
+
+        .p-4 {
+            padding: 1rem !important;
+        }
+
+        h2 {
+            font-size: 1.5rem !important;
+        }
+
+        h4 {
+            font-size: 1.2rem !important;
+        }
+
+        .avatar-container,
+        .avatar-big {
+            width: 110px;
+            height: 110px;
+        }
+
+        .avatar-big-letter {
+            font-size: 2.2rem;
+        }
+
+        .info-box-wrapper {
+            padding: 10px !important;
+        }
+    }
 </style>
 
 <div class="container py-5">
     <div class="profile-container">
 
-        {{-- TOP BANNER/TITLE --}}
+
         <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
             <div>
                 <h2 class="fw-bold m-0 text-dark">Profil <span class="text-success">Customer</span></h2>
@@ -246,7 +311,7 @@
             </div>
         </div>
 
-        {{-- ALERT NOTIFIKASI --}}
+
         @if(session('success') || session('status') === 'profile-updated')
         <div class="alert alert-success border-0 shadow-sm rounded-4 d-flex align-items-center mb-4">
             <i class="bi bi-check-circle-fill me-2 fs-5"></i>
@@ -270,10 +335,10 @@
 
         <div class="row g-4">
 
-            {{-- SISI KIRI (FORM UTAMA) --}}
+
             <div class="col-xl-8 col-lg-7">
 
-                {{-- CARD UTAMA DATA PROFIL --}}
+
                 <div class="custom-card">
                     <div class="card-header-green">
                         <div class="d-flex align-items-center gap-3">
@@ -340,7 +405,7 @@
                                     <input type="text" id="province" name="province" class="form-control" value="{{ old('province', Auth::user()->province) }}">
                                 </div>
 
-                                {{-- MAPS INTEGRATION --}}
+
                                 <div class="col-12 mt-4">
                                     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                                         <label class="form-label fw-bold text-dark m-0">Alamat Berdasarkan Peta Fisik</label>
@@ -362,7 +427,7 @@
                                     <label class="form-label text-secondary small">Alamat Jalan / Blok Hasil Peta</label>
                                     <textarea id="address-textarea" name="address" rows="2" class="form-control mb-3" placeholder="Pilih titik pada peta diatas untuk mengisi otomatis data alamat..." required>{{ old('address', Auth::user()->address) }}</textarea>
 
-                                    {{-- BOX INPUT MANDIRI: RT, RW, DETAIL --}}
+
                                     <div class="p-3 rounded-3 border bg-light">
                                         <div class="row g-2">
                                             <div class="col-6 col-sm-3">
@@ -398,7 +463,7 @@
                     </div>
                 </div>
 
-                {{-- CARD KEAMANAN AKUN (PASSWORD) --}}
+
                 <div class="custom-card">
                     <div class="p-4">
                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -440,11 +505,11 @@
 
             </div>
 
-            {{-- SISI KANAN (PREVIEW DATA USER) --}}
+
             <div class="col-xl-4 col-lg-5">
                 <div class="custom-card p-4 text-center">
 
-                    {{-- MANAGE FOTO PROFIL --}}
+
                     <form action="{{ route('profile.update.photo') }}" method="POST" enctype="multipart/form-data" id="photoForm">
                         @csrf
                         <div class="avatar-container">
@@ -473,7 +538,7 @@
 
                     <hr class="my-4 text-muted opacity-25">
 
-                    {{-- LIVE PREVIEW ALAMAT & DATA PENGIRIMAN --}}
+
                     <div class="text-start">
                         <div class="info-box-wrapper d-flex align-items-center gap-3">
                             <div class="info-box-icon"><i class="bi bi-envelope-open-fill"></i></div>
@@ -538,7 +603,7 @@
     </div>
 </div>
 
-{{-- JAVASCRIPT LOGIC (LEAFLET & AUTOCOMPLETE) --}}
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let saveLat = "{{ Auth::user()->latitude }}";
@@ -546,7 +611,7 @@
 
     let defaultLat = saveLat ? parseFloat(saveLat) : -2.5489;
     let defaultLng = saveLng ? parseFloat(saveLng) : 118.0149;
-    let zoomLevel = saveLat? 16 : 5;
+    let zoomLevel = saveLat ? 16 : 5;
 
     const map = L.map('map').setView([defaultLat, defaultLng], zoomLevel);
 

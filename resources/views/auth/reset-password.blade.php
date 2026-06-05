@@ -59,11 +59,36 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
         }
+
+        @media (max-width: 480px) {
+            .efood-title {
+                font-size: 22px !important;
+            }
+
+            .efood-subtitle {
+                font-size: 13px !important;
+            }
+
+            .efood-input {
+                padding: 12px 14px 12px 42px;
+                font-size: 14px;
+            }
+
+            .efood-icon {
+                left: 14px;
+                font-size: 16px;
+            }
+
+            .efood-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
     </style>
 
     <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Buat Password Baru 🔑</h2>
-        <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+        <h2 class="efood-title" style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Buat Password Baru 🔑</h2>
+        <p class="efood-subtitle" style="font-size: 14px; color: #6b7280; line-height: 1.6;">
             Silakan masukkan email dan password baru kamu di bawah ini untuk mereset keamanan akunmu.
         </p>
     </div>

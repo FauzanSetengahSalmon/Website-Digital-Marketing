@@ -8,16 +8,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
-<body class="bg-light p-3">
-    <div class="card shadow-sm mx-auto" style="max-width: 450px;">
+<body class="bg-light p-2 p-sm-3">
+    <div class="card shadow-sm mx-auto w-100" style="max-width: 450px;">
         <div class="card-header bg-success text-white">
             <h5 class="mb-0 fw-bold"><i class="bi bi-truck"></i> Bukti Pengiriman #{{ $order->id }}</h5>
         </div>
         <div class="card-body">
 
-            {{-- CEK STATUS PESANAN --}}
             @if($order->status == 'selesai')
-            {{-- JIKA SUDAH SELESAI, TAMPILKAN PESAN SUKSES --}}
             <div class="text-center py-4">
                 <div class="text-success fs-1"><i class="bi bi-check-circle-fill"></i></div>
                 <h4 class="fw-bold mt-2">Pesanan Selesai!</h4>
@@ -31,12 +29,11 @@
                 @endif
             </div>
             @else
-            {{-- JIKA BELUM SELESAI, TAMPILKAN DETAIL & FORM --}}
             <div class="mb-3">
                 <small class="text-muted text-uppercase fw-bold">Penerima:</small>
-                <div class="fw-bold fs-5">{{ $order->user->name ?? 'Pelanggan' }}</div>
-                <div class="text-muted"><i class="bi bi-telephone-fill"></i> {{ $order->nomor_hp ?? '-' }}</div>
-                <div class="small mt-1"><i class="bi bi-geo-alt-fill text-danger"></i> {{ $order->alamat ?? '-' }}</div>
+                <div class="fw-bold fs-5 text-break">{{ $order->user->name ?? 'Pelanggan' }}</div>
+                <div class="text-muted text-break"><i class="bi bi-telephone-fill"></i> {{ $order->nomor_hp ?? '-' }}</div>
+                <div class="small mt-1 text-break"><i class="bi bi-geo-alt-fill text-danger"></i> {{ $order->alamat ?? '-' }}</div>
             </div>
 
             <hr>
@@ -45,8 +42,8 @@
                 <small class="text-muted text-uppercase fw-bold">Daftar Produk:</small>
                 <ul class="list-group list-group-flush mt-2">
                     @foreach($order->details as $detail)
-                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                        <div>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2">
+                        <div class="text-break">
                             <span class="fw-semibold">{{ $detail->product->nama_produk ?? 'Produk' }}</span>
                             <div class="text-muted small">{{ $detail->jumlah }} {{ $detail->product->satuan ?? 'Pcs' }}</div>
                         </div>
@@ -60,7 +57,7 @@
             <form action="{{ route('kurir.store', [$order->id, $order->delivery_token]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
-                    <label class="fw-bold">Foto Bukti Penerimaan:</label>
+                    <label class="fw-bold mb-1">Foto Bukti Penerimaan:</label>
                     <input type="file" name="bukti_sampai" class="form-control" accept="image/*" capture="environment" required>
                     <small class="text-muted d-block mt-1"><i class="bi bi-info-circle"></i> Gunakan kamera untuk memotret paket di lokasi.</small>
                 </div>

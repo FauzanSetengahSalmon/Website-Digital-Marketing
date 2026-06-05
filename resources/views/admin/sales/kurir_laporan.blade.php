@@ -4,7 +4,7 @@
 <div class="container-fluid py-4 no-print-container">
 
     {{-- HEADER --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 no-print">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
                 <a href="{{ route('admin.kurir.index') }}" class="btn btn-sm btn-light rounded-circle shadow-sm">
@@ -42,7 +42,7 @@
         {{-- Total Pendapatan Kurir (100%) --}}
         <div class="col-12 col-md-6">
             <div class="card stat-card border-0 shadow-sm h-100 bg-gradient-success text-white">
-                <div class="card-body p-4">
+                <div class="card-body p-3 p-md-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="small fw-bold text-uppercase tracking-wider opacity-75">
                             Total Pendapatan (100% Hak Kurir)
@@ -62,7 +62,7 @@
         {{-- Jumlah Pengiriman --}}
         <div class="col-12 col-md-6">
             <div class="card stat-card border-0 shadow-sm h-100 bg-white">
-                <div class="card-body p-4">
+                <div class="card-body p-3 p-md-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="small fw-semibold text-muted text-uppercase tracking-wider">
                             Jumlah Trip / Order
@@ -85,11 +85,11 @@
 
     {{-- FILTER DATA --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 no-print bg-white">
-        <div class="card-body p-4">
+        <div class="card-body p-3 p-md-4">
             <h5 class="fw-bold text-dark mb-3"><i class="bi bi-funnel text-success me-2"></i>Filter Laporan</h5>
             <form action="{{ route('admin.kurir.laporan', $kurir->id) }}" method="GET">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Bulan</label>
                         <select name="month" class="form-select rounded-3 border-secondary-subtle py-2">
                             @for($m=1; $m<=12; $m++)
@@ -100,7 +100,7 @@
                                 @endfor
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <label class="form-label small fw-semibold text-muted mb-2">Tahun</label>
                         <select name="year" class="form-select rounded-3 border-secondary-subtle py-2">
                             @for($y=2024; $y<=max(2024, date('Y')); $y++)
@@ -110,7 +110,7 @@
                                 @endfor
                         </select>
                     </div>
-                    <div class="col-md-4 d-flex gap-2">
+                    <div class="col-12 col-md-4 d-flex gap-2">
                         <button type="submit" class="btn btn-success rounded-3 w-100 py-2 fw-semibold shadow-sm">
                             <i class="bi bi-filter me-1"></i> Terapkan
                         </button>
@@ -144,24 +144,24 @@
     <form id="formCairkan" action="{{ route('admin.kurir.cairkan', $kurir->id) }}" method="POST">
         @csrf
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden no-print bg-white">
-            <div class="card-header bg-white border-0 px-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <h5 class="fw-bold text-dark mb-0">
                     <i class="bi bi-clock-history text-success me-2"></i>Riwayat Pengiriman
                 </h5>
 
-                {{-- 2 TOMBOL PROFESIONAL --}}
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <button type="button" id="btn-cetak-terpilih" class="btn btn-warning btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalCairkan" disabled>
-                        <i class="bi bi-wallet2"></i> Cairkan & Cetak Pilihan
+                {{-- 2 TOMBOL PROFESIONAL - Responsive --}}
+                <div class="d-flex align-items-center gap-2 flex-wrap w-100 w-md-auto">
+                    <button type="button" id="btn-cetak-terpilih" class="btn btn-warning btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold flex-grow-1 flex-md-grow-0 justify-content-center" data-bs-toggle="modal" data-bs-target="#modalCairkan" disabled>
+                        <i class="bi bi-wallet2"></i> Cetak Pilihan
                     </button>
 
-                    <button type="button" id="btn-cetak-semua" class="btn btn-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" {{ $pendingCount == 0 ? 'disabled' : '' }}>
-                        <i class="bi bi-cash-coin"></i> Cairkan & Cetak Semua
+                    <button type="button" id="btn-cetak-semua" class="btn btn-success btn-sm rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold flex-grow-1 flex-md-grow-0 justify-content-center" {{ $pendingCount == 0 ? 'disabled' : '' }}>
+                        <i class="bi bi-cash-coin"></i> Cetak Semua
                     </button>
                 </div>
             </div>
 
-            {{-- MODAL KONFIRMASI (TanPA INPUT TEKS) --}}
+            {{-- MODAL KONFIRMASI --}}
             <div class="modal fade" id="modalCairkan" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -179,17 +179,19 @@
                                 Data transaksi akan ditandai <strong>Sudah Cair</strong> secara permanen di database dan bukti penyerahan dana akan otomatis dicetak.
                             </div>
                         </div>
-                        <div class="modal-footer border-0 p-4 pt-0 justify-content-center">
-                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-success rounded-pill fw-bold px-5 shadow-sm">Proses & Cetak Struk</button>
+                        <div class="modal-footer border-0 p-4 pt-0 justify-content-center flex-column flex-sm-row gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4 w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-success rounded-pill fw-bold px-4 px-sm-5 shadow-sm w-100 w-sm-auto">Proses & Cetak</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card-body p-0 mt-3">
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0 table-hover" id="interactive-table">
+                {{-- Penambahan custom-scrollbar --}}
+                <div class="table-responsive custom-scrollbar">
+                    {{-- Penambahan text-nowrap --}}
+                    <table class="table align-middle mb-0 table-hover text-nowrap" id="interactive-table">
                         <thead class="table-light text-uppercase tracking-wider fs-7">
                             <tr>
                                 <th class="ps-4 py-3" style="width: 40px;" title="Pilih Semua yang Belum Cair">
@@ -218,7 +220,6 @@
                             <tr class="data-row {{ $rowClass }}" data-id="{{ $order->id }}" data-date="{{ $order->created_at->timestamp }}" data-status-text="{{ $order->status }}">
                                 <td class="ps-4 py-3">
                                     @if($isCair)
-                                    {{-- PERBAIKAN: Menambahkan value dan data-ongkir agar Javascript tetap bisa membaca data ini saat dicetak --}}
                                     <input type="checkbox" class="form-check-input bg-secondary border-secondary shadow-none order-checkbox-disabled" value="{{ $order->id }}" data-ongkir="{{ $order->ongkir }}" disabled checked style="cursor: not-allowed;">
                                     @else
                                     <input type="checkbox" name="order_ids[]" class="form-check-input order-checkbox shadow-sm border-secondary" value="{{ $order->id }}" data-ongkir="{{ $order->ongkir }}" {{ $order->status == 'selesai' ? '' : 'disabled' }} style="cursor: pointer;">
@@ -231,9 +232,10 @@
                                     <div class="fw-semibold {{ $isCair ? 'text-muted' : 'text-dark' }}">{{ $order->user->name ?? 'Masyarakat' }}</div>
                                     <small class="{{ $isCair ? 'text-muted' : 'text-secondary' }} font-monospace">{{ $order->nomor_hp ?? $order->user->phone_number ?? '-' }}</small>
                                 </td>
-                                <td class="py-3" style="max-width: 250px;">
-                                    <div class="text-truncate {{ $isCair ? 'text-muted' : 'text-dark' }}" title="{{ $order->alamat }}">
-                                        {{ $order->alamat }}
+                                {{-- Penambahan min-width dan white-space normal agar alamat panjang bisa wrap ke bawah --}}
+                                <td class="py-3" style="min-width: 200px; max-width: 250px; white-space: normal;">
+                                    <div class="{{ $isCair ? 'text-muted' : 'text-dark' }} lh-sm" title="{{ $order->alamat }}">
+                                        {{ Str::limit($order->alamat, 60) }}
                                     </div>
                                 </td>
                                 <td class="py-3 text-secondary small">
@@ -409,6 +411,16 @@
 
     .table tbody tr:hover {
         background-color: rgba(16, 185, 129, 0.02) !important;
+    }
+
+    /* CUSTOM SCROLLBAR UNTUK MOBILE */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
     }
 
     /* PRINT STYLING */

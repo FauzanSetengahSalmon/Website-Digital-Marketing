@@ -78,11 +78,17 @@
         border: 1px solid #a7f3d0;
         color: #065f46;
     }
+
+    /* Tambahan agar header tidak terlalu lebar di layar HP */
+    @media (max-width: 768px) {
+        .profile-header-admin {
+            padding: 20px;
+        }
+    }
 </style>
 
 <div class="container-fluid py-4">
 
-    <!-- HEADER -->
     <div class="mb-4">
         <h4 class="fw-bold mb-0">
             Profil <span style="color: var(--kwt-light);">Administrator</span>
@@ -93,7 +99,6 @@
         </p>
     </div>
 
-    <!-- SUCCESS -->
     @if (session('success') || session('status') === 'profile-updated')
     <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4"
         role="alert"
@@ -111,7 +116,6 @@
     </div>
     @endif
 
-    <!-- ERROR -->
     @if ($errors->any())
     <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4"
         role="alert"
@@ -138,19 +142,17 @@
     </div>
     @endif
 
-    <div class="row">
+    <div class="row g-4">
 
-        <!-- FORM -->
-        <div class="col-xl-8">
+        <div class="col-12 col-xl-8">
 
-            <div class="profile-card shadow-sm mb-4">
+            <div class="profile-card shadow-sm mb-4 h-100">
 
-                <!-- HEADER -->
                 <div class="profile-header-admin text-white">
 
                     <div class="d-flex align-items-center gap-3">
 
-                        <div class="bg-white rounded-3 d-flex align-items-center justify-content-center"
+                        <div class="bg-white rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
                             style="width: 50px; height: 50px;">
 
                             <i class="bi bi-shield-lock fs-4"
@@ -169,8 +171,7 @@
                     </div>
                 </div>
 
-                <!-- BODY -->
-                <div class="p-4">
+                <div class="p-3 p-md-4">
 
                     <form method="POST" action="{{ route('profile.update') }}">
                         @csrf
@@ -178,7 +179,7 @@
 
                         <div class="row g-3">
 
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Nama Lengkap
                                 </label>
@@ -190,7 +191,7 @@
                                     required>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Email Administrator
                                 </label>
@@ -202,7 +203,7 @@
                                     required>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Nomor Telepon
                                 </label>
@@ -214,7 +215,7 @@
                                     placeholder="08xxxxxxxxxx">
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Role Akun
                                 </label>
@@ -226,9 +227,9 @@
                             </div>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="mt-4 d-grid d-md-block">
                             <button type="submit"
-                                class="btn-thin btn-update shadow-sm">
+                                class="btn-thin btn-update shadow-sm w-100 w-md-auto py-2">
 
                                 <i class="bi bi-save me-1"></i>
                                 Simpan Perubahan
@@ -241,8 +242,7 @@
             </div>
         </div>
 
-        <!-- SIDEBAR -->
-        <div class="col-xl-4">
+        <div class="col-12 col-xl-4">
 
             <div class="profile-card shadow-sm p-4 text-center">
 
@@ -300,19 +300,18 @@
 
                 <div class="text-start small text-muted">
 
-                    <p class="mb-2">
+                    <p class="mb-2 d-flex align-items-center">
                         <i class="bi bi-calendar-check me-2"
                             style="color: var(--kwt-light);"></i>
 
-                        Bergabung:
-                        {{ Auth::user()->created_at->format('d M Y') }}
+                        <span>Bergabung: {{ Auth::user()->created_at->format('d M Y') }}</span>
                     </p>
 
-                    <p class="mb-0">
+                    <p class="mb-0 d-flex align-items-center text-wrap" style="word-break: break-all;">
                         <i class="bi bi-envelope me-2"
                             style="color: var(--kwt-light);"></i>
 
-                        {{ Auth::user()->email }}
+                        <span>{{ Auth::user()->email }}</span>
                     </p>
 
                 </div>

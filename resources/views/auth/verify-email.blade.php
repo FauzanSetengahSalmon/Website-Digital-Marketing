@@ -111,6 +111,41 @@
                 transform: translateY(0);
             }
         }
+
+        /* Penyesuaian untuk Layar Smartphone */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+
+            .icon {
+                width: 75px;
+                height: 75px;
+                font-size: 32px;
+                margin-bottom: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            p {
+                font-size: 14px;
+                margin-bottom: 20px;
+                line-height: 1.6;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 

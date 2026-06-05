@@ -12,19 +12,19 @@
         color: #111827;
     }
 
-    /* CONTAINER */
     .invoice-wrapper {
         max-width: 700px;
         margin: 28px auto;
         padding: 0 16px;
+        width: 100%;
     }
 
-    /* ACTION */
     .top-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 18px;
+        gap: 10px;
     }
 
     .back-link {
@@ -32,6 +32,8 @@
         color: #166534;
         font-size: 11px;
         font-weight: 700;
+        display: inline-flex;
+        align-items: center;
     }
 
     .print-btn {
@@ -49,7 +51,6 @@
         background: #000;
     }
 
-    /* CSS Tambahan untuk tombol disabled */
     .print-btn:disabled {
         background: #9ca3af !important;
         color: #f3f4f6 !important;
@@ -57,15 +58,16 @@
         opacity: 0.7;
     }
 
-    /* CARD */
     .invoice-card {
         background: white;
         border-radius: 24px;
         overflow: hidden;
         box-shadow: 0 8px 30px rgba(0, 0, 0, .04);
+        width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
-    /* HEADER */
     .invoice-header {
         padding: 26px 28px;
         border-bottom: 1px solid #f1f5f9;
@@ -94,14 +96,13 @@
         border-radius: 999px;
         font-size: 11px;
         font-weight: 700;
+        white-space: nowrap;
     }
 
-    /* BODY */
     .invoice-body {
         padding: 24px 28px;
     }
 
-    /* INFO */
     .info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -113,6 +114,7 @@
         background: #f9fafb;
         border-radius: 18px;
         padding: 14px 16px;
+        min-width: 0;
     }
 
     .info-label {
@@ -129,14 +131,12 @@
         font-weight: 700;
     }
 
-    /* SECTION */
     .section-title {
         font-size: 12px;
         font-weight: 700;
         margin-bottom: 12px;
     }
 
-    /* PRODUCT */
     .product-item {
         border: 1px solid #f1f5f9;
         border-radius: 18px;
@@ -146,6 +146,7 @@
         justify-content: space-between;
         align-items: center;
         background: white;
+        gap: 12px;
     }
 
     .product-name {
@@ -161,6 +162,7 @@
 
     .product-price {
         text-align: right;
+        flex-shrink: 0;
     }
 
     .product-price small {
@@ -175,7 +177,10 @@
         color: #16a34a;
     }
 
-    /* SUMMARY */
+    .product-item-price {
+        flex-shrink: 0;
+    }
+
     .summary-card {
         margin-top: 22px;
         border: 1px solid #f1f5f9;
@@ -190,15 +195,20 @@
         font-size: 11px;
         margin-bottom: 10px;
         color: #374151;
+        gap: 10px;
     }
 
     .summary-total {
         margin-top: 12px;
         padding-top: 14px;
-        border-top: 1px dashed #d1d5db;
+        border-top: 1px dashed #d1d gray;
+        border-top-style: dashed;
+        border-top-width: 1px;
+        border-top-color: #d1d5db;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 10px;
     }
 
     .summary-total span {
@@ -212,7 +222,6 @@
         color: #111827;
     }
 
-    /* DELIVERY */
     .delivery-card {
         margin-top: 20px;
         border: 1px solid #f1f5f9;
@@ -237,6 +246,7 @@
         justify-content: center;
         color: #16a34a;
         font-size: 16px;
+        flex-shrink: 0;
     }
 
     .delivery-label {
@@ -259,7 +269,6 @@
         margin-top: 2px;
     }
 
-    /* NOTE */
     .note-box {
         margin-top: 12px;
         background: #f9fafb;
@@ -270,7 +279,6 @@
         line-height: 1.6;
     }
 
-    /* FOOTER */
     .footer {
         margin-top: 24px;
         text-align: center;
@@ -289,8 +297,25 @@
     }
 
     @media(max-width:576px) {
+        .invoice-wrapper {
+            margin: 12px auto;
+        }
+
+        .invoice-header {
+            padding: 18px 20px;
+        }
+
+        .invoice-body {
+            padding: 18px 20px;
+        }
+
         .info-grid {
             grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .info-card.text-end {
+            text-align: left !important;
         }
 
         .product-item {
@@ -303,19 +328,25 @@
             text-align: left;
         }
 
+        .product-item-price.text-end {
+            text-align: left !important;
+        }
+
         .top-bar {
             flex-direction: column;
             align-items: flex-start;
             gap: 10px;
         }
+
+        .summary-total strong {
+            font-size: 18px;
+        }
     }
 
-    /* 🌟 PERBAIKAN STRUKTUR CSS KHUSUS PRINT AGAR PAS SATU HALAMAN PDF 🌟 */
     @media print {
         @page {
             size: A4;
             margin: 10mm 12mm 10mm 12mm;
-            /* Persempit margin kertas */
         }
 
         .no-print {
@@ -325,7 +356,6 @@
         body {
             background: white;
             font-size: 10px;
-            /* Perkecil ukuran font dasar global */
         }
 
         .invoice-wrapper {
@@ -339,7 +369,6 @@
             border: none;
         }
 
-        /* Padatkan padding setiap section card */
         .invoice-header {
             padding: 12px 15px !important;
         }
@@ -384,7 +413,6 @@
             border-radius: 14px !important;
         }
 
-        /* Batasi tinggi gambar agar tidak memakan sisa space halaman */
         .img-print-target {
             max-height: 160px !important;
         }
@@ -397,7 +425,6 @@
 
 <div class="invoice-wrapper">
 
-    {{-- Tombol kembali pintar otomatis --}}
     <div class="top-bar no-print">
         <a href="{{ url()->previous() }}" class="back-link">
             <i class="bi bi-arrow-left"></i> Kembali
@@ -460,7 +487,6 @@
             </div>
             @endforeach
 
-            {{-- Ringkasan Pembayaran Khusus KWT Bersih --}}
             <div class="summary-card">
                 <div class="summary-row">
                     <span>Subtotal Produk Anda</span>
@@ -499,7 +525,6 @@
                 </div>
             </div>
 
-            {{-- 📸 FOTO BUKTI TERIMA CUSTOMER (KOTAK TUNGGAL FULL-WIDTH) 📸 --}}
             <div class="mt-4 p-3 border rounded-4 text-center bg-light">
                 <div class="info-label text-start mb-2" style="color: #15803d; font-weight: 800;">
                     <i class="bi bi-image-fill"></i> Foto Bukti Terima Customer:

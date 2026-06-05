@@ -13,13 +13,11 @@
             color: #10b981;
             font-size: 18px;
             pointer-events: none;
-            /* Biar ikonnya gak bisa diklik, tembus ke input */
         }
 
         .taniCibiru-input {
             width: 100%;
             padding: 14px 16px 14px 48px;
-            /* 48px ini yang bikin jarak supaya teks gak nabrak ikon! */
             border: 2px solid #e5e7eb;
             border-radius: 14px;
             font-size: 15px;
@@ -27,13 +25,11 @@
             background-color: #f9fafb;
             transition: all 0.3s ease;
             outline: none !important;
-            /* MATIKAN GARIS BIRU BAWAAN BROWSER! */
             box-sizing: border-box;
         }
 
         .taniCibiru-input:focus {
             border-color: #10b981 !important;
-            /* Paksa jadi hijau */
             background-color: #ffffff;
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
         }
@@ -80,11 +76,36 @@
         .taniCibiru-link:hover {
             color: #10b981;
         }
+
+        @media (max-width: 576px) {
+            .taniCibiru-input {
+                padding: 12px 14px 12px 42px;
+                font-size: 14px;
+            }
+
+            .taniCibiru-icon {
+                font-size: 16px;
+                left: 14px;
+            }
+
+            .taniCibiru-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .responsive-heading {
+                font-size: 24px !important;
+            }
+
+            .responsive-text {
+                font-size: 13px !important;
+            }
+        }
     </style>
 
     <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Lupa Password? 🔐</h2>
-        <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+        <h2 class="responsive-heading" style="font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">Lupa Password? 🔐</h2>
+        <p class="responsive-text" style="font-size: 14px; color: #6b7280; line-height: 1.6;">
             Tenang saja! Masukkan email kamu, dan kami akan mengirimkan link untuk mengatur ulang password.
         </p>
     </div>

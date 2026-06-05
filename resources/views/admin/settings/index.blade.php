@@ -68,6 +68,8 @@
         align-items: center;
         justify-content: center;
         font-size: 1.8rem;
+        flex-shrink: 0;
+        /* Mencegah ikon mengecil di layar HP */
     }
 
     .btn-success {
@@ -79,11 +81,25 @@
         background: #053b2c;
         border-color: #053b2c;
     }
+
+    /* Penyesuaian khusus layar HP */
+    @media (max-width: 768px) {
+        .page-card {
+            border-radius: 16px;
+        }
+
+        .icon-box-lg {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            border-radius: 12px;
+        }
+    }
 </style>
 
 <div class="container-fluid py-4">
 
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
             <h2 class="fw-bold text-dark mb-1">Pengaturan Aplikasi</h2>
             <p class="text-muted mb-0">Kelola tarif pengiriman, batas jarak, dan biaya layanan sistem.</p>
@@ -97,9 +113,10 @@
     </div>
     @endif
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
-            <div class="page-card shadow-sm p-4 p-md-5">
+            {{-- Padding disesuaikan: p-3 untuk HP, p-md-5 untuk Desktop --}}
+            <div class="page-card shadow-sm p-3 p-md-5">
 
                 <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-4">
                     <div class="icon-box-lg"><i class="bi bi-gear-fill"></i></div>
@@ -135,24 +152,26 @@
                             <small class="petunjuk-admin"><i class="bi bi-truck me-1"></i>Dikalikan dengan jarak pelanggan. <strong class="text-success">100% masuk ke kurir</strong>.</small>
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label-bold">Batas Normal Kapasitas Barang </label>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label-bold">Batas Normal Kapasitas Barang</label>
                             <div class="input-group">
                                 <input type="number" name="batas_jumlah_barang" class="form-control input-clean" value="{{ $setting->batas_jumlah_barang ?? 0 }}" required style="border-radius: 12px 0 0 12px;">
                                 <span class="input-group-text" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 0 12px 12px 0;">Item</span>
                             </div>
-                            <small class="petunjuk-admin"><i class="bi bi-box me-1"></i>Misal diisi 10, ongkir kurir akan naik setiap kelipatan 10 barang. Isi 0 untuk mematikan.</small>
+                            <small class="petunjuk-admin"><i class="bi bi-box me-1"></i>Misal diisi 10, ongkir kurir naik setiap kelipatan 10 barang. Isi 0 untuk mematikan.</small>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label-bold">Ongkir Ekstra per Kelipatan</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">Rp</span>
                                 <input type="number" name="biaya_tambahan_per_barang" class="form-control input-clean input-clean-group" value="{{ $setting->biaya_tambahan_per_barang ?? 0 }}" required>
                             </div>
-                            <small class="petunjuk-admin"><i class="bi bi-plus-circle me-1"></i>Tarif tambahan (masuk ke kurir) setiap kali melewati batas jumlah barang di atas.</small>
+                            <small class="petunjuk-admin"><i class="bi bi-plus-circle me-1"></i>Tarif tambahan (masuk ke kurir) tiap kali melewati batas jumlah barang di atas.</small>
                         </div>
-                        <div class="col-md-6 mt-4">
+
+                        {{-- Menggunakan class bawaan gap (g-4) row, jadi mt-4 manual dihapus agar sejajar rapi di mobile --}}
+                        <div class="col-12 col-md-6">
                             <label class="form-label-bold">Batas Minimal Jarak (KM)</label>
                             <div class="input-group">
                                 <input type="number" name="minimal_km" class="form-control input-clean" value="{{ $setting->minimal_km ?? 1 }}" required style="border-radius: 12px 0 0 12px;">
@@ -161,7 +180,7 @@
                             <small class="petunjuk-admin">Jarak terdekat yang dihitung.</small>
                         </div>
 
-                        <div class="col-md-6 mt-4">
+                        <div class="col-12 col-md-6">
                             <label class="form-label-bold">Batas Maksimal Jarak (KM)</label>
                             <div class="input-group">
                                 <input type="number" name="maksimal_km" class="form-control input-clean" value="{{ $setting->maksimal_km ?? 15 }}" required style="border-radius: 12px 0 0 12px;">
@@ -171,10 +190,11 @@
                         </div>
                     </div>
 
-                    <hr class="my-5" style="border-color: #e2e8f0;">
+                    <hr class="my-4 my-md-5" style="border-color: #e2e8f0;">
 
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-success rounded-pill px-5 py-2.5 fw-bold shadow-sm" style="font-size: 1.05rem;">
+                    {{-- D-grid digunakan agar tombol full-width di HP, tapi merapat ke kanan di Desktop --}}
+                    <div class="d-grid d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-success rounded-pill px-5 py-2.5 fw-bold shadow-sm w-100 w-md-auto" style="font-size: 1.05rem;">
                             <i class="bi bi-save2-fill me-2"></i> Simpan Perubahan
                         </button>
                     </div>
@@ -182,8 +202,8 @@
             </div>
         </div>
 
-        <div class="col-lg-4 mt-4 mt-lg-0">
-            <div class="page-card shadow-sm p-4 bg-success bg-opacity-10 border-success border-opacity-25">
+        <div class="col-lg-4">
+            <div class="page-card shadow-sm p-4 bg-success bg-opacity-10 border-success border-opacity-25 h-100">
                 <h6 class="fw-bold text-success mb-3"><i class="bi bi-lightbulb-fill me-2"></i>Simulasi Hak Kurir</h6>
 
                 <div class="small text-dark lh-lg">

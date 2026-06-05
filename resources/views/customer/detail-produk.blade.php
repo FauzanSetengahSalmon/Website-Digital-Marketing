@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $product->nama_produk . ' - EFood')
+@section('title', $product->nama_produk . ' - Tani Cibiru')
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -69,9 +69,7 @@
         letter-spacing: -0.5px;
     }
 
-    /* -------------------------------------------------------------------------
-       PERBAIKAN DESAIN QTY INPUT (LEBIH TIPIS, DETAIL & DI TENGAH)
-    ------------------------------------------------------------------------- */
+    /* QTY INPUT CONTAINER */
     .qty-input-container {
         display: inline-flex;
         align-items: center;
@@ -80,9 +78,7 @@
         border-radius: 12px;
         padding: 4px;
         border: 1px solid #e2e8f0;
-        /* Outline tipis yang lebih elegan */
         width: 130px;
-        /* Lebar statis agar konten selalu presisi di tengah */
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         transition: all 0.2s ease;
     }
@@ -108,13 +104,20 @@
         cursor: pointer;
     }
 
-    .qty-btn:hover {
+    .qty-btn:hover:not(:disabled) {
         background: #e8f5e9;
         color: #1e5217;
         border-color: #c8e6c9;
     }
 
-    .qty-btn:active {
+    .qty-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .qty-btn:active:not(:disabled) {
         transform: scale(0.95);
     }
 
@@ -134,7 +137,6 @@
         outline: none;
     }
 
-    /* Menyembunyikan icon panah atas/bawah bawaan input type="number" */
     .qty-input::-webkit-outer-spin-button,
     .qty-input::-webkit-inner-spin-button {
         -webkit-appearance: none;
@@ -143,10 +145,7 @@
 
     .qty-input[type=number] {
         -moz-appearance: textfield;
-        /* Firefox */
     }
-
-    /* ------------------------------------------------------------------------- */
 
     /* Call To Action Button */
     .btn-add-cart {
@@ -162,14 +161,14 @@
         box-shadow: 0 6px 20px rgba(76, 175, 80, 0.25);
     }
 
-    .btn-add-cart:hover {
+    .btn-add-cart:hover:not(:disabled) {
         background: #1e5217;
         color: white;
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(30, 82, 23, 0.3);
     }
 
-    .btn-add-cart:active {
+    .btn-add-cart:active:not(:disabled) {
         transform: translateY(-1px);
     }
 
@@ -350,7 +349,7 @@
                     <div class="mb-4">
                         <h6 class="fw-bold text-dark mb-2" style="font-size: 1rem;">Deskripsi Produk</h6>
                         <p class="text-secondary mb-0 lh-base" style="font-size: 0.95rem;">
-                            {{ $product->deskripsi ?? 'Produk sayur atau buah segar pilihan berkualitas tinggi, diproduksi langsung oleh Kelompok Wanita Tani (KWT) mitra kami dengan metode pertanian yang aman, bersih, dan higienis.' }}
+                            {{ $product->deskripsi ?? 'Produk sayur atau buah segar pilihan berkualitas tinggi, diproduksi langsung dari panen hasil sendiri oleh Kelompok Wanita Tani (KWT) mitra kami dengan metode yang aman, bersih, dan higienis.' }}
                         </p>
                     </div>
                 </div>
@@ -358,9 +357,9 @@
                 <div class="mt-4 pt-3 border-top border-light">
                     @if($product->stok > 0)
                     <div class="row g-3 align-items-end">
-                        <div class="col-12 col-sm-auto">
+                        <div class="col-12 col-sm-auto text-center text-sm-start">
                             <label class="small fw-bold text-muted d-block mb-2 text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Jumlah</label>
-                            <div class="qty-input-container mx-auto mx-sm-0">
+                            <div class="qty-input-container">
                                 <button type="button" class="qty-btn" id="btn-minus">
                                     <i class="bi bi-dash"></i>
                                 </button>
@@ -397,9 +396,9 @@
         <p class="efood-modal-text" id="modalText">Produk pilihan Anda telah berhasil dimasukkan ke keranjang belanja.</p>
         <div class="efood-modal-buttons">
             <a href="{{ route('cart.index') }}" class="efood-btn-primary" id="modalActionBtn">Lihat Keranjang</a>
-            <a href="{{ route('customer.katalog') }}" class="btn efood-btn-secondary text-decoration-none d-inline-flex align-items-center justify-content-center" id="modalCloseBtn">
+            <button type="button" class="btn efood-btn-secondary d-inline-flex align-items-center justify-content-center" id="modalCloseBtn">
                 Lanjut Belanja
-            </a>
+            </button>
         </div>
     </div>
 </div>
@@ -418,7 +417,17 @@
         const modalActionBtn = document.getElementById('modalActionBtn');
         const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-        const maxStock = parseInt("{{ $product->stok }}");
+        // Mengamankan parsing maxStock dari Blade ke JS jika nilai kosong atau bermasalah
+        const maxStock = parseInt("{{ $product->stok }}") || 0;
+
+        // Fungsi kontrol state aktif/disabled tombol minus dan plus demi UX yang baik
+        function updateButtonState() {
+            if (!qtyInput) return;
+            let currentVal = parseInt(qtyInput.value);
+
+            btnMinus.disabled = (currentVal <= 1);
+            btnPlus.disabled = (currentVal >= maxStock);
+        }
 
         function showCustomModal(type, title, message, actionText, actionUrl) {
             if (type === 'success') {
@@ -436,9 +445,11 @@
             efoodModal.classList.add('active');
         }
 
-        modalCloseBtn.addEventListener('click', function() {
-            efoodModal.classList.remove('active');
-        });
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', function() {
+                efoodModal.classList.remove('active');
+            });
+        }
 
         efoodModal.addEventListener('click', function(e) {
             if (e.target === efoodModal) {
@@ -447,14 +458,23 @@
         });
 
         if (qtyInput) {
+            // Jalankan inisialisasi awal tombol +/- state
+            updateButtonState();
+
             btnMinus.addEventListener('click', function() {
                 let val = parseInt(qtyInput.value);
-                if (val > 1) qtyInput.value = val - 1;
+                if (val > 1) {
+                    qtyInput.value = val - 1;
+                    updateButtonState();
+                }
             });
 
             btnPlus.addEventListener('click', function() {
                 let val = parseInt(qtyInput.value);
-                if (val < maxStock) qtyInput.value = val + 1;
+                if (val < maxStock) {
+                    qtyInput.value = val + 1;
+                    updateButtonState();
+                }
             });
 
             btnSubmit.addEventListener('click', function() {

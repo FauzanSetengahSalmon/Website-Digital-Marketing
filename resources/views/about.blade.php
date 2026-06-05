@@ -216,6 +216,27 @@
         }
     }
 </style>
+
+<style id="extra-responsive-fix">
+@media (max-width: 991.98px){
+    .hero-content,.about-wrapper{padding:32px!important;}
+}
+@media (max-width: 767.98px){
+    .hero-section,.about-hero{min-height:auto!important;border-radius:18px!important;}
+    .hero-content,.about-wrapper{padding:24px 18px!important;text-align:center!important;}
+    .hero-title,.about-title{font-size:2rem!important;}
+    .about-sub{font-size:1.2rem!important;}
+    .section-title{font-size:1.6rem!important;}
+    .cta-section{padding:24px!important;}
+    .d-flex.gap-3{flex-wrap:wrap;}
+}
+@media (max-width: 575.98px){
+    .hero-title,.about-title{font-size:1.7rem!important;}
+    .btn-green,.btn-outline-green{width:100%;justify-content:center;}
+    .col-6,.col-md-3,.col-md-4,.col-lg-3{margin-bottom:.75rem;}
+}
+</style>
+
 @endpush
 
 
@@ -253,7 +274,7 @@
 
         <div class="col-md-4">
             <div class="journey-card shadow-sm">
-                {{-- Ikon matahari (alam terbuka) --}}
+                
                 <div class="journey-icon"><i class="bi bi-sun"></i></div>
                 <div class="journey-title">1. Ditanam Sepenuh Hati</div>
                 <div class="journey-desc">Bukan dari lahan industri besar, tapi murni dari kebun pekarangan desa. Benih sayur pilihan ditanam dan dirawat langsung oleh tangan terampil ibu-ibu KWT.</div>
@@ -262,7 +283,7 @@
 
         <div class="col-md-4">
             <div class="journey-card shadow-sm">
-                {{-- Ikon air --}}
+                
                 <div class="journey-icon"><i class="bi bi-droplet"></i></div>
                 <div class="journey-title">2. Dirawat Tanpa Kimia</div>
                 <div class="journey-desc">Kami sama sekali tidak menggunakan pestisida beracun. Tanaman hanya diberi pupuk kompos dan organik supaya sayurannya benar-benar aman dan sehat untuk dikonsumsi.</div>
@@ -271,7 +292,7 @@
 
         <div class="col-md-4">
             <div class="journey-card shadow-sm">
-                {{-- Ikon keranjang panen --}}
+                
                 <div class="journey-icon"><i class="bi bi-basket"></i></div>
                 <div class="journey-title">3. Petik & Langsung Antar</div>
                 <div class="journey-desc">Sayur baru akan dicabut dari tanah begitu ada pesanan masuk. Jadi, sayur yang sampai ke dapur Anda dijamin masih renyah, segar, dan tidak layu di jalan.</div>

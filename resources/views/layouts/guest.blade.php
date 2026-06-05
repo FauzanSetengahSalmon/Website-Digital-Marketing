@@ -51,15 +51,17 @@
 
         <div class="mb-6 animate-[slideUp_0.5s_ease-out]">
             <a href="/" class="flex flex-col items-center gap-3 text-decoration-none hover:opacity-90 transition-opacity">
+                {{-- Container Logo --}}
                 <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-md p-2 overflow-hidden border border-emerald-100">
                     <img src="{{ asset('image/logo-cibiru.png') }}"
                         alt="Logo Cibiru"
-                        style="width: 120px; height: 120px; object-fit: contain;">
+                        class="w-full h-full object-contain">
                 </div>
             </a>
         </div>
 
-        <div class="w-full px-10 py-12 glass-card" style="max-width: 550px;">
+        {{-- Container Card (Lebih responsif di layar kecil dengan px-6) --}}
+        <div class="w-full px-6 sm:px-10 py-12 glass-card" style="max-width: 550px;">
             {{ $slot }}
         </div>
 

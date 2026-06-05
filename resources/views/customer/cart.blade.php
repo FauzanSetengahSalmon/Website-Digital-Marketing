@@ -11,7 +11,6 @@
         color: #334155;
     }
 
-    /* List Area */
     .cart-item {
         border-bottom: 1px solid #f1f5f9;
         padding: 24px 0;
@@ -22,7 +21,6 @@
         border-bottom: none;
     }
 
-    /* Image Slim & Premium */
     .img-wrapper {
         width: 80px;
         height: 80px;
@@ -40,7 +38,6 @@
         border-radius: 8px;
     }
 
-    /* Qty Box (Sleek & Centered) */
     .qty-box {
         display: inline-flex;
         align-items: center;
@@ -109,7 +106,6 @@
         -moz-appearance: textfield;
     }
 
-    /* Typography & Badges */
     .text-success-kwt {
         color: #1e5217 !important;
         letter-spacing: -0.5px;
@@ -130,7 +126,6 @@
         box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
     }
 
-    /* Checkout Sidebar (Clean & Modern) */
     .summary-side {
         background: #fff;
         border: 1px solid rgba(0, 0, 0, 0.02);
@@ -180,7 +175,6 @@
         font-weight: 700;
     }
 
-    /* Checkbox Styles */
     .checkbox-wrapper {
         display: flex;
         align-items: center;
@@ -222,6 +216,54 @@
 
     .btn-delete:hover {
         color: #ef4444;
+    }
+
+    @media (max-width: 768px) {
+        .cart-item {
+            padding: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .img-wrapper {
+            width: 65px;
+            height: 65px;
+        }
+
+        .text-success-kwt {
+            font-size: 1.2rem;
+        }
+
+        .item-name {
+            font-size: 14px;
+        }
+
+        .item-price {
+            font-size: 13px;
+        }
+
+        .qty-box {
+            width: 90px;
+        }
+
+        .btn-step {
+            width: 24px;
+            height: 24px;
+            font-size: 1rem;
+        }
+
+        .input-qty {
+            font-size: 0.85rem;
+        }
+
+        .summary-side {
+            padding: 20px;
+            position: static;
+            margin-top: 10px;
+        }
+
+        .checkbox-wrapper {
+            padding-right: 0;
+        }
     }
 </style>
 
@@ -346,7 +388,7 @@
             <div class="mt-4 p-3 rounded-3 d-flex gap-2" style="background: #f8fafc; font-size: 12px; color: #64748b; line-height: 1.6; border: 1px solid #f1f5f9;">
                 <i class="bi bi-shield-check text-success fs-5"></i>
                 <div>
-                    Semua produk berasal dari <strong>Kelompok Wanita Tani (KWT)</strong> yang ditanam dengan metode organik, aman, dan higienis.
+                    Semua produk ini adalah murni <strong>panen hasil sendiri</strong> dari Kelompok Wanita Tani (KWT), diproses secara mandiri, aman, dan higienis.
                 </div>
             </div>
         </div>
@@ -367,7 +409,6 @@
             input.value = newVal;
             updateTotal();
 
-            // Sync Database Silently
             fetch(`/cart/update/${id}`, {
                 method: 'PATCH',
                 headers: {
@@ -406,7 +447,6 @@
 
         if (count > 0) {
             btnCheckout.onclick = function() {
-                // Beri efek loading saat diklik
                 const originalText = btnCheckout.innerText;
                 btnCheckout.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Memproses...';
                 btnCheckout.disabled = true;

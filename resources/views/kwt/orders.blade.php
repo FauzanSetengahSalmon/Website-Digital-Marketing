@@ -495,6 +495,89 @@ return $d->stok_ready == true;
     .cursor-not-allowed {
         cursor: not-allowed !important;
     }
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+@media (max-width: 991.98px){
+    .modal-dialog{margin:1rem;}
+    .card-body{padding:1rem!important;}
+}
+
+@media (max-width: 767.98px){
+    .table-responsive{
+        border:0!important;
+    }
+
+    #interactive-table thead{
+        display:none;
+    }
+
+    #interactive-table,
+    #interactive-table tbody,
+    #interactive-table tr,
+    #interactive-table td{
+        display:block;
+        width:100%;
+    }
+
+    #interactive-table tr.data-row{
+        margin-bottom:1rem;
+        border:1px solid #dee2e6;
+        border-radius:1rem;
+        overflow:hidden;
+        background:#fff;
+        box-shadow:0 .125rem .25rem rgba(0,0,0,.075);
+    }
+
+    #interactive-table td{
+        text-align:left!important;
+        padding:.75rem 1rem!important;
+        border:none!important;
+        border-bottom:1px solid #f1f1f1!important;
+    }
+
+    #interactive-table td:last-child{
+        border-bottom:none!important;
+    }
+
+    .modal-footer,
+    .modal-body .row{
+        flex-direction:column;
+    }
+
+    .btn,
+    .badge{
+        white-space:normal;
+    }
+
+    .custom-switch-lg .form-check-input{
+        width:3em;
+        height:1.5em;
+    }
+}
+
+@media (max-width: 575.98px){
+    h4,h5{
+        word-break:break-word;
+    }
+
+    .avatar-sm{
+        width:32px!important;
+        height:32px!important;
+    }
+
+    .modal-dialog{
+        margin:.5rem;
+    }
+
+    .modal-content{
+        border-radius:1rem!important;
+    }
+
+    .btn{
+        width:100%;
+    }
+}
+
 </style>
 
 <script>

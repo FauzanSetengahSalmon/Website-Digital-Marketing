@@ -235,10 +235,56 @@
         font-weight: 700;
     }
 
+    /* PENYESUAIAN RESPONSIVITAS (Tambahan & Optimasi Tanpa Hapus) */
     @media(max-width:768px) {
+        .page-header {
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .page-header h4 {
+            font-size: 1.25rem;
+        }
+
+        .table-wrapper {
+            border-radius: 16px;
+        }
+
+        .modal-modern {
+            border-radius: 20px;
+        }
+
         .modal-left {
             border-right: none;
             border-bottom: 1px solid #d1fae5;
+            padding: 20px;
+        }
+
+        .modal-right {
+            padding: 20px;
+        }
+
+        .preview-modern {
+            height: 200px;
+            /* Ukuran preview lebih pas untuk HP */
+            border-radius: 16px;
+        }
+    }
+
+    @media(max-width:576px) {
+        .page-header {
+            padding: 16px;
+        }
+
+        .modal-left,
+        .modal-right {
+            padding: 16px;
+        }
+
+        .btn-add {
+            width: 100%;
+            /* Tombol Tambah Produk jadi full-width di HP agar mudah ditekan */
+            text-align: center;
         }
     }
 </style>
