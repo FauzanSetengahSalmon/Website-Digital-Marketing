@@ -2,12 +2,6 @@
 
 @section('content')
 <style>
-    :root {
-        --primary-green: #064e3b;
-        --light-green: #10b981;
-        --soft-green: #ecfdf5;
-    }
-
     .admin-card {
         border: none;
         border-radius: 20px;
@@ -30,7 +24,6 @@
         font-size: 1.6rem;
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(5px);
-        flex-shrink: 0;
     }
 
     .gradient-green {
@@ -68,7 +61,6 @@
         font-weight: 700;
         font-size: 0.75rem;
         border: 1px solid #bbf7d0;
-        white-space: nowrap;
     }
 
     .section-title {
@@ -90,34 +82,10 @@
     .kurir-link:hover .admin-card {
         border-color: #3b82f6 !important;
     }
-
-    .custom-scrollbar::-webkit-scrollbar {
-        height: 6px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-    }
-
-    @media (max-width: 768px) {
-        .admin-card {
-            padding: 1.5rem !important;
-        }
-
-        .icon-shape {
-            width: 45px;
-            height: 45px;
-            font-size: 1.3rem;
-        }
-
-        .section-title {
-            font-size: 1.1rem;
-        }
-    }
 </style>
 
 @php
+// 🌟 AMBIL NILAI FILTER DARI URL 🌟
 $selectedMonth = request('bulan', date('m'));
 $selectedYear = request('tahun', date('Y'));
 
@@ -127,6 +95,7 @@ $months = [
 '09'=>'Sep', '10'=>'Okt', '11'=>'Nov', '12'=>'Des'
 ];
 
+// 1. DATA SALDO SIAP CAIR (SELALU ALL-TIME KARENA INI HUTANG NYATA)
 $kwtPending = \App\Models\OrderDetail::whereHas('order', function ($q) {
 $q->where('status', 'selesai')->where(function ($sub) {
 $sub->where('status_refund', '!=', 'disetujui')->orWhereNull('status_refund');
@@ -138,10 +107,13 @@ $kurirPending = \App\Models\Order::where('status', 'selesai')
 $sub->where('status_refund', '!=', 'disetujui')->orWhereNull('status_refund');
 })->where('is_paid_out', false)->sum('ongkir');
 
+// 2. STATISTIK UMUM YANG DIFILTER BERDASARKAN BULAN & TAHUN
+// Total Pesanan Bulan Ini (Semua Status: Batal, Refund, Selesai)
 $totalPesananFiltered = \App\Models\Order::whereMonth('created_at', $selectedMonth)
 ->whereYear('created_at', $selectedYear)
 ->count();
 
+// Total Seluruh Pesanan All-Time (Semua Status: Batal, Refund, Selesai)
 $totalPesananAllTime = \App\Models\Order::count();
 
 $totalPendapatanFiltered = \App\Models\Order::where('status', 'selesai')
@@ -160,6 +132,7 @@ $q->where('status_refund', '!=', 'disetujui')
 })
 ->sum('total_harga');
 
+// 3. KELOLA DATA TABEL KWT BERDASARKAN FILTER BULAN
 $kwtsFiltered = \App\Models\User::where('role', 'kwt')->with('products')->get();
 $penjualanPerKwtFiltered = $kwtsFiltered->map(function ($kwt) use ($selectedMonth, $selectedYear) {
 $omzet = \App\Models\OrderDetail::whereHas('product', function ($q) use ($kwt) {
@@ -186,6 +159,7 @@ $sub->where('status_refund', '!=', 'disetujui')->orWhereNull('status_refund');
 return ['nama' => $kwt->name, 'omzet' => $omzet, 'sudah_dicairkan' => $sudahDicairkan];
 })->sortByDesc('omzet');
 
+// 4. KELOLA DATA TABEL KURIR BERDASARKAN FILTER BULAN
 $penjualanPerKurirFiltered = \App\Models\Kurir::all()->map(function ($kurir) use ($selectedMonth, $selectedYear) {
 $totalOngkir = \App\Models\Order::where('kurir', $kurir->nama)->where('status', 'selesai')
 ->whereMonth('created_at', $selectedMonth)->whereYear('created_at', $selectedYear)
@@ -202,6 +176,7 @@ $q->where('status_refund', '!=', 'disetujui')->orWhereNull('status_refund');
 return ['nama' => $kurir->nama, 'total_ongkir' => $totalOngkir, 'sudah_dicairkan' => $sudahDicairkan];
 })->sortByDesc('total_ongkir');
 
+// UPDATE TOTAL KESELURUHAN (HANYA UNTUK KARTU PENDAPATAN BULAN INI)
 $totalOmzetKwt = collect($penjualanPerKwtFiltered)->sum('omzet');
 $totalOngkir = collect($penjualanPerKurirFiltered)->sum('total_ongkir');
 $totalBiayaAdmin = max(0, $totalPendapatanFiltered - ($totalOmzetKwt + $totalOngkir));
@@ -218,6 +193,7 @@ $trendKwt[$kwt->id] = ['label' => $kwt->name, 'data' => []];
 for ($m = 1; $m <= 12; $m++) {
     $totalKwtBulanIni=0;
 
+    // Hitung per KWT
     foreach ($kwtsFiltered as $kwt) {
     $omzetBulanIni=\App\Models\OrderDetail::whereHas('product', function ($q) use ($kwt) {
     $q->where('user_id', $kwt->id);
@@ -230,12 +206,14 @@ for ($m = 1; $m <= 12; $m++) {
     $totalKwtBulanIni += $omzetBulanIni;
     }
 
+    // Hitung Kurir
     $kurirBulanIni = \App\Models\Order::where('status', 'selesai')
     ->whereMonth('created_at', $m)->whereYear('created_at', $selectedYear)
     ->where(function ($sub) { $sub->where('status_refund', '!=', 'disetujui')->orWhereNull('status_refund'); })
     ->sum('ongkir');
     $trendKurir[] = $kurirBulanIni;
 
+    // Hitung Admin
     $pendapatanTotalBulanIni = \App\Models\Order::where('status', 'selesai')
     ->whereMonth('created_at', $m)->whereYear('created_at', $selectedYear)
     ->where(function ($sub) { $sub->where('status_refund', '!=', 'disetujui')->orWhereNull('status_refund'); })
@@ -245,16 +223,18 @@ for ($m = 1; $m <= 12; $m++) {
     @endphp
 
     <div class="container-fluid py-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-5 gap-3">
+        <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h2 class="fw-bold text-dark mb-1">Dashboard Admin</h2>
-                <p class="text-muted mb-0">Selamat datang kembali, Admin. Berikut ringkasan operasional dan finansial.</p>
+                <p class="text-muted">Selamat datang kembali, Admin. Berikut ringkasan operasional dan finansial.</p>
             </div>
             <span class="badge-status"><i class="bi bi-shield-check me-1"></i> Sistem Aktif</span>
         </div>
 
+        {{-- STATISTIK UMUM --}}
         <div class="row g-4 mb-5">
-            <div class="col-12 col-sm-6 col-lg-3">
+            {{-- KARTU TOTAL KWT --}}
+            <div class="col-md-3">
                 <div class="card admin-card gradient-green p-4 h-100 d-flex flex-column justify-content-between">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -271,7 +251,8 @@ for ($m = 1; $m <= 12; $m++) {
                 </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-lg-3">
+            {{-- KARTU PRODUK --}}
+            <div class="col-md-3">
                 <div class="card admin-card gradient-blue p-4 h-100 d-flex flex-column justify-content-between">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -288,7 +269,8 @@ for ($m = 1; $m <= 12; $m++) {
                 </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-lg-3">
+            {{-- KARTU PESANAN BULAN INI --}}
+            <div class="col-md-3">
                 <div class="card admin-card gradient-orange p-4 h-100 d-flex flex-column justify-content-between">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -308,7 +290,8 @@ for ($m = 1; $m <= 12; $m++) {
                 </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-lg-3">
+            {{-- KARTU OMZET SPLIT --}}
+            <div class="col-md-3">
                 <div class="card admin-card gradient-purple p-4 h-100 d-flex flex-column justify-content-between">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
@@ -325,30 +308,34 @@ for ($m = 1; $m <= 12; $m++) {
             </div>
         </div>
 
+        {{-- SECTION FILTER BULAN & TAHUN --}}
         <div class="row mb-4">
-            <div class="col-12 d-flex justify-content-start justify-content-md-end">
-                <form action="{{ url()->current() }}" method="GET" class="d-flex flex-wrap align-items-center bg-white py-2 px-3 rounded-4 shadow-sm border gap-2 w-100" style="max-width: 400px;">
-                    <span class="text-muted small fw-bold d-none d-sm-inline"><i class="bi bi-calendar3"></i></span>
-                    <select name="bulan" class="form-select form-select-sm border-0 bg-light text-secondary fw-semibold cursor-pointer py-2 px-3 flex-grow-1" style="box-shadow: none; outline: none; border-radius: 8px;">
+            <div class="col-12 d-flex justify-content-end">
+                <form action="{{ url()->current() }}" method="GET" class="d-flex align-items-center bg-white py-1 px-2 rounded-pill shadow-sm border" style="max-width: max-content;">
+                    <span class="text-muted small ms-2 me-2 fw-bold"><i class="bi bi-calendar3"></i></span>
+                    <select name="bulan" class="form-select form-select-sm border-0 bg-transparent text-secondary fw-semibold cursor-pointer py-1" style="box-shadow: none; width: auto; outline: none;">
                         @foreach($months as $num => $name)
                         <option value="{{ $num }}" {{ $selectedMonth == $num ? 'selected' : '' }}>
                             {{ $name }}
                         </option>
                         @endforeach
                     </select>
-                    <select name="tahun" class="form-select form-select-sm border-0 bg-light text-secondary fw-semibold cursor-pointer py-2 px-3 flex-grow-1" style="box-shadow: none; outline: none; border-radius: 8px;">
+                    <div class="vr mx-1 text-muted" style="height: 20px; align-self: center;"></div>
+                    <select name="tahun" class="form-select form-select-sm border-0 bg-transparent text-secondary fw-semibold cursor-pointer py-1" style="box-shadow: none; width: auto; outline: none;">
                         @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
                         <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
                         @endfor
                     </select>
-                    <button type="submit" class="btn btn-sm btn-success rounded-3 px-3 fw-bold py-2 w-100 w-sm-auto">Filter</button>
+                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 ms-1 fw-bold">Filter</button>
                 </form>
             </div>
         </div>
 
+        {{-- RINCIAN DISTRIBUSI KEUANGAN (Buku Kas Difilter) --}}
         <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Buku Kas & Kewajiban Finansial</h5>
         <div class="row g-4 mb-5">
-            <div class="col-12 col-md-6 col-xl-4">
+            {{-- KARTU SALDO KWT --}}
+            <div class="col-md-4">
                 <a href="{{ url('admin/sales') }}" class="card-link-wrapper kwt-link">
                     <div class="card admin-card bg-white p-4 border-bottom border-success border-4 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -374,7 +361,8 @@ for ($m = 1; $m <= 12; $m++) {
                 </a>
             </div>
 
-            <div class="col-12 col-md-6 col-xl-4">
+            {{-- KARTU SALDO KURIR --}}
+            <div class="col-md-4">
                 <a href="{{ route('admin.kurir.pencairan') }}" class="card-link-wrapper kurir-link">
                     <div class="card admin-card bg-white p-4 border-bottom border-primary border-4 h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -399,7 +387,8 @@ for ($m = 1; $m <= 12; $m++) {
                 </a>
             </div>
 
-            <div class="col-12 col-md-12 col-xl-4">
+            {{-- KARTU PENDAPATAN ADMIN --}}
+            <div class="col-md-4">
                 <div class="card admin-card bg-white p-4 border-bottom border-warning border-4 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
@@ -419,29 +408,28 @@ for ($m = 1; $m <= 12; $m++) {
             </div>
         </div>
 
+        {{-- TABEL LEADERBOARD --}}
         <div class="row g-4 mb-5">
-            <div class="col-12 col-lg-4">
+            <div class="col-lg-4">
                 <div class="kwt-table p-3 h-100">
                     <h6 class="p-3 section-title"><i class="bi bi-shop me-2 text-green"></i>KWT Terdaftar</h6>
-                    <div class="table-responsive custom-scrollbar">
-                        <table class="table mb-0 text-nowrap">
-                            <tbody>
-                                @foreach($kwtsFiltered as $kwt)
-                                <tr>
-                                    <td class="fw-semibold">{{ $kwt->name }}</td>
-                                    <td class="text-end"><span class="badge bg-success text-white">{{ $kwt->products->count() }} Produk</span></td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="table mb-0">
+                        <tbody>
+                            @foreach($kwtsFiltered as $kwt)
+                            <tr>
+                                <td class="fw-semibold">{{ $kwt->name }}</td>
+                                <td class="text-center"><span class="badge bg-success text-white">{{ $kwt->products->count() }} Produk</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="col-12 col-lg-4">
+            <div class="col-lg-4">
                 <div class="kwt-table p-3 h-100">
                     <h6 class="p-3 section-title"><i class="bi bi-trophy me-2 text-warning"></i>Performa KWT <span class="fs-8 text-muted fw-normal">({{ $months[$selectedMonth] }})</span></h6>
-                    <div class="table-responsive custom-scrollbar">
-                        <table class="table mb-0 text-nowrap">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
                             <thead>
                                 <tr>
                                     <th>KWT</th>
@@ -462,11 +450,11 @@ for ($m = 1; $m <= 12; $m++) {
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-4">
+            <div class="col-lg-4">
                 <div class="kwt-table p-3 h-100">
                     <h6 class="p-3 section-title"><i class="bi bi-truck me-2 text-primary"></i>Performa Kurir <span class="fs-8 text-muted fw-normal">({{ $months[$selectedMonth] }})</span></h6>
-                    <div class="table-responsive custom-scrollbar">
-                        <table class="table mb-0 text-nowrap">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
                             <thead>
                                 <tr>
                                     <th>Kurir</th>
@@ -489,11 +477,14 @@ for ($m = 1; $m <= 12; $m++) {
             </div>
         </div>
 
+        {{-- SECTION KEDUA GRAFIK DARI DESAIN AWAL KAMU --}}
         <div class="row g-4 mb-5">
-            <div class="col-12 col-lg-4">
+            {{-- DOUGHNUT CHART DISTRIBUSI PENDAPATAN --}}
+            <div class="col-lg-4">
                 <div class="kwt-table p-4 h-100">
                     <h5 class="section-title mb-4"><i class="bi bi-pie-chart-fill me-2 text-warning"></i>Distribusi Keuangan</h5>
 
+                    {{-- DATA PHP DITITIPKAN KE HTML --}}
                     <div id="doughnutDataContainer" class="d-none"
                         data-kwt="{{ $totalOmzetKwt }}"
                         data-kurir="{{ $totalOngkir }}"
@@ -506,10 +497,12 @@ for ($m = 1; $m <= 12; $m++) {
                 </div>
             </div>
 
-            <div class="col-12 col-lg-8">
+            {{-- LINE / AREA CHART TREN --}}
+            <div class="col-lg-8">
                 <div class="kwt-table p-4 h-100">
                     <h5 class="section-title mb-4"><i class="bi bi-graph-up me-2 text-success"></i>Tren Capaian Finansial (Tahun {{ $selectedYear }})</h5>
 
+                    {{-- DATA PHP DITITIPKAN KE HTML --}}
                     <div id="chartTrendData" class="d-none"
                         data-labels="{{ json_encode($trendLabels) }}"
                         data-kwt="{{ json_encode(array_values($trendKwt)) }}"
@@ -525,10 +518,14 @@ for ($m = 1; $m <= 12; $m++) {
         </div>
     </div>
 
+    {{-- SCRIPT INTEGRASI CHART.JS --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
 
+            // ==========================================
+            // 1. DOUGHNUT CHART (DISTRIBUSI KEUANGAN)
+            // ==========================================
             const doughnutContainer = document.getElementById('doughnutDataContainer');
             const valKwt = parseFloat(doughnutContainer.getAttribute('data-kwt')) || 0;
             const valKurir = parseFloat(doughnutContainer.getAttribute('data-kurir')) || 0;
@@ -542,9 +539,9 @@ for ($m = 1; $m <= 12; $m++) {
                     datasets: [{
                         data: [valKwt, valKurir, valAdmin],
                         backgroundColor: [
-                            'rgba(34, 197, 94, 0.85)',
-                            'rgba(59, 130, 246, 0.85)',
-                            'rgba(245, 158, 11, 0.85)'
+                            'rgba(34, 197, 94, 0.85)', // Hijau
+                            'rgba(59, 130, 246, 0.85)', // Biru
+                            'rgba(245, 158, 11, 0.85)' // Kuning
                         ],
                         borderWidth: 0,
                         hoverOffset: 6
@@ -577,6 +574,9 @@ for ($m = 1; $m <= 12; $m++) {
             });
 
 
+            // ==========================================
+            // 2. LINE / AREA CHART (TREN FINANSIAL)
+            // ==========================================
             const trendContainer = document.getElementById('chartTrendData');
             const trendLabels = JSON.parse(trendContainer.getAttribute('data-labels'));
             const trendKwt = JSON.parse(trendContainer.getAttribute('data-kwt'));
@@ -585,26 +585,29 @@ for ($m = 1; $m <= 12; $m++) {
 
             const trendDatasets = [];
 
+            // Warna cerah biar gampang bedain
             const colors = ['#22c55e', '#0ea5e9', '#8b5cf6', '#ec4899', '#f43f5e'];
 
+            // Looping KWT yang ada
             trendKwt.forEach((kwt, index) => {
                 let color = colors[index % colors.length];
                 trendDatasets.push({
                     label: 'Omzet ' + kwt.label,
                     data: kwt.data,
                     borderColor: color,
-                    backgroundColor: color + '20',
+                    backgroundColor: color + '20', // Tambah transparansi
                     fill: true,
-                    tension: 0.4,
+                    tension: 0.4, // Melengkung halus
                     pointRadius: 4,
                     pointBackgroundColor: color
                 });
             });
 
+            // Masukkan Kurir
             trendDatasets.push({
                 label: 'Ongkir Kurir',
                 data: trendKurir,
-                borderColor: '#3b82f6',
+                borderColor: '#3b82f6', // Biru terang
                 backgroundColor: 'rgba(59, 130, 246, 0.15)',
                 fill: true,
                 tension: 0.4,
@@ -612,10 +615,11 @@ for ($m = 1; $m <= 12; $m++) {
                 pointBackgroundColor: '#3b82f6'
             });
 
+            // Masukkan Admin
             trendDatasets.push({
                 label: 'Pendapatan Admin',
                 data: trendAdmin,
-                borderColor: '#f59e0b',
+                borderColor: '#f59e0b', // Oranye Emas
                 backgroundColor: 'rgba(245, 158, 11, 0.15)',
                 fill: true,
                 tension: 0.4,
