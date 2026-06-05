@@ -574,7 +574,7 @@
                     </div>
                     {{-- BUG --}}
                     <div class="col-12 col-md-4 mb-4 mb-md-0">
-                        <p class="footer-heading">Laporkan Bug</p>
+                        <p class="footer-heading">Laporkan Masalah</p>
 
                         <form action="{{ route('bug.report') }}" method="POST">
                             @csrf

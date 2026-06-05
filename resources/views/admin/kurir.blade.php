@@ -147,7 +147,7 @@
         </div>
 
         <button type="button"
-            class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-semibold w-100 w-md-auto"
+            class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-semibold w-10 w-md-auto"
             data-bs-toggle="modal"
             data-bs-target="#modalTambahKurir">
 

@@ -632,6 +632,7 @@ $noAdminSistem = '62' . substr($noAdminSistem, 1);
                             <div class="timeline-icon"><i class="bi bi-calendar2-check"></i></div>
                             <div class="timeline-text">Dijadwal</div>
                             <small class="timeline-time">
+                                Pesanan dijadwalkan pada:
                                 @if($order->jadwal_pengiriman)
                                 <span class="text-success fw-bold">{{ \Carbon\Carbon::parse($order->jadwal_pengiriman)->format('d M') }}</span>
                                 @else
@@ -645,6 +646,7 @@ $noAdminSistem = '62' . substr($noAdminSistem, 1);
                             <div class="timeline-icon"><i class="bi bi-truck"></i></div>
                             <div class="timeline-text">Perjalanan</div>
                             <small class="timeline-time">
+                                Pesanan:
                                 @if(in_array($order->status, ['menunggu', 'diproses']))
                                 Menunggu kurir
                                 @elseif($order->status == 'diantar' && !$order->bukti_sampai)
@@ -660,6 +662,7 @@ $noAdminSistem = '62' . substr($noAdminSistem, 1);
                             <div class="timeline-icon"><i class="bi bi-geo-alt-fill"></i></div>
                             <div class="timeline-text">Tiba Tujuan</div>
                             <small class="timeline-time">
+                                Pesanan:
                                 @if($order->status == 'selesai' || ($order->status == 'diantar' && $order->bukti_sampai))
                                 <span class="text-success fw-bold">Paket Tiba</span>
                                 @else
@@ -673,6 +676,7 @@ $noAdminSistem = '62' . substr($noAdminSistem, 1);
                             <div class="timeline-icon"><i class="bi bi-house-check"></i></div>
                             <div class="timeline-text">Selesai</div>
                             <small class="timeline-time">
+                                Pesanan selesai pada:
                                 @if($order->status == 'selesai')
                                 <span class="text-success fw-bold">{{ $order->updated_at->timezone('Asia/Jakarta')->format('d M') }}</span>
                                 @else
