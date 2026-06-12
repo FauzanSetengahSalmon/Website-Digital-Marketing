@@ -219,7 +219,7 @@
         <nav class="nav-list">
             <div class="nav-label">Menu Utama</div>
             <a href="{{ route('kwt.dashboard') }}" class="nav-link {{ request()->routeIs('kwt.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-house-door"></i> Beranda
+                <i class="bi bi-house-door"></i> Dashboard
             </a>
 
             <div class="nav-label">Manajemen</div>
