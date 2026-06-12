@@ -21,20 +21,20 @@ class DatabaseSeeder extends Seeder
 
         // 2. Akun KWT (Pengelola Produk)
         User::create([
-            'name' => 'Ketua KWT',
-            'email' => 'kwt@gmail.com',
+            'name' => 'KWT Kota Cerdas',
+            'email' => 'kwtdesacibiruwetanmart@gmail.com',
             'password' => Hash::make('kwt123'),
             'phone_number' => '0822222222',
             'role' => 'kwt',
-            'address' => 'Desa Makmur Jaya',
+            'address' => 'Desa Cibiruwetan, Kecamatan Cibiru, Kota Bandung',
         ]);
 
         // 3. Akun CUSTOMER (Untuk ngetes katalog)
         User::create([
-            'name' => 'Budi Pembeli',
-            'email' => 'budi@gmail.com',
-            'password' => Hash::make('user123'),
-            'phone_number' => '0833333333',
+            'name' => 'Fauzan',
+            'email' => 'ahmadfauzan201006@gmail.com',
+            'password' => Hash::make('Fauzan123'),
+            'phone_number' => '0895630197358',
             'role' => 'customer',
         ]);
     }

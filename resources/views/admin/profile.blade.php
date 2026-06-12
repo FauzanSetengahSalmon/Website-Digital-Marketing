@@ -214,17 +214,6 @@
                                     value="{{ old('phone_number', $user->phone_number) }}"
                                     placeholder="08xxxxxxxxxx">
                             </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">
-                                    Role Akun
-                                </label>
-
-                                <input type="text"
-                                    class="form-control bg-light"
-                                    value="Administrator"
-                                    readonly>
-                            </div>
                         </div>
 
                         <div class="mt-4 d-grid d-md-block">

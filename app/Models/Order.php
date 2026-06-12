@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-
-    // 🌟 PERBAIKAN: Semua kolom yang akan diisi otomatis (Mass Assignment) wajib didaftarkan di sini
     protected $fillable = [
         'user_id',
         'total_harga',
@@ -19,6 +17,7 @@ class Order extends Model
         'catatan',
         'kurir',
         'no_hp_kurir',
+        'kendaraan_pengantar',
         'alamat',
         'nomor_hp',
         'bukti_sampai',

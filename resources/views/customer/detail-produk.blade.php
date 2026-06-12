@@ -339,7 +339,7 @@
                     </div>
 
                     <div class="mb-4 py-3 border-top border-bottom border-light">
-                        <small class="text-muted d-block mb-1 fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Harga Bersih Petani</small>
+                        <small class="text-muted d-block mb-1 fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Harga Produk</small>
                         <div class="d-flex align-items-baseline">
                             <span class="price-tag">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
                             <span class="text-muted ms-2 fw-medium">/ {{ $product->satuan }}</span>

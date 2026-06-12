@@ -95,8 +95,8 @@
             <div class="kwt-name-badge shadow-sm text-uppercase">
                 <i class="bi bi-house-heart me-1"></i> {{ Auth::user()->name }}
             </div>
-            <h2 class="fw-bold text-dark mb-0 fs-3 fs-md-2">Selamat Pagi!</h2>
-            <p class="text-muted mb-0 small md-base">Berikut adalah laporan usaha kita hari ini.</p>
+            <h2 class="fw-bold text-dark mb-0 fs-3 fs-md-2 d-inline-block me-2">Selamat Datang</h2>
+            <p class="text-muted mb-0 small md-base d-inline-block">Berikut adalah laporan usaha.</p>
         </div>
         <div class="text-start text-md-end w-100 w-md-auto">
             <span class="badge bg-white text-success border border-success px-3 py-2 rounded-pill shadow-sm d-inline-block">

@@ -469,7 +469,7 @@
 
                         @if(empty($sale->jadwal_pengiriman) && $sale->status != 'batal')
                         <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="bi bi-send-check-fill me-1"></i> Verifikasi & Lepas
+                            <i class="bi bi-send-check-fill me-1"></i> Verifikasi Pesanan
                         </button>
                         @endif
                         @endif

@@ -211,7 +211,7 @@
 
                 <div class="profile-info">
                     <h6>{{ Auth::user()->name }}</h6>
-                    <small>{{ Auth::user()->email }}</small>
+                    <small style="font-size: 10px;">{{ Auth::user()->email }}</small>
                 </div>
             </div>
         </div>

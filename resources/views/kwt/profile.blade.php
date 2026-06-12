@@ -99,10 +99,9 @@ default => 'bg-primary-subtle text-primary'
         <h4 class="fw-bold mb-0">
             Profil
             <span class="text-success">
-                {{ Auth::user()->role === 'admin' ? 'Admin' : 'KWT' }}
+                {{ Auth::user()->name }}
             </span>
         </h4>
-
         <p class="text-muted small">
             Kelola identitas akun Anda agar data tetap aman dan terpercaya.
         </p>
