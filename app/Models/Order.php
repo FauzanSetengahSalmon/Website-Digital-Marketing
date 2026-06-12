@@ -26,7 +26,6 @@ class Order extends Model
         'status_pembayaran',
         'waktu_dana_masuk',
 
-        // -- Kolom Refund --
         'status_refund',
         'waktu_refund',
         'alasan_refund',
@@ -35,7 +34,6 @@ class Order extends Model
 
         'alasan_tolak',
 
-        // -- Kolom Pencairan & Token --
         'is_paid_out',
         'nama_penerima',
         'delivery_token',

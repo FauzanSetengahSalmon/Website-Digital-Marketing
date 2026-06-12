@@ -556,15 +556,20 @@
                     </div>
 
                     <div class="mb-4">
-
                         <label class="label-modern">
-                            Deskripsi Produk
+                            Deskripsi Produk <span class="text-danger">*</span>
                         </label>
 
                         <textarea name="deskripsi"
                             rows="4"
-                            class="form-control input-clean">{{ $p->deskripsi }}</textarea>
+                            class="form-control input-clean @error('deskripsi') is-invalid @enderror"
+                            required>{{ $p->deskripsi }}</textarea>
 
+                        @error('deskripsi')
+                        <div class="text-danger mt-1" style="font-size: 0.8rem;">
+                            {{ $message }}
+                        </div>
+                        @enderror
                     </div>
 
                     <div class="row g-2">
@@ -619,7 +624,7 @@
                 <div class="col-md-5 modal-left">
 
                     <div class="modal-title-modern">
-                        Tambah Produk Baru
+                        Tambah Produk
                     </div>
 
                     <div class="modal-subtitle">
@@ -703,55 +708,37 @@
                                 class="form-control input-clean"
                                 placeholder="10"
                                 required>
-
                         </div>
-
                         <div class="col-md-3 col-6 mb-3">
-
                             <label class="label-modern">
                                 Satuan
                             </label>
-
                             <select name="satuan"
                                 class="form-select input-clean">
-
                                 <option value="kg">Kg</option>
                                 <option value="Ikat">Ikat</option>
                                 <option value="Bungkus">Bungkus</option>
                                 <option value="Buah">Buah</option>
-
                             </select>
-
                         </div>
-
                     </div>
-
                     <div class="mb-4">
-
                         <label class="label-modern">
                             Deskripsi Produk
                         </label>
-
                         <textarea name="deskripsi"
                             rows="4"
                             class="form-control input-clean"
-                            placeholder="Contoh: Sayur organik segar dipetik langsung dari kebun..."></textarea>
-
+                            placeholder="Contoh: Sayur organik segar dipetik langsung dari kebun..." required></textarea>
                     </div>
-
                     <div class="row g-2">
-
                         <div class="col-6">
-
                             <button type="button"
                                 class="btn btn-light border w-100 btn-modern-cancel"
                                 data-bs-dismiss="modal">
-
                                 Batal
                             </button>
-
                         </div>
-
                         <div class="col-6">
 
                             <button type="submit"
@@ -760,15 +747,10 @@
                                 <i class="bi bi-check-circle-fill me-1"></i>
                                 Simpan Produk
                             </button>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </form>
     </div>
 </div>

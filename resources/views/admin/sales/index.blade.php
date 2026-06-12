@@ -238,7 +238,6 @@
                         </div>
                     </div>
 
-                    {{-- 🌟 AUDIT REKONSILIASI KEUANGAN --}}
                     <div class="p-3 border rounded-4 bg-white mb-4 shadow-sm text-dark small">
                         <h6 class="fw-bold text-dark mb-2 fs-7 text-uppercase"><i class="bi bi-cash-stack text-success me-2"></i>Status Rekonsiliasi Keuangan</h6>
                         <div class="row g-2">
@@ -370,7 +369,6 @@
                         <div class="row g-3">
                             <div class="col-12 col-md-5">
                                 <label class="form-label fw-bold text-dark small mb-1">Personel Armada</label>
-                                {{-- 🌟 PERBAIKAN: MENGGUNAKAN data-phone SESUAI JAVASCRIPT 🌟 --}}
                                 <select id="kurir-select-{{ $sale->id }}" class="form-select rounded-3 py-2 fs-7 border-secondary-subtle" onchange="updateKendaraanDanHp(this, '{{ $sale->id }}')" required>
                                     <option value="">-- Hubungkan Kurir --</option>
                                     @foreach($list_kurir as $k)

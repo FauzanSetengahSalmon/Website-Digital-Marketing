@@ -153,7 +153,6 @@
                 </div>
             </div>
 
-            {{-- 🌟 MODAL KONFIRMASI DENGAN DROPDOWN ANGGOTA 🌟 --}}
             <div class="modal fade" id="modalCairkan" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -387,7 +386,7 @@
         <div class="col-4 text-center">
             <p class="mb-5 small text-muted">Penerima Dana (KWT),</p>
             <div class="mt-4 border-bottom border-dark w-75 mx-auto" style="height: 40px;"></div>
-            <p class="fw-bold text-dark mt-1" id="signature-penerima-name">{{ session('penerima') ?? $kwt->name }}</p>
+            <p class="fw-bold text-dark mt-1">{{ $kwt->name }}</p>
         </div>
         <div class="col-4"></div>
         <div class="col-4 text-center">

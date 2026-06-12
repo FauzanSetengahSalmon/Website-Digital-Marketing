@@ -17,7 +17,6 @@
                 <i class="bi bi-truck me-1"></i>
                 {{ $list_kurir->count() }} Total Kurir
             </span>
-            {{-- Tombol Tambah Pencairan Dihapus Sesuai Permintaan --}}
         </div>
     </div>
 
@@ -77,7 +76,6 @@
         </div>
     </div>
 
-    {{-- ALERT --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4">
         <i class="bi bi-check-circle-fill me-2"></i>
@@ -105,7 +103,6 @@
 
         <div class="card-body p-0 mt-3">
             <div class="table-responsive">
-                {{-- Penambahan text-nowrap agar tabel rapi saat digeser di HP --}}
                 <table class="table align-middle mb-0 table-hover text-nowrap">
 
                     <thead class="bg-light border-bottom text-uppercase tracking-wider fs-8 fw-bold text-secondary">
@@ -123,7 +120,6 @@
 
                         @forelse($list_kurir as $kurir)
                         @php
-                        // Menghitung pendapatan langsung dari tabel orders yang sudah selesai
                         $pendapatan = \App\Models\Order::where('kurir', $kurir->nama)
                         ->where('status', 'selesai')
                         ->sum('ongkir');
@@ -154,7 +150,6 @@
 
                             {{-- KENDARAAN --}}
                             <td class="py-3">
-                                {{-- Mengubah py-1.5 menjadi py-1 karena 1.5 tidak valid di Bootstrap --}}
                                 <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-1 fw-semibold fs-8">
                                     {{ $kurir->kendaraan ?? 'Belum Diatur' }}
                                 </span>

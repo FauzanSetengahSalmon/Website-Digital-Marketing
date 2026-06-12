@@ -211,7 +211,7 @@
 
                 <div class="profile-info">
                     <h6>{{ Auth::user()->name }}</h6>
-                    <small style="font-size: 10px;">{{ Auth::user()->email }}</small>
+                    <small style="font-size: 11px;">{{ Auth::user()->email }}</small>
                 </div>
             </div>
         </div>
@@ -219,7 +219,7 @@
         <nav class="nav-list">
             <div class="nav-label">Menu Utama</div>
             <a href="{{ route('kwt.dashboard') }}" class="nav-link {{ request()->routeIs('kwt.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-house-door"></i> Dashboard
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
             </a>
 
             <div class="nav-label">Manajemen</div>

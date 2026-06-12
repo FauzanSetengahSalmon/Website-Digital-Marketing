@@ -17,8 +17,7 @@ class Product extends Model
         'stok', 
         'satuan', 
         'foto_produk', 
-        'deskripsi',// <--- Tambahkan ini
-
+        'deskripsi',
         'user_id',
         'nama_produk',
         'harga',
