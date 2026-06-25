@@ -303,14 +303,12 @@
 <div class="container py-5">
     <div class="profile-container">
 
-
         <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
             <div>
                 <h2 class="fw-bold m-0 text-dark">Profil <span class="text-success">Customer</span></h2>
                 <p class="text-muted m-0 small">Kelola data informasi akun, alamat utama, dan keamanan password Anda.</p>
             </div>
         </div>
-
 
         @if(session('success') || session('status') === 'profile-updated')
         <div class="alert alert-success border-0 shadow-sm rounded-4 d-flex align-items-center mb-4">
@@ -335,9 +333,7 @@
 
         <div class="row g-4">
 
-
             <div class="col-xl-8 col-lg-7">
-
 
                 <div class="custom-card">
                     <div class="card-header-green">
@@ -382,11 +378,22 @@
                                     </div>
                                 </div>
 
+                                <!-- Bagian Nomor WhatsApp (Diperbarui) -->
                                 <div class="col-md-6">
                                     <label class="form-label">Nomor WhatsApp</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-whatsapp"></i></span>
-                                        <input type="text" name="phone_number" class="form-control" value="{{ old('phone_number', Auth::user()->phone_number) }}" placeholder="08xxxxxxxxxx">
+                                        <input type="text"
+                                            name="phone_number"
+                                            class="form-control"
+                                            value="{{ old('phone_number', Auth::user()->phone_number) }}"
+                                            placeholder="08xxxxxxxxxx"
+                                            inputmode="numeric"
+                                            pattern="[0-9]*"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            minlength="9"
+                                            maxlength="15"
+                                            required>
                                     </div>
                                 </div>
 
@@ -404,7 +411,6 @@
                                     <label class="form-label">Provinsi</label>
                                     <input type="text" id="province" name="province" class="form-control" value="{{ old('province', Auth::user()->province) }}">
                                 </div>
-
 
                                 <div class="col-12 mt-4">
                                     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
@@ -427,16 +433,33 @@
                                     <label class="form-label text-secondary small">Alamat Jalan / Blok Hasil Peta</label>
                                     <textarea id="address-textarea" name="address" rows="2" class="form-control mb-3" placeholder="Pilih titik pada peta diatas untuk mengisi otomatis data alamat..." required>{{ old('address', Auth::user()->address) }}</textarea>
 
-
                                     <div class="p-3 rounded-3 border bg-light">
                                         <div class="row g-2">
                                             <div class="col-6 col-sm-3">
                                                 <label class="form-label text-dark small fw-bold">Rukun Tetangga (RT)</label>
-                                                <input type="text" name="rt" class="form-control" value="{{ old('rt', Auth::user()->rt) }}" placeholder="Ex: 002" maxlength="5">
+                                                <input type="text"
+                                                    name="rt"
+                                                    class="form-control"
+                                                    value="{{ old('rt', Auth::user()->rt) }}"
+                                                    placeholder="Ex: 002"
+                                                    maxlength="5"
+                                                    inputmode="numeric"
+                                                    pattern="[0-9]*"
+                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                    required>
                                             </div>
                                             <div class="col-6 col-sm-3">
                                                 <label class="form-label text-dark small fw-bold">Rukun Warga (RW)</label>
-                                                <input type="text" name="rw" class="form-control" value="{{ old('rw', Auth::user()->rw) }}" placeholder="Ex: 011" maxlength="5">
+                                                <input type="text"
+                                                    name="rw"
+                                                    class="form-control"
+                                                    value="{{ old('rw', Auth::user()->rw) }}"
+                                                    placeholder="Ex: 011"
+                                                    maxlength="5"
+                                                    inputmode="numeric"
+                                                    pattern="[0-9]*"
+                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                    required>
                                             </div>
                                             <div class="col-12 col-sm-6">
                                                 <label class="form-label text-dark small fw-bold">Detail Tambahan Bangunan</label>
@@ -462,7 +485,6 @@
                         </form>
                     </div>
                 </div>
-
 
                 <div class="custom-card">
                     <div class="p-4">
@@ -505,10 +527,8 @@
 
             </div>
 
-
             <div class="col-xl-4 col-lg-5">
                 <div class="custom-card p-4 text-center">
-
 
                     <form action="{{ route('profile.update.photo') }}" method="POST" enctype="multipart/form-data" id="photoForm">
                         @csrf
@@ -538,7 +558,6 @@
 
                     <hr class="my-4 text-muted opacity-25">
 
-
                     <div class="text-start">
                         <div class="info-box-wrapper d-flex align-items-center gap-3">
                             <div class="info-box-icon"><i class="bi bi-envelope-open-fill"></i></div>
@@ -562,10 +581,8 @@
                                 <div class="text-muted small mb-1" style="font-size: 0.72rem;">Lokasi Pengiriman Paket</div>
                                 <div class="text-dark fw-normal" style="font-size: 0.88rem; line-height: 1.4;">
                                     @if(Auth::user()->address || Auth::user()->district || Auth::user()->city || Auth::user()->province)
-                                    <!-- Alamat Utama -->
                                     <span class="d-block fw-bold mb-1">{{ Auth::user()->address }}</span>
 
-                                    <!-- Menampilkan RT/RW & Detail Tambahan Secara Transparan dan Pasti Muncul Jika Terisi -->
                                     <div class="bg-white p-2 rounded border my-2 small">
                                         <span class="d-block text-secondary">
                                             <strong>RT/RW:</strong> {{ Auth::user()->rt ?? '-' }} / {{ Auth::user()->rw ?? '-' }}
@@ -603,7 +620,6 @@
     </div>
 </div>
 
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let saveLat = "{{ Auth::user()->latitude }}";
@@ -625,7 +641,6 @@
         draggable: true
     }).addTo(map);
 
-    // Tambahkan pengisian value latitude dan longitude di sini
     function parseAddressData(addressObj, displayName, lat, lng) {
         document.getElementById('address-textarea').value = displayName;
         document.getElementById('district').value = addressObj.village || addressObj.suburb || addressObj.subdistrict || addressObj.municipality || '';

@@ -142,7 +142,7 @@ default => 'bg-primary-subtle text-primary'
     @endif
 
     {{-- ERROR --}}
-    @if ($errors->any() || $errors->updatePassword->any())
+    @if ($errors->any() || ($errors->updatePassword && $errors->updatePassword->any()))
     <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4"
         role="alert"
         style="border-radius: 12px;">
@@ -159,9 +159,11 @@ default => 'bg-primary-subtle text-primary'
                     <li>{{ $error }}</li>
                     @endforeach
 
+                    @if($errors->updatePassword)
                     @foreach ($errors->updatePassword->all() as $error)
                     <li>{{ $error }}</li>
                     @endforeach
+                    @endif
 
                 </ul>
             </div>
@@ -249,7 +251,7 @@ default => 'bg-primary-subtle text-primary'
                                 </small>
                             </div>
 
-                            {{-- PHONE --}}
+                            {{-- PHONE (Bagian yang ditambahkan validasi angka & wajib diisi) --}}
                             <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Nomor WhatsApp
@@ -260,8 +262,13 @@ default => 'bg-primary-subtle text-primary'
                                     name="phone_number"
                                     class="form-control @error('phone_number') is-invalid @enderror"
                                     value="{{ old('phone_number', $user->phone_number) }}"
-                                    placeholder="08123456789">
-
+                                    placeholder="08123456789"
+                                    inputmode="numeric"
+                                    pattern="[0-9]*"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    minlength="9"
+                                    maxlength="15"
+                                    required>
 
                                 <small class="text-muted"
                                     style="font-size: 0.72rem;">
@@ -307,7 +314,7 @@ default => 'bg-primary-subtle text-primary'
 
                             @if(Auth::user()->profile_photo)
 
-                            <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}">
+                            <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Foto Profil">
 
                             @else
 
@@ -359,7 +366,7 @@ default => 'bg-primary-subtle text-primary'
 
                     <p class="mb-2">
                         <i class="bi bi-calendar-check me-2 text-success"></i>
-                        Bergabung: {{ Auth::user()->created_at->format('d M Y') }}
+                        Bergabung: {{ Auth::user()->created_at ? Auth::user()->created_at->format('d M Y') : '-' }}
                     </p>
 
                     <p class="mb-0 text-break">

@@ -25,6 +25,8 @@
         height: 180px;
         background: rgba(255, 255, 255, .08);
         border-radius: 50%;
+        pointer-events: none;
+        /* Cegah nyangkut di HP */
     }
 
     .page-header h4 {
@@ -147,7 +149,10 @@
     /* MODAL */
     .modal-modern {
         border-radius: 28px;
-        overflow: hidden;
+        overflow-y: auto;
+        /* Wajib untuk HP agar bisa scroll */
+        max-height: 85vh;
+        /* Jangan lebih dari tinggi layar HP */
         border: none;
     }
 
@@ -207,11 +212,18 @@
         padding: 12px 14px;
         font-size: .92rem;
         box-shadow: none !important;
+        transition: 0.3s;
     }
 
     .input-clean:focus {
         border-color: #10b981;
         box-shadow: 0 0 0 4px rgba(16, 185, 129, .12) !important;
+    }
+
+    /* Animasi Error Merah */
+    .shake-invalid {
+        border-color: #f43f5e !important;
+        box-shadow: 0 0 0 4px rgba(244, 63, 94, .15) !important;
     }
 
     .petunjuk-ibu {
@@ -235,7 +247,7 @@
         font-weight: 700;
     }
 
-    /* PENYESUAIAN RESPONSIVITAS (Tambahan & Optimasi Tanpa Hapus) */
+    /* PENYESUAIAN RESPONSIVITAS HP */
     @media(max-width:768px) {
         .page-header {
             padding: 20px;
@@ -248,6 +260,10 @@
 
         .table-wrapper {
             border-radius: 16px;
+        }
+
+        .modal-dialog {
+            margin: 1rem auto;
         }
 
         .modal-modern {
@@ -266,7 +282,6 @@
 
         .preview-modern {
             height: 200px;
-            /* Ukuran preview lebih pas untuk HP */
             border-radius: 16px;
         }
     }
@@ -283,7 +298,6 @@
 
         .btn-add {
             width: 100%;
-            /* Tombol Tambah Produk jadi full-width di HP agar mudah ditekan */
             text-align: center;
         }
     }
@@ -299,11 +313,8 @@
                 <p>Kelola hasil panen dan produk jualan Ibu dengan mudah.</p>
             </div>
 
-            <button class="btn btn-success btn-add"
-                data-bs-toggle="modal"
-                data-bs-target="#modalTambah">
-
-                <i class="bi bi-plus-circle-fill me-1"></i>
+            <button class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                <i class="bi bi-camera-fill me-1"></i>
                 Tambah Produk
             </button>
         </div>
@@ -314,19 +325,14 @@
     <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4">
         <i class="bi bi-check-circle-fill me-2"></i>
         {{ session('success') }}
-
-        <button type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
     {{-- TABLE --}}
     <div class="table-wrapper shadow-sm">
-
         <div class="table-responsive">
             <table class="table table-custom align-middle mb-0">
-
                 <thead>
                     <tr>
                         <th width="90">Foto</th>
@@ -336,89 +342,55 @@
                         <th width="120" class="text-center">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
-
                     @forelse($products as $p)
                     <tr>
-
                         <td>
                             <div class="product-image mx-auto">
-
                                 @if($p->foto_produk)
                                 <img src="{{ asset('storage/'.$p->foto_produk) }}">
                                 @else
                                 <i class="bi bi-image text-muted fs-3"></i>
                                 @endif
-
                             </div>
                         </td>
-
                         <td>
-                            <div class="fw-bold text-dark">
-                                {{ $p->nama_produk }}
-                            </div>
-
-                            <small class="text-muted">
-                                ID Produk #{{ $p->id }}
-                            </small>
+                            <div class="fw-bold text-dark">{{ $p->nama_produk }}</div>
+                            <small class="text-muted">ID Produk #{{ $p->id }}</small>
                         </td>
-
                         <td>
                             <span class="fw-bold text-success">
                                 Rp {{ number_format($p->harga,0,',','.') }}
                             </span>
                         </td>
-
                         <td>
                             <span class="badge-stock {{ $p->stok <= 3 ? 'badge-habis' : 'badge-aman' }}">
                                 {{ $p->stok }} {{ $p->satuan }}
                             </span>
                         </td>
-
                         <td class="text-center">
-
                             <div class="d-flex justify-content-center gap-2">
-
-                                <button class="btn-action btn-edit"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalEdit{{ $p->id }}">
-
+                                <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $p->id }}">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-
-                                <form action="{{ route('kwt.products.destroy', $p->id) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Hapus produk ini?')">
-
+                                <form action="{{ route('kwt.products.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')">
                                     @csrf
                                     @method('DELETE')
-
-                                    <button type="submit"
-                                        class="btn-action btn-delete">
-
+                                    <button type="submit" class="btn-action btn-delete">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </form>
-
                             </div>
-
                         </td>
-
                     </tr>
                     @empty
-
                     <tr>
-                        <td colspan="5"
-                            class="text-center py-5 text-muted">
-
+                        <td colspan="5" class="text-center py-5 text-muted">
                             <i class="bi bi-basket fs-1 d-block mb-2 opacity-50"></i>
                             Belum ada produk ditambahkan.
                         </td>
                     </tr>
-
                     @endforelse
-
                 </tbody>
             </table>
         </div>
@@ -428,379 +400,216 @@
 {{-- MODAL EDIT --}}
 @foreach($products as $p)
 <div class="modal fade" id="modalEdit{{ $p->id }}" tabindex="-1">
-
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-
-        <form action="{{ route('kwt.products.update', $p->id) }}"
-            method="POST"
-            enctype="multipart/form-data"
-            class="modal-content modal-modern shadow-lg">
-
-            @csrf
-            @method('PUT')
-
-            <div class="row g-0">
-
-                {{-- FOTO --}}
-                <div class="col-md-5 modal-left">
-
-                    <div class="modal-title-modern">
-                        Edit Produk
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-modern shadow-lg">
+            <form action="{{ route('kwt.products.update', $p->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="row g-0">
+                    {{-- FOTO --}}
+                    <div class="col-md-5 modal-left">
+                        <div class="modal-title-modern">Edit Produk</div>
+                        <div class="modal-subtitle">Perbarui informasi dan foto produk hasil panen.</div>
+                        <div class="preview-modern">
+                            @if($p->foto_produk)
+                            <img id="edit-img-{{ $p->id }}" src="{{ asset('storage/'.$p->foto_produk) }}">
+                            @else
+                            <i class="bi bi-image text-success" style="font-size:4rem;"></i>
+                            <img id="edit-img-{{ $p->id }}" src="" class="d-none">
+                            @endif
+                        </div>
+                        <div class="mt-3">
+                            <label class="label-modern">Ambil/Ganti Foto Produk</label>
+                            <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewEdit(this, '{{ $p->id }}')">
+                            <small class="petunjuk-ibu">*Kosongkan jika tidak ingin mengganti foto</small>
+                        </div>
                     </div>
 
-                    <div class="modal-subtitle">
-                        Perbarui informasi dan foto produk hasil panen.
+                    {{-- FORM --}}
+                    <div class="col-md-7 modal-right">
+                        <div class="mb-3">
+                            <label class="label-modern">Nama Produk <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_produk" class="form-control input-clean" value="{{ $p->nama_produk }}" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="label-modern">Harga <span class="text-danger">*</span></label>
+                                <input type="number" name="harga" class="form-control input-clean" value="{{ $p->harga }}" required>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <label class="label-modern">Stok <span class="text-danger">*</span></label>
+                                <input type="number" name="stok" class="form-control input-clean" value="{{ $p->stok }}" required>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <label class="label-modern">Satuan <span class="text-danger">*</span></label>
+                                <select name="satuan" class="form-select input-clean">
+                                    <option value="kg" {{ $p->satuan == 'kg' ? 'selected' : '' }}>Kg</option>
+                                    <option value="Ikat" {{ $p->satuan == 'Ikat' ? 'selected' : '' }}>Ikat</option>
+                                    <option value="Bungkus" {{ $p->satuan == 'Bungkus' ? 'selected' : '' }}>Bungkus</option>
+                                    <option value="Buah" {{ $p->satuan == 'Buah' ? 'selected' : '' }}>Buah</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="label-modern">Deskripsi Produk <span class="text-danger">*</span></label>
+                            <textarea name="deskripsi" rows="4" class="form-control input-clean" required>{{ $p->deskripsi }}</textarea>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-light border w-100 btn-modern-cancel" data-bs-dismiss="modal">Batal</button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-success w-100 btn-modern-save">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Simpan
+                                </button>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="preview-modern">
-
-                        @if($p->foto_produk)
-                        <img id="edit-img-{{ $p->id }}"
-                            src="{{ asset('storage/'.$p->foto_produk) }}">
-                        @else
-                        <i class="bi bi-image text-success"
-                            style="font-size:4rem;"></i>
-
-                        <img id="edit-img-{{ $p->id }}"
-                            src=""
-                            class="d-none">
-                        @endif
-
-                    </div>
-
-                    <div class="mt-3">
-
-                        <label class="label-modern">
-                            Ganti Foto Produk
-                        </label>
-
-                        <input type="file"
-                            name="foto_produk"
-                            class="form-control input-clean"
-                            accept="image/*"
-                            onchange="previewEdit(this, '{{ $p->id }}')">
-
-                        <small class="petunjuk-ibu">
-                            *Kosongkan jika tidak ingin mengganti foto
-                        </small>
-
-                    </div>
-
                 </div>
-
-                {{-- FORM --}}
-                <div class="col-md-7 modal-right">
-
-                    <div class="mb-3">
-
-                        <label class="label-modern">
-                            Nama Produk
-                        </label>
-
-                        <input type="text"
-                            name="nama_produk"
-                            class="form-control input-clean"
-                            value="{{ $p->nama_produk }}"
-                            required>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="label-modern">
-                                Harga
-                            </label>
-
-                            <input type="number"
-                                name="harga"
-                                class="form-control input-clean"
-                                value="{{ $p->harga }}"
-                                required>
-
-                        </div>
-
-                        <div class="col-md-3 col-6 mb-3">
-
-                            <label class="label-modern">
-                                Stok
-                            </label>
-
-                            <input type="number"
-                                name="stok"
-                                class="form-control input-clean"
-                                value="{{ $p->stok }}"
-                                required>
-
-                        </div>
-
-                        <div class="col-md-3 col-6 mb-3">
-
-                            <label class="label-modern">
-                                Satuan
-                            </label>
-
-                            <select name="satuan"
-                                class="form-select input-clean">
-
-                                <option value="kg" {{ $p->satuan == 'kg' ? 'selected' : '' }}>Kg</option>
-                                <option value="Ikat" {{ $p->satuan == 'Ikat' ? 'selected' : '' }}>Ikat</option>
-                                <option value="Bungkus" {{ $p->satuan == 'Bungkus' ? 'selected' : '' }}>Bungkus</option>
-                                <option value="Buah" {{ $p->satuan == 'Buah' ? 'selected' : '' }}>Buah</option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="label-modern">
-                            Deskripsi Produk <span class="text-danger">*</span>
-                        </label>
-
-                        <textarea name="deskripsi"
-                            rows="4"
-                            class="form-control input-clean @error('deskripsi') is-invalid @enderror"
-                            required>{{ $p->deskripsi }}</textarea>
-
-                        @error('deskripsi')
-                        <div class="text-danger mt-1" style="font-size: 0.8rem;">
-                            {{ $message }}
-                        </div>
-                        @enderror
-                    </div>
-
-                    <div class="row g-2">
-
-                        <div class="col-6">
-
-                            <button type="button"
-                                class="btn btn-light border w-100 btn-modern-cancel"
-                                data-bs-dismiss="modal">
-
-                                Batal
-                            </button>
-
-                        </div>
-
-                        <div class="col-6">
-
-                            <button type="submit"
-                                class="btn btn-success w-100 btn-modern-save">
-
-                                <i class="bi bi-check-circle-fill me-1"></i>
-                                Simpan
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 @endforeach
 
 {{-- MODAL TAMBAH --}}
 <div class="modal fade" id="modalTambah" tabindex="-1">
-
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-
-        <form action="{{ route('kwt.products.store') }}"
-            method="POST"
-            enctype="multipart/form-data"
-            class="modal-content modal-modern shadow-lg">
-
-            @csrf
-
-            <div class="row g-0">
-
-                {{-- FOTO --}}
-                <div class="col-md-5 modal-left">
-
-                    <div class="modal-title-modern">
-                        Tambah Produk
-                    </div>
-
-                    <div class="modal-subtitle">
-                        Upload foto hasil panen agar lebih menarik pembeli.
-                    </div>
-
-                    <div class="preview-modern">
-
-                        <i id="icon-add"
-                            class="bi bi-image text-success"
-                            style="font-size:4rem;"></i>
-
-                        <img id="preview-add"
-                            src=""
-                            class="d-none">
-
-                    </div>
-
-                    <div class="mt-3">
-
-                        <label class="label-modern">
-                            Upload Foto Produk
-                        </label>
-
-                        <input type="file"
-                            name="foto_produk"
-                            class="form-control input-clean"
-                            accept="image/*"
-                            onchange="previewAdd(this)"
-                            required>
-
-                        <small class="petunjuk-ibu">
-                            *Foto akan langsung muncul di preview atas
-                        </small>
-
-                    </div>
-
-                </div>
-
-                {{-- FORM --}}
-                <div class="col-md-7 modal-right">
-
-                    <div class="mb-3">
-
-                        <label class="label-modern">
-                            Nama Produk
-                        </label>
-
-                        <input type="text"
-                            name="nama_produk"
-                            class="form-control input-clean"
-                            placeholder="Contoh: Bayam Segar"
-                            required>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="label-modern">
-                                Harga
-                            </label>
-
-                            <input type="number"
-                                name="harga"
-                                class="form-control input-clean"
-                                placeholder="5000"
-                                required>
-
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-modern shadow-lg">
+            <form action="{{ route('kwt.products.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row g-0">
+                    {{-- FOTO --}}
+                    <div class="col-md-5 modal-left">
+                        <div class="modal-title-modern">Tambah Produk</div>
+                        <div class="modal-subtitle">Pilih foto dari Galeri atau jepret langsung dengan Kamera.</div>
+                        <div class="preview-modern">
+                            <i id="icon-add" class="bi bi-image text-success" style="font-size:4rem;"></i>
+                            <img id="preview-add" src="" class="d-none">
                         </div>
+                        <div class="mt-3">
+                            <label class="label-modern">Pilih / Jepret Foto Produk <span class="text-danger">*</span></label>
 
-                        <div class="col-md-3 col-6 mb-3">
+                            <input type="file" name="foto_produk" class="form-control input-clean" accept="image/*" onchange="previewAdd(this)" required>
 
-                            <label class="label-modern">
-                                Stok
-                            </label>
-
-                            <input type="number"
-                                name="stok"
-                                class="form-control input-clean"
-                                placeholder="10"
-                                required>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <label class="label-modern">
-                                Satuan
-                            </label>
-                            <select name="satuan"
-                                class="form-select input-clean">
-                                <option value="kg">Kg</option>
-                                <option value="Ikat">Ikat</option>
-                                <option value="Bungkus">Bungkus</option>
-                                <option value="Buah">Buah</option>
-                            </select>
+                            <small class="petunjuk-ibu mt-2 text-danger fw-bold">*Maksimal ukuran foto 2MB!</small>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="label-modern">
-                            Deskripsi Produk
-                        </label>
-                        <textarea name="deskripsi"
-                            rows="4"
-                            class="form-control input-clean"
-                            placeholder="Contoh: Sayur organik segar dipetik langsung dari kebun..." required></textarea>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button type="button"
-                                class="btn btn-light border w-100 btn-modern-cancel"
-                                data-bs-dismiss="modal">
-                                Batal
-                            </button>
+
+                    {{-- FORM --}}
+                    <div class="col-md-7 modal-right">
+                        <div class="mb-3">
+                            <label class="label-modern">Nama Produk <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_produk" class="form-control input-clean" placeholder="Contoh: Bayam Segar" required>
                         </div>
-                        <div class="col-6">
-
-                            <button type="submit"
-                                class="btn btn-success w-100 btn-modern-save">
-
-                                <i class="bi bi-check-circle-fill me-1"></i>
-                                Simpan Produk
-                            </button>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="label-modern">Harga <span class="text-danger">*</span></label>
+                                <input type="number" name="harga" class="form-control input-clean" placeholder="5000" required>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <label class="label-modern">Stok <span class="text-danger">*</span></label>
+                                <input type="number" name="stok" class="form-control input-clean" placeholder="10" required>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <label class="label-modern">Satuan <span class="text-danger">*</span></label>
+                                <select name="satuan" class="form-select input-clean">
+                                    <option value="kg">Kg</option>
+                                    <option value="Ikat">Ikat</option>
+                                    <option value="Bungkus">Bungkus</option>
+                                    <option value="Buah">Buah</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="label-modern">Deskripsi Produk <span class="text-danger">*</span></label>
+                            <textarea name="deskripsi" rows="4" class="form-control input-clean" placeholder="Contoh: Sayur organik segar..." required></textarea>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-light border w-100 btn-modern-cancel" data-bs-dismiss="modal">Batal</button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-success w-100 btn-modern-save">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Simpan Produk
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
 <script>
+    // FUNGSI CEK UKURAN FOTO AGAR TIDAK ERROR DI HP
     function previewAdd(input) {
-
         const file = input.files[0];
-
         if (file) {
+            // Cek jika ukuran foto di atas 2MB
+            if (file.size > 2 * 1024 * 1024) {
+                let ukuranMB = (file.size / 1024 / 1024).toFixed(1);
+                alert('GAGAL: Ukuran foto terlalu besar (' + ukuranMB + 'MB). \nServer maksimal 2MB! \n\nSilakan pakai foto lain atau turunkan resolusi kamera HP Anda.');
+                input.value = ''; // Hapus file yang kebesaran
+                document.getElementById('preview-add').classList.add('d-none');
+                document.getElementById('icon-add').classList.remove('d-none');
+                return;
+            }
 
             const reader = new FileReader();
-
             reader.onload = function(e) {
-
                 document.getElementById('preview-add').src = e.target.result;
-
-                document.getElementById('preview-add')
-                    .classList.remove('d-none');
-
+                document.getElementById('preview-add').classList.remove('d-none');
                 const icon = document.getElementById('icon-add');
-
                 if (icon) {
                     icon.classList.add('d-none');
                 }
             }
-
             reader.readAsDataURL(file);
         }
     }
 
     function previewEdit(input, id) {
-
         const file = input.files[0];
-
         if (file) {
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-
-                const img = document.getElementById('edit-img-' + id);
-
-                img.src = e.target.result;
-
-                img.classList.remove('d-none');
+            // Cek ukuran foto
+            if (file.size > 2 * 1024 * 1024) {
+                let ukuranMB = (file.size / 1024 / 1024).toFixed(1);
+                alert('GAGAL: Ukuran foto terlalu besar (' + ukuranMB + 'MB). \nServer maksimal 2MB!');
+                input.value = '';
+                return;
             }
 
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('edit-img-' + id);
+                img.src = e.target.result;
+                img.classList.remove('d-none');
+            }
             reader.readAsDataURL(file);
         }
     }
+
+    // FUNGSI AUTO-SCROLL JIKA ADA INPUT KOSONG (Solusi form "mati" di HP)
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('invalid', function(event) {
+                event.preventDefault(); // Matikan peringatan bawaan browser
+                let invalidField = event.target;
+
+                invalidField.classList.add('shake-invalid');
+                invalidField.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                }); // Auto geser layar ke kotak yang merah
+
+                setTimeout(() => {
+                    invalidField.classList.remove('shake-invalid');
+                }, 3000);
+            }, true);
+        });
+    });
 </script>
 @endsection

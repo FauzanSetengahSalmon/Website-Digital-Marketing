@@ -203,6 +203,7 @@
                                     required>
                             </div>
 
+                            {{-- PHONE (Ditambahkan pembatasan angka & wajib diisi) --}}
                             <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     Nomor Telepon
@@ -212,7 +213,13 @@
                                     name="phone_number"
                                     class="form-control"
                                     value="{{ old('phone_number', $user->phone_number) }}"
-                                    placeholder="08xxxxxxxxxx">
+                                    placeholder="08xxxxxxxxxx"
+                                    inputmode="numeric"
+                                    pattern="[0-9]*"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    minlength="9"
+                                    maxlength="15"
+                                    required>
                             </div>
                         </div>
 
@@ -250,7 +257,7 @@
 
                             @if(Auth::user()->profile_photo)
                             <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
-                                class="w-100 h-100 object-fit-cover">
+                                class="w-100 h-100 object-fit-cover" alt="Foto Profil">
                             @else
                             <span class="fs-1 fw-bold"
                                 style="color: var(--kwt-light);">
@@ -293,7 +300,7 @@
                         <i class="bi bi-calendar-check me-2"
                             style="color: var(--kwt-light);"></i>
 
-                        <span>Bergabung: {{ Auth::user()->created_at->format('d M Y') }}</span>
+                        <span>Bergabung: {{ Auth::user()->created_at ? Auth::user()->created_at->format('d M Y') : '-' }}</span>
                     </p>
 
                     <p class="mb-0 d-flex align-items-center text-wrap" style="word-break: break-all;">
