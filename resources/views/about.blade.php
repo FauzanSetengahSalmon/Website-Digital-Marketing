@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Tentang Kami - Tani Cibiru')
+@section('title','Tentang Kami - Tani Cibiru Wetan')
 
 @push('styles')
 <style>
@@ -253,11 +253,11 @@
             </div>
 
             <div>
-                <h1 class="about-title">Tentang Tani Cibiru</h1>
+                <h1 class="about-title">Tentang Tani Cibiru Wetan</h1>
                 <h3 class="about-sub">Sayuran Sehat dari Tangan Ibu</h3>
 
                 <p class="about-desc">
-                    Tani Cibiru adalah platform yang menghubungkan Anda dengan sayuran segar hasil panen
+                    Tani Cibiru Wetan adalah platform yang menghubungkan Anda dengan sayuran segar hasil panen
                     <b>Kelompok Wanita Tani (KWT)</b>. Kami mendistribusikan sayuran yang ditanam dengan cinta,
                     dirawat tanpa bahan kimia berbahaya, dan dipanen langsung dari pekarangan desa untuk
                     menjaga kesehatan keluarga Anda.

@@ -180,7 +180,7 @@
     .modal-modern {
         border-radius: 28px;
         overflow-y: auto;
-        max-height: 85vh;
+        max-height: 90vh;
         border: none;
     }
 
@@ -274,10 +274,12 @@
         font-weight: 700;
     }
 
+    /* MEDIA QUERIES UNTUK RESPONSIVE HP */
     @media(max-width:768px) {
         .page-header {
             padding: 20px;
             border-radius: 16px;
+            text-align: center;
         }
 
         .page-header h4 {
@@ -288,8 +290,20 @@
             border-radius: 16px;
         }
 
+        .table-custom th,
+        .table-custom td {
+            padding: 10px !important;
+            font-size: 0.85rem;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+        }
+
         .modal-dialog {
-            margin: 1rem auto;
+            margin: 0.5rem;
         }
 
         .modal-modern {
@@ -326,6 +340,19 @@
             width: 100%;
             text-align: center;
         }
+
+        /* Merapikan susunan tombol aksi di dalam tabel agar tidak gepeng di HP screen kecil */
+        .table-custom td .d-flex {
+            flex-wrap: wrap;
+            justify-content: center !important;
+            gap: 6px !important;
+        }
+
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+        }
     }
 </style>
 
@@ -340,15 +367,15 @@
             </div>
 
             <button class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#modalTambah">
-                <i class="bi bi-camera-fill me-1"></i>
+                <i class="bi bi-plus-circle-fill me-1"></i>
                 Tambah Produk
             </button>
         </div>
     </div>
 
-    {{-- PANEL OTOMATIS SAAT BARU TAMBAH PRODUK BARU --}}
+    {{-- PANEL PROMOSI INSTAGRAM OTOMATIS (SETELAH BARU TAMBAH PRODUK BARU) --}}
     @if(session('share_url'))
-    <div class="card panel-instagram-kwt border-success shadow-sm mb-4">
+    <div class="card panel-instagram-kwt border-0 shadow-sm mb-4">
         <div class="bg-success text-white p-3 d-flex align-items-center gap-2">
             <i class="bi bi-check-circle-fill fs-5"></i>
             <h6 class="fw-bold mb-0">Produk Berhasil Disimpan di Website!</h6>
@@ -361,19 +388,23 @@
             <textarea id="captionFeedKWT" class="d-none">Beli {{ session('product_name') }} segar hasil panen KWT Tani Cibiru Wetan langsung di website kami! 
 
 Harga: Rp {{ session('product_price') }}
+Pesan mudah tinggal klik link di sini bu: {{ session('share_url') }}</textarea>
 
-👉 Cara Pesan: Klik link yang ada di BIO PROFIL Instagram kami ya, atau ketik link berikut di browser HP Ibu:
-
-{{ session('share_url') }}</textarea>
-
-            <div class="p-3 border rounded-3 bg-light">
-                <div class="mb-3">
-                    <h6 class="fw-bold text-dark mb-1">Buat Postingan (Feed / Reels)</h6>
-                    <p class="text-muted small mb-0" style="font-size: 0.75rem;">Link belanja otomatis disalin ke HP. Ibu tinggal pilih foto lalu Tempel (Paste) di kolom tulisan Instagram.</p>
+            <div class="row">
+                <div class="col-12">
+                    <div class="p-3 border rounded-3 bg-light d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                        <div>
+                            <span class="badge bg-primary mb-2">Promosi Instan</span>
+                            <h6 class="fw-bold text-dark mb-1">Buat Postingan (Feed / Reels)</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.75rem;">Link belanja otomatis disalin ke HP. Ibu tinggal pilih foto lalu Tempel (Paste) di kolom tulisan Instagram.</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button onclick="salinDanBukaFeedKWT('captionFeedKWT')" class="btn btn-ig-feed px-4 py-2.5 w-100">
+                                <i class="bi bi-clipboard-check me-1"></i> Salin Tulisan & Buka IG
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="salinDanBukaFeedKWT('captionFeedKWT')" class="btn btn-ig-feed w-100 py-2">
-                    <i class="bi bi-clipboard-check me-1"></i> Salin Tulisan & Buka Feed
-                </button>
             </div>
         </div>
     </div>
@@ -391,11 +422,11 @@ Harga: Rp {{ session('product_price') }}
             <table class="table table-custom align-middle mb-0">
                 <thead>
                     <tr>
-                        <th width="90">Foto</th>
+                        <th width="80" class="text-center">Foto</th>
                         <th>Nama Produk</th>
                         <th>Harga</th>
                         <th>Stok</th>
-                        <th width="160" class="text-center">Aksi</th>
+                        <th width="150" class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -411,21 +442,22 @@ Harga: Rp {{ session('product_price') }}
                             </div>
                         </td>
                         <td>
-                            <div class="fw-bold text-dark">{{ $p->nama_produk }}</div>
-                            <small class="text-muted">ID Produk #{{ $p->id }}</small>
+                            <div class="fw-bold text-dark text-wrap" style="max-width: 180px;">{{ $p->nama_produk }}</div>
+                            <small class="text-muted">ID #{{ $p->id }}</small>
                         </td>
                         <td>
-                            <span class="fw-bold text-success">
+                            <span class="fw-bold text-success text-nowrap">
                                 Rp {{ number_format($p->harga,0,',','.') }}
                             </span>
                         </td>
                         <td>
-                            <span class="badge-stock {{ $p->stok <= 3 ? 'badge-habis' : 'badge-aman' }}">
+                            <span class="badge-stock {{ $p->stok <= 3 ? 'badge-habis' : 'badge-aman' }} text-nowrap">
                                 {{ $p->stok }} {{ $p->satuan }}
                             </span>
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
+                                {{-- TOMBOL PROMOSI INSTAGRAM --}}
                                 <button class="btn-action btn-share-ig" data-bs-toggle="modal" data-bs-target="#modalPromosi{{ $p->id }}" title="Promosikan ke IG">
                                     <i class="bi bi-instagram"></i>
                                 </button>
@@ -458,16 +490,16 @@ Harga: Rp {{ session('product_price') }}
     </div>
 </div>
 
-{{-- MODAL PROMOSI INSTAGRAM UNTUK PRODUK LAMA --}}
+{{-- MODAL PROMOSI INSTAGRAM --}}
 @foreach($products as $p)
 <div class="modal fade" id="modalPromosi{{ $p->id }}" tabindex="-1">
-    <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-modern shadow-lg">
             <div class="p-4 bg-white">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                         <h5 class="fw-bold text-dark mb-1">Promosikan Produk</h5>
-                        <p class="text-muted small mb-0">Promosikan produk <strong>{{ $p->nama_produk }}</strong> ke Postingan Instagram.</p>
+                        <p class="text-muted small mb-0">Bagikan produk <strong>{{ $p->nama_produk }}</strong> ke Instagram</p>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -477,20 +509,23 @@ Harga: Rp {{ session('product_price') }}
                 @endphp
 
                 <textarea id="captionFeedKWT{{ $p->id }}" class="d-none">Beli {{ $p->nama_produk }} segar hasil panen KWT Tani Cibiru Wetan langsung di website kami! 
+
 Harga: Rp {{ number_format($p->harga,0,',','.') }}
+Pesan mudah tinggal klik link di sini bu: {{ $productUrl }}</textarea>
 
-Pesan mudah, klik link berikut di browser HP Ibu:
-
-{{ $productUrl }}</textarea>
-
-                <div class="p-3 border rounded-3 bg-light">
-                    <div class="mb-3">
-                        <h6 class="fw-bold text-dark mb-1">Buat Postingan (Feed / Reels)</h6>
-                        <p class="text-muted small mb-0" style="font-size: 0.75rem;">Link belanja otomatis disalin ke HP. Ibu tinggal pilih foto lalu Tempel (Paste) di kolom tulisan Instagram.</p>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="p-3 border rounded-3 bg-light d-flex flex-column justify-content-between text-center text-sm-start gap-3">
+                            <div>
+                                <span class="badge bg-primary mb-2">Pilihan Posting</span>
+                                <h6 class="fw-bold text-dark mb-1">Buat Postingan (Feed / Reels)</h6>
+                                <p class="text-muted small mb-0" style="font-size: 0.75rem;">Link belanja otomatis disalin ke HP. Ibu tinggal pilih foto lalu Tempel (Paste) di Instagram.</p>
+                            </div>
+                            <button onclick="salinDanBukaFeedKWT('captionFeedKWT{{ $p->id }}')" class="btn btn-ig-feed w-100 py-2.5">
+                                <i class="bi bi-clipboard-check me-1"></i> Salin Tulisan & Buka Feed
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="salinDanBukaFeedKWT('captionFeedKWT{{ $p->id }}')" class="btn btn-ig-feed w-100 py-2">
-                        <i class="bi bi-clipboard-check me-1"></i> Salin Tulisan & Buka Feed
-                    </button>
                 </div>
             </div>
         </div>
@@ -501,7 +536,7 @@ Pesan mudah, klik link berikut di browser HP Ibu:
 {{-- MODAL EDIT --}}
 @foreach($products as $p)
 <div class="modal fade" id="modalEdit{{ $p->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content modal-modern shadow-lg">
             <form action="{{ route('kwt.products.update', $p->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -573,7 +608,7 @@ Pesan mudah, klik link berikut di browser HP Ibu:
 
 {{-- MODAL TAMBAH --}}
 <div class="modal fade" id="modalTambah" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content modal-modern shadow-lg">
             <form action="{{ route('kwt.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -642,7 +677,8 @@ Pesan mudah, klik link berikut di browser HP Ibu:
         var copyText = document.getElementById(elementId);
 
         navigator.clipboard.writeText(copyText.value).then(function() {
-            alert("✅ SUDAH TERSALIN BU!\n\nTulisan promosi & link belanja sudah disalin otomatis ke HP Ibu.\n\nSekaras silakan klik + (Tambah) di Instagram, pilih Feed/Postingan, lalu TEMPEL/PASTE tulisan tadi.");
+            alert("✅ SUDAH TERSALIN BU!\n\nTulisan promosi & link belanja sudah disalin otomatis ke HP Ibu.\n\nSekarang silakan klik + (Tambah) di Instagram, pilih Feed/Postingan, lalu TEMPEL/PASTE tulisan tadi.");
+
             window.location.href = "instagram://library";
             setTimeout(function() {
                 window.location.href = "instagram://";

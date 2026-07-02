@@ -329,7 +329,7 @@
                     {{-- Teks --}}
                     <div style="line-height: 1.1;">
                         <div style="color: #1b1b1b; font-weight: 700; font-size: 20px;">
-                            Tani <span style="color: #2d7a22;">Cibiru</span>
+                            Tani Cibiru <span style="color: #2d7a22;">Wetan</span>
                         </div>
 
                         <div class="brand-subtitle" style="font-size: 13px; color: #666; font-weight: 600; margin-top: 3px;">
@@ -471,7 +471,7 @@
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
         <div class="offcanvas-header border-bottom border-success-subtle">
             <h5 class="offcanvas-title fw-bold text-success d-flex align-items-center gap-2" id="mobileMenuLabel">
-                <i class="bi bi-leaf"></i> Tani Cibiru
+                <i class="bi bi-leaf"></i> Tani Cibiru Wetan
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
@@ -552,7 +552,7 @@
                                     style="width: 110px; height: 110px; object-fit: contain;">
                             </div>
                             <div>
-                                Tani <span>Cibiru</span>
+                                Tani Cibiru <span>Wetan</span>
                                 <div class="brand-subtitle">
                                     Kelompok Wanita Tani
                                 </div>
@@ -674,7 +674,7 @@
             <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
 
                 <span>
-                    © {{ date('Y') }} KWT Cibiru — Kelompok Wanita Tani
+                    © {{ date('Y') }} KWT Cibiru Wetan  — Kelompok Wanita Tani
                 </span>
 
                 <span style="color:#2d7a22;">
