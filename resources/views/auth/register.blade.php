@@ -446,7 +446,7 @@
                         <i class="fa-solid fa-phone"></i>
 
                         <input
-                            type="text"
+                            type="number"
                             name="phone_number"
                             value="{{ old('phone_number') }}"
                             placeholder="0812xxxxxxx"

@@ -60,7 +60,7 @@ class ProductController extends Controller
         $products = Product::where('user_id', Auth::id())->latest()->get();
         return view('kwt.list-produk', compact('products'));
     }
-
+    
     /**
      * STORE PRODUK
      */
@@ -82,9 +82,16 @@ class ProductController extends Controller
         }
 
         $data['user_id'] = Auth::id();
-        Product::create($data);
 
-        return redirect()->route('kwt.products')->with('success', 'Produk berhasil ditambahkan!');
+        $product = Product::create($data);
+        $customerProductUrl = url('/produk/' . $product->id);
+
+        return redirect()->route('kwt.products')->with([
+            'success' => 'Produk berhasil ditambahkan!',
+            'share_url' => $customerProductUrl,
+            'product_name' => $product->nama_produk,
+            'product_price' => number_format($product->harga, 0, ',', '.')
+        ]);
     }
 
     /**
