@@ -357,7 +357,7 @@
             </form>
 
             <div class="footer">
-                Belum bergabung? <a href="/register">Buat akun baru</a>
+                Belum bergabung? <a href={{ route('register') }}>Buat akun baru</a>
             </div>
         </div>
 
