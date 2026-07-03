@@ -350,7 +350,7 @@
 
                 <div class="divider">Atau masuk dengan</div>
 
-                <a href="/auth/google" class="btn-google">
+                <a href="{{ route('google.login') }}" class="btn-google">
                     <img src="image/google.png" width="20" alt="Google">
                     Akun Google
                 </a>
