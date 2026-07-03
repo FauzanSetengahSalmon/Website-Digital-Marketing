@@ -505,7 +505,7 @@ Pesan mudah tinggal klik link di sini bu: {{ session('share_url') }}</textarea>
                 </div>
 
                 @php
-                $productUrl = url('/products/'.$p->id);
+                $productUrl = url('/produk/'.$p->id);
                 @endphp
 
                 <textarea id="captionFeedKWT{{ $p->id }}" class="d-none">Beli {{ $p->nama_produk }} segar hasil panen KWT Tani Cibiru Wetan langsung di website kami! 
